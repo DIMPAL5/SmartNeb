@@ -12,10 +12,10 @@
  *  3. VITE_FIREBASE_DEFAULT_NODE (defaults to "Patient1")
  */
 
-const DEFAULT_NODE = (import.meta.env['VITE_FIREBASE_DEFAULT_NODE'] as string) || "Patient1";
+const DEFAULT_NODE = (import.meta.env["VITE_FIREBASE_DEFAULT_NODE"] as string) || "Patient1";
 
 function parsedMap(): Record<string, string> {
-  const raw = import.meta.env['VITE_FIREBASE_DEVICE_MAP'] as string | undefined;
+  const raw = import.meta.env["VITE_FIREBASE_DEVICE_MAP"] as string | undefined;
   if (!raw) return {};
   try {
     const parsed: unknown = JSON.parse(raw);

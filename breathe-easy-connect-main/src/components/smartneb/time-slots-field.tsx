@@ -66,9 +66,7 @@ export function TimeSlotsField({
           ))}
         </ul>
       ) : (
-        <p className="text-xs text-muted-foreground">
-          {t("patient.timeSlots.noneNote")}
-        </p>
+        <p className="text-xs text-muted-foreground">{t("patient.timeSlots.noneNote")}</p>
       )}
     </div>
   );

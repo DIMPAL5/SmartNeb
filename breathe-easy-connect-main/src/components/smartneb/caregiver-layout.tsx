@@ -34,9 +34,17 @@ export function useCarePatients() {
     };
     const channel = supabase
       .channel("caregiver-portal-live")
-      .on("postgres_changes", { event: "*", schema: "public", table: "health_telemetry" }, invalidate)
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "health_telemetry" },
+        invalidate,
+      )
       .on("postgres_changes", { event: "*", schema: "public", table: "alerts" }, invalidate)
-      .on("postgres_changes", { event: "*", schema: "public", table: "nebulization_sessions" }, invalidate)
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "nebulization_sessions" },
+        invalidate,
+      )
       .on("postgres_changes", { event: "*", schema: "public", table: "sos_events" }, invalidate)
       .subscribe();
     return () => {
@@ -55,12 +63,20 @@ function CareIndicators({ patients }: { patients: CaregiverPatientRow[] }) {
   return (
     <div className="mr-1 flex items-center gap-1.5">
       {sos > 0 ? (
-        <Badge variant="destructive" className="gap-1" aria-label={t("caregiver.activeEmergenciesAria", { count: sos })}>
+        <Badge
+          variant="destructive"
+          className="gap-1"
+          aria-label={t("caregiver.activeEmergenciesAria", { count: sos })}
+        >
           <Siren className="size-3" aria-hidden /> {sos} {t("caregiver.sos")}
         </Badge>
       ) : null}
       {critical > 0 ? (
-        <Badge variant="destructive" className="gap-1" aria-label={t("caregiver.criticalAlertsAria", { count: critical })}>
+        <Badge
+          variant="destructive"
+          className="gap-1"
+          aria-label={t("caregiver.criticalAlertsAria", { count: critical })}
+        >
           <AlertTriangle className="size-3" aria-hidden /> {critical}
         </Badge>
       ) : null}

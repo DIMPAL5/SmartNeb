@@ -34,10 +34,10 @@ function DoctorSOSPage() {
           <div className="panel flex items-start gap-3 border-critical/40 bg-critical/5 p-5">
             <Siren className="mt-0.5 size-5 text-critical" aria-hidden />
             <div>
-              <h2 className="font-display text-sm font-semibold">{t("doctor.sos.protocolTitle")}</h2>
-              <p className="mt-1 text-sm text-muted-foreground">
-                {t("doctor.sos.protocolBody")}
-              </p>
+              <h2 className="font-display text-sm font-semibold">
+                {t("doctor.sos.protocolTitle")}
+              </h2>
+              <p className="mt-1 text-sm text-muted-foreground">{t("doctor.sos.protocolBody")}</p>
             </div>
           </div>
 

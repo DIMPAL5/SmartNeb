@@ -67,7 +67,8 @@ export const hi_patient: Record<string, string> = {
   "patient.dashboard.unableConnect": "डिवाइस डेटा से जुड़ने में असमर्थ",
   "patient.dashboard.onlineLive": "डिवाइस ऑनलाइन · लाइव ESP32 टेलीमेट्री",
   "patient.dashboard.updatedSuffix": " · {time} अपडेट हुआ",
-  "patient.dashboard.offlineLastReading": "डिवाइस ऑफ़लाइन — अंतिम संग्रहीत रीडिंग दिखाई जा रही है ({fresh})",
+  "patient.dashboard.offlineLastReading":
+    "डिवाइस ऑफ़लाइन — अंतिम संग्रहीत रीडिंग दिखाई जा रही है ({fresh})",
   "patient.dashboard.esp32Connected": "ESP32 जुड़ा हुआ",
   "patient.dashboard.esp32Offline": "ESP32 ऑफ़लाइन",
   "patient.dashboard.cloudLinked": "डिवाइस क्लाउड जुड़ा हुआ",
@@ -98,7 +99,8 @@ export const hi_patient: Record<string, string> = {
   "patient.dashboard.noActiveAlerts": "कोई सक्रिय अलर्ट नहीं। सभी रीडिंग सामान्य सीमा में हैं।",
   "patient.dashboard.sosHistoryTitle": "मेरा आपातकालीन SOS इतिहास",
   "patient.dashboard.sosSentTitle": "आपातकालीन SOS भेजा गया",
-  "patient.dashboard.sosSentDesc": "{count} केयर टीम सदस्य(यों) को आपके नवीनतम वाइटल्स के साथ सूचित किया गया।",
+  "patient.dashboard.sosSentDesc":
+    "{count} केयर टीम सदस्य(यों) को आपके नवीनतम वाइटल्स के साथ सूचित किया गया।",
 
   "patient.adherence.subtitle": "पिछले 30 दिनों में आपकी चिकित्सा निरंतरता",
   "patient.adherence.score": "अनुपालन स्कोर",
@@ -155,7 +157,8 @@ export const hi_patient: Record<string, string> = {
 
   "patient.nebulization.subtitle": "सत्र इतिहास और परिणाम",
   "patient.nebulization.noneTitle": "अभी तक कोई सत्र नहीं",
-  "patient.nebulization.noneDesc": "मेरा नेबुलाइज़र पृष्ठ से एक सत्र शुरू करें और यह यहाँ दिखाई देगा।",
+  "patient.nebulization.noneDesc":
+    "मेरा नेबुलाइज़र पृष्ठ से एक सत्र शुरू करें और यह यहाँ दिखाई देगा।",
   "patient.nebulization.colStarted": "शुरू हुआ",
   "patient.nebulization.colMedication": "दवा",
   "patient.nebulization.colDuration": "अवधि",
@@ -196,7 +199,8 @@ export const hi_patient: Record<string, string> = {
   "patient.profile.dob": "जन्म तिथि",
   "patient.profile.device": "डिवाइस",
   "patient.profile.firmware": "फर्मवेयर",
-  "patient.profile.maintainedNote": "चिकित्सा रिकॉर्ड फ़ील्ड आपकी देखभाल टीम द्वारा बनाए रखी जाती हैं।",
+  "patient.profile.maintainedNote":
+    "चिकित्सा रिकॉर्ड फ़ील्ड आपकी देखभाल टीम द्वारा बनाए रखी जाती हैं।",
 
   "patient.reports.subtitle": "क्लिनिकल सारांश जिन्हें आप प्रिंट या साझा कर सकते हैं",
   "patient.reports.lastDays": "पिछले {days} दिन",

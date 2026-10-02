@@ -1,12 +1,20 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, TextInput, TouchableOpacity, Alert } from 'react-native';
-import { apiClient } from '../../api/client';
-import { VitalsCard } from '../../components/VitalsCard';
+import React, { useState, useEffect } from "react";
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  TextInput,
+  TouchableOpacity,
+  Alert,
+} from "react-native";
+import { apiClient } from "../../api/client";
+import { VitalsCard } from "../../components/VitalsCard";
 
 export const PatientDetailScreen = ({ route }: any) => {
   const patient = route.params?.patient || {};
   const [snapshot, setSnapshot] = useState<any>(null);
-  const [noteText, setNoteText] = useState('');
+  const [noteText, setNoteText] = useState("");
 
   const fetchSnapshot = async () => {
     try {
@@ -26,14 +34,14 @@ export const PatientDetailScreen = ({ route }: any) => {
   const handleAddNote = async () => {
     if (!noteText.trim()) return;
     try {
-      await apiClient.post('/clinical-notes', {
+      await apiClient.post("/clinical-notes", {
         patientId: patient.id,
-        note: noteText
+        note: noteText,
       });
-      setNoteText('');
-      Alert.alert('Saved', 'Clinical note saved securely.');
+      setNoteText("");
+      Alert.alert("Saved", "Clinical note saved securely.");
     } catch (e) {
-      Alert.alert('Error', 'Failed to save note.');
+      Alert.alert("Error", "Failed to save note.");
     }
   };
 
@@ -42,22 +50,19 @@ export const PatientDetailScreen = ({ route }: any) => {
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.scroll}>
       <Text style={styles.patientName}>{patient.fullName}</Text>
-      <Text style={styles.mrn}>MRN: {patient.mrn} | Condition: {patient.condition}</Text>
+      <Text style={styles.mrn}>
+        MRN: {patient.mrn} | Condition: {patient.condition}
+      </Text>
 
       {/* Live Vitals Snapshot */}
       <Text style={styles.sectionHeader}>Live Clinical Telemetry</Text>
       <VitalsCard
         label="Blood Oxygen (SpO2)"
-        value={latest.spo2 ? `${latest.spo2}%` : '98%'}
+        value={latest.spo2 ? `${latest.spo2}%` : "98%"}
         unit="SpO2"
-        status={latest.spo2 && latest.spo2 < 92 ? 'critical' : 'normal'}
+        status={latest.spo2 && latest.spo2 < 92 ? "critical" : "normal"}
       />
-      <VitalsCard
-        label="Heart Rate"
-        value={latest.bpm || '76'}
-        unit="BPM"
-        status="normal"
-      />
+      <VitalsCard label="Heart Rate" value={latest.bpm || "76"} unit="BPM" status="normal" />
 
       {/* Private Clinical Notes Editor */}
       <Text style={styles.sectionHeader}>Doctor Private Clinical Notes</Text>
@@ -80,13 +85,32 @@ export const PatientDetailScreen = ({ route }: any) => {
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#0f172a' },
+  container: { flex: 1, backgroundColor: "#0f172a" },
   scroll: { padding: 18 },
-  patientName: { color: '#f8fafc', fontSize: 24, fontWeight: '900' },
-  mrn: { color: '#38bdf8', fontSize: 13, marginBottom: 16 },
-  sectionHeader: { color: '#cbd5e1', fontSize: 16, fontWeight: '700', marginTop: 16, marginBottom: 10 },
-  noteCard: { backgroundColor: '#1e293b', borderRadius: 16, padding: 14 },
-  noteInput: { backgroundColor: '#0f172a', borderRadius: 12, padding: 12, color: '#f8fafc', minHeight: 90, textAlignVertical: 'top' },
-  saveBtn: { backgroundColor: '#0284c7', padding: 12, borderRadius: 10, alignItems: 'center', marginTop: 10 },
-  saveBtnText: { color: '#ffffff', fontWeight: '700', fontSize: 14 },
+  patientName: { color: "#f8fafc", fontSize: 24, fontWeight: "900" },
+  mrn: { color: "#38bdf8", fontSize: 13, marginBottom: 16 },
+  sectionHeader: {
+    color: "#cbd5e1",
+    fontSize: 16,
+    fontWeight: "700",
+    marginTop: 16,
+    marginBottom: 10,
+  },
+  noteCard: { backgroundColor: "#1e293b", borderRadius: 16, padding: 14 },
+  noteInput: {
+    backgroundColor: "#0f172a",
+    borderRadius: 12,
+    padding: 12,
+    color: "#f8fafc",
+    minHeight: 90,
+    textAlignVertical: "top",
+  },
+  saveBtn: {
+    backgroundColor: "#0284c7",
+    padding: 12,
+    borderRadius: 10,
+    alignItems: "center",
+    marginTop: 10,
+  },
+  saveBtnText: { color: "#ffffff", fontWeight: "700", fontSize: 14 },
 });

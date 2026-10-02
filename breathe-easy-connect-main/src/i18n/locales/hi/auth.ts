@@ -58,11 +58,9 @@ export const hi_auth: Record<string, string> = {
   "landing.feature.sos.body":
     "एक टैप नियुक्त चिकित्सक और देखभालकर्ता को नवीनतम वाइटल्स के साथ सूचित करता है।",
   "landing.feature.telemetry.title": "डिवाइस टेलीमेट्री",
-  "landing.feature.telemetry.body":
-    "बैटरी, चैंबर स्तर, MQTT और क्लाउड कनेक्टिविटी एक नज़र में।",
+  "landing.feature.telemetry.body": "बैटरी, चैंबर स्तर, MQTT और क्लाउड कनेक्टिविटी एक नज़र में।",
   "landing.feature.assistant.title": "AI सहायक",
-  "landing.feature.assistant.body":
-    "मरीज के अपने डेटा पर आधारित सरल भाषा में उत्तर।",
+  "landing.feature.assistant.body": "मरीज के अपने डेटा पर आधारित सरल भाषा में उत्तर।",
   "landing.feature.access.title": "भूमिका-आधारित पहुंच",
   "landing.feature.access.body":
     "मरीज, डॉक्टर, देखभालकर्ता और एडमिन केवल वही देखते हैं जो उन्हें देखना चाहिए।",

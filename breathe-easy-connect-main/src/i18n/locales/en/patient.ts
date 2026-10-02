@@ -23,8 +23,7 @@ export const en_patient: Record<string, string> = {
   "patient.neb.stop": "Stop",
   "patient.neb.offlineSimulatorNote":
     "Device is offline — running in simulator mode. The session is recorded in your record, but the physical nebulizer is not switched on.",
-  "patient.neb.stateReflectsNote":
-    "State reflects the last confirmation received from the device.",
+  "patient.neb.stateReflectsNote": "State reflects the last confirmation received from the device.",
   "patient.neb.confirmTitle": "Start nebulization session?",
   "patient.neb.minuteSession": "{minutes} minute session.",
   "patient.neb.confirmSimulatedNote":

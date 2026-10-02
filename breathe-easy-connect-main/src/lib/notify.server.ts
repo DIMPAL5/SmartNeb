@@ -36,7 +36,10 @@ export async function careTeamUserIds(patientId: string, exclude: string[] = [])
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   const [patient, doctorLinks, caregiverLinks] = await Promise.all([
     supabaseAdmin.from("patients").select("user_id").eq("id", patientId).maybeSingle(),
-    supabaseAdmin.from("doctor_patient_assignments").select("doctor_id").eq("patient_id", patientId),
+    supabaseAdmin
+      .from("doctor_patient_assignments")
+      .select("doctor_id")
+      .eq("patient_id", patientId),
     supabaseAdmin
       .from("caregiver_patient_assignments")
       .select("caregiver_id")

@@ -12,10 +12,14 @@ export const Route = createFileRoute("/_authenticated/patient/adherence")({
       { title: "Therapy Adherence — SmartNeb" },
       {
         name: "description",
-        content: "Track your therapy adherence score, completed sessions and missed doses over the last 30 days.",
+        content:
+          "Track your therapy adherence score, completed sessions and missed doses over the last 30 days.",
       },
       { property: "og:title", content: "Therapy Adherence — SmartNeb" },
-      { property: "og:description", content: "See how consistently you follow your prescribed therapy." },
+      {
+        property: "og:description",
+        content: "See how consistently you follow your prescribed therapy.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
@@ -49,7 +53,9 @@ function AdherenceBody({ patientId }: { patientId: string }) {
     <div className="space-y-6">
       <section className="grid gap-6 lg:grid-cols-3">
         <div className="panel flex flex-col items-center gap-3 p-6">
-          <p className="self-start font-display text-sm font-semibold">{t("patient.adherence.score")}</p>
+          <p className="self-start font-display text-sm font-semibold">
+            {t("patient.adherence.score")}
+          </p>
           <Gauge value={score} label={t("patient.adherence.last30")} unit="%" />
         </div>
         <div className="panel grid grid-cols-3 gap-4 p-6 lg:col-span-2">
@@ -60,13 +66,17 @@ function AdherenceBody({ patientId }: { patientId: string }) {
           ].map(([labelKey, value, tone]) => (
             <div key={String(labelKey)} className="rounded-xl border bg-surface-2 p-4">
               <p className="text-xs text-muted-foreground">{t(String(labelKey))}</p>
-              <p className="mt-1 font-display text-3xl font-semibold tabular-nums">{Number(value)}</p>
+              <p className="mt-1 font-display text-3xl font-semibold tabular-nums">
+                {Number(value)}
+              </p>
               <div className="mt-2">
                 <StatusBadge
                   status={tone as "normal" | "warning" | "critical"}
                   label={
                     total
-                      ? t("patient.adherence.pctOfDoses", { pct: Math.round((Number(value) / total) * 100) })
+                      ? t("patient.adherence.pctOfDoses", {
+                          pct: Math.round((Number(value) / total) * 100),
+                        })
                       : t("patient.adherence.noDoses")
                   }
                 />
@@ -79,7 +89,10 @@ function AdherenceBody({ patientId }: { patientId: string }) {
       <section className="panel p-5">
         <p className="mb-3 font-display text-sm font-semibold">{t("patient.adherence.doseLog")}</p>
         {records.length === 0 ? (
-          <EmptyState title={t("patient.adherence.noScheduledTitle")} description={t("patient.adherence.noScheduledDesc")} />
+          <EmptyState
+            title={t("patient.adherence.noScheduledTitle")}
+            description={t("patient.adherence.noScheduledDesc")}
+          />
         ) : (
           <ul className="grid gap-2 sm:grid-cols-2">
             {records.map((r) => (
@@ -90,7 +103,11 @@ function AdherenceBody({ patientId }: { patientId: string }) {
                 <span>{new Date(r.scheduled_for).toLocaleDateString()}</span>
                 <StatusBadge
                   status={
-                    r.status === "completed" ? "normal" : r.status === "missed" ? "critical" : "warning"
+                    r.status === "completed"
+                      ? "normal"
+                      : r.status === "missed"
+                        ? "critical"
+                        : "warning"
                   }
                   label={r.status}
                 />

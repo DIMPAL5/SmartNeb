@@ -70,7 +70,6 @@ export const doctorNav: NavItem[] = [
   { labelKey: "nav.settings", to: "/doctor/settings", icon: Settings },
 ];
 
-
 export const caregiverNav: NavItem[] = [
   { labelKey: "nav.dashboard", to: "/caregiver/dashboard", icon: HeartHandshake },
   { labelKey: "nav.myPatients", to: "/caregiver/patients", icon: Users },
@@ -88,7 +87,6 @@ export const adminNav: NavItem[] = [
 export const superAdminNav: NavItem[] = [
   { labelKey: "nav.platformConsole", to: "/super-admin/dashboard", icon: ShieldCheck },
 ];
-
 
 export const roleHome: Record<MeContext["role"], string> = {
   patient: "/patient/dashboard",
@@ -173,10 +171,8 @@ function NotificationBell() {
     if (signedIn !== true) return;
     const channel = supabase
       .channel("notification-bell-live")
-      .on(
-        "postgres_changes",
-        { event: "*", schema: "public", table: "notifications" },
-        () => invalidate(),
+      .on("postgres_changes", { event: "*", schema: "public", table: "notifications" }, () =>
+        invalidate(),
       )
       .subscribe();
     return () => {
@@ -213,7 +209,8 @@ function NotificationBell() {
       <PopoverContent align="end" className="w-80 p-0">
         <div className="flex items-center justify-between gap-2 border-b px-4 py-3">
           <p className="font-display text-sm font-semibold">
-            {t("notifications.title")}{unread > 0 ? ` (${unread})` : ""}
+            {t("notifications.title")}
+            {unread > 0 ? ` (${unread})` : ""}
           </p>
           <div className="flex items-center gap-1">
             <Button
@@ -312,9 +309,7 @@ export function AppShell({
       <div className="flex min-h-screen items-center justify-center bg-background px-6">
         <div className="panel w-full max-w-md space-y-4 p-8 text-center">
           <h1 className="font-display text-xl font-semibold">{t("account.deactivated")}</h1>
-          <p className="text-sm text-muted-foreground">
-{t("account.deactivatedBody")}
-          </p>
+          <p className="text-sm text-muted-foreground">{t("account.deactivatedBody")}</p>
           <Button variant="outline" className="w-full" onClick={signOut}>
             <LogOut className="mr-2 size-3.5" /> {t("action.signOut")}
           </Button>
@@ -325,7 +320,6 @@ export function AppShell({
 
   return (
     <div className="min-h-screen bg-background">
-
       <div className="mx-auto flex w-full max-w-[1600px]">
         <aside className="sticky top-0 hidden h-screen w-64 shrink-0 flex-col border-r border-sidebar-border bg-sidebar p-4 lg:flex">
           <Brand />
@@ -346,7 +340,12 @@ export function AppShell({
             <div className="flex items-center gap-3 px-4 py-3 sm:px-6">
               <Sheet open={open} onOpenChange={setOpen}>
                 <SheetTrigger asChild>
-                  <Button variant="ghost" size="icon" className="lg:hidden" aria-label={t("nav.openMenu")}>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="lg:hidden"
+                    aria-label={t("nav.openMenu")}
+                  >
                     <Menu className="size-5" />
                   </Button>
                 </SheetTrigger>

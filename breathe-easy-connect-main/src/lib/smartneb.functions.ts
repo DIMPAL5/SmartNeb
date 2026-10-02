@@ -131,7 +131,11 @@ export const getPatientSnapshot = createServerFn({ method: "GET" })
 
 const seriesInput = z.object({
   patientId: z.string().uuid(),
-  minutes: z.number().int().min(5).max(60 * 24 * 30),
+  minutes: z
+    .number()
+    .int()
+    .min(5)
+    .max(60 * 24 * 30),
 });
 
 export const getTelemetrySeries = createServerFn({ method: "GET" })
@@ -258,7 +262,11 @@ export const startSession = createServerFn({ method: "POST" })
 const sessionUpdate = z.object({
   sessionId: z.string().uuid(),
   action: z.enum(["ack", "heartbeat", "pause", "resume", "stop", "complete"]),
-  elapsedSeconds: z.number().int().min(0).max(60 * 60 * 4),
+  elapsedSeconds: z
+    .number()
+    .int()
+    .min(0)
+    .max(60 * 60 * 4),
 });
 
 export const updateSession = createServerFn({ method: "POST" })
@@ -520,7 +528,9 @@ export const triggerSOS = createServerFn({ method: "POST" })
       ...(caresResult.data ?? []).map(
         (c) => (c.caregivers as { user_id: string | null } | null)?.user_id,
       ),
-    ].filter((value, index, all): value is string => Boolean(value) && all.indexOf(value) === index);
+    ].filter(
+      (value, index, all): value is string => Boolean(value) && all.indexOf(value) === index,
+    );
 
     if (recipients.length) {
       const device = deviceResult.data;
@@ -803,7 +813,9 @@ export const buildReport = createServerFn({ method: "POST" })
     const vitals = health.data ?? [];
     const avg = (key: "bpm" | "spo2" | "body_temperature") => {
       const nums = vitals.map((v: any) => Number(v[key])).filter((n) => Number.isFinite(n));
-      return nums.length ? Number((nums.reduce((a, b) => a + b, 0) / nums.length).toFixed(1)) : null;
+      return nums.length
+        ? Number((nums.reduce((a, b) => a + b, 0) / nums.length).toFixed(1))
+        : null;
     };
     const min = (key: "spo2") => {
       const nums = vitals.map((v: any) => Number(v[key])).filter((n) => Number.isFinite(n));
@@ -868,7 +880,6 @@ export const buildReport = createServerFn({ method: "POST" })
 
     return payload;
   });
-
 
 /* ------------------------------------------------------------------ */
 /* Device simulator (labelled, dev/demo telemetry source)             */

@@ -12,10 +12,14 @@ export const Route = createFileRoute("/_authenticated/patient/nebulization")({
       { title: "Nebulization Sessions — SmartNeb" },
       {
         name: "description",
-        content: "Full history of your nebulization sessions with duration, medication and completion state.",
+        content:
+          "Full history of your nebulization sessions with duration, medication and completion state.",
       },
       { property: "og:title", content: "Nebulization Sessions — SmartNeb" },
-      { property: "og:description", content: "Review every therapy session logged by your device." },
+      {
+        property: "og:description",
+        content: "Review every therapy session logged by your device.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],

@@ -17,7 +17,10 @@ export const Route = createFileRoute("/_authenticated/caregiver/care-plans")({
           "Read-only view of doctor-prescribed medication, dosage, schedule, duration and instructions for your assigned patients.",
       },
       { property: "og:title", content: "Care Plans — SmartNeb Caregiver" },
-      { property: "og:description", content: "Prescribed therapy plans for the patients you support." },
+      {
+        property: "og:description",
+        content: "Prescribed therapy plans for the patients you support.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
@@ -43,7 +46,10 @@ function CarePlansPage() {
         ) : q.isError ? (
           <ErrorState message={(q.error as Error)?.message} onRetry={() => q.refetch()} />
         ) : q.data.length === 0 ? (
-          <EmptyState title={t("caregiver.noCarePlans")} description={t("caregiver.noCarePlansDescription")} />
+          <EmptyState
+            title={t("caregiver.noCarePlans")}
+            description={t("caregiver.noCarePlansDescription")}
+          />
         ) : (
           <div className="space-y-3">
             <p className="text-xs text-muted-foreground">{t("caregiver.readOnlyPlanNotice")}</p>
@@ -62,10 +68,14 @@ function CarePlansPage() {
                       >
                         {plan.patientName} · {plan.mrn}
                       </Link>
-                      {plan.doctorName ? ` · ${t("caregiver.prescribedBy", { name: plan.doctorName })}` : ""}
+                      {plan.doctorName
+                        ? ` · ${t("caregiver.prescribedBy", { name: plan.doctorName })}`
+                        : ""}
                     </p>
                   </div>
-                  <Badge variant={plan.status === "published" ? "default" : "outline"}>{plan.status}</Badge>
+                  <Badge variant={plan.status === "published" ? "default" : "outline"}>
+                    {plan.status}
+                  </Badge>
                 </div>
                 <dl className="mt-3 grid gap-3 text-sm sm:grid-cols-4">
                   {[

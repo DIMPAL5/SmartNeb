@@ -66,7 +66,8 @@ export const Route = createFileRoute("/_authenticated/doctor/patients/$patientId
       { property: "og:title", content: "Patient Workspace — SmartNeb Clinician" },
       {
         property: "og:description",
-        content: "Live vitals, therapy adherence, care plans and clinical notes for one assigned patient.",
+        content:
+          "Live vitals, therapy adherence, care plans and clinical notes for one assigned patient.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -254,7 +255,9 @@ function Workspace({
                   ? "warning"
                   : "normal"
           }
-          hint={detail.battery?.charging ? t("doctor.vitals.charging") : t("doctor.vitals.onBattery")}
+          hint={
+            detail.battery?.charging ? t("doctor.vitals.charging") : t("doctor.vitals.onBattery")
+          }
           icon={<BatteryCharging className="size-4" aria-hidden />}
         />
       </div>
@@ -268,8 +271,12 @@ function Workspace({
               {detail.device
                 ? t("doctor.workspace.connectivityValue", {
                     status: detail.device.status,
-                    mqtt: detail.device.mqtt_connected ? t("doctor.workspace.up") : t("doctor.workspace.down"),
-                    cloud: detail.device.cloud_connected ? t("doctor.workspace.up") : t("doctor.workspace.down"),
+                    mqtt: detail.device.mqtt_connected
+                      ? t("doctor.workspace.up")
+                      : t("doctor.workspace.down"),
+                    cloud: detail.device.cloud_connected
+                      ? t("doctor.workspace.up")
+                      : t("doctor.workspace.down"),
                   })
                 : t("doctor.workspace.noDeviceAssigned")}
             </dd>
@@ -331,9 +338,7 @@ function Workspace({
         </TabsContent>
       </Tabs>
 
-      <p className="text-xs text-muted-foreground">
-        {t("app.disclaimer")}
-      </p>
+      <p className="text-xs text-muted-foreground">{t("app.disclaimer")}</p>
     </div>
   );
 }
@@ -378,11 +383,16 @@ function TrendsPanel({ patientId, signedIn }: { patientId: string; signedIn: boo
       {series.isPending ? (
         <LoadingSkeleton rows={2} />
       ) : health.length === 0 ? (
-        <EmptyState title={t("doctor.trends.noTelemetry")} description={t("doctor.trends.pickLonger")} />
+        <EmptyState
+          title={t("doctor.trends.noTelemetry")}
+          description={t("doctor.trends.pickLonger")}
+        />
       ) : (
         <div className="grid gap-4 xl:grid-cols-2">
           <div className="panel p-5">
-            <h4 className="font-display text-sm font-semibold">{t("doctor.vitals.oxygenSaturation")}</h4>
+            <h4 className="font-display text-sm font-semibold">
+              {t("doctor.vitals.oxygenSaturation")}
+            </h4>
             <TrendChart
               data={health}
               area
@@ -390,7 +400,9 @@ function TrendsPanel({ patientId, signedIn }: { patientId: string; signedIn: boo
             />
           </div>
           <div className="panel p-5">
-            <h4 className="font-display text-sm font-semibold">{t("doctor.trends.heartRateTemp")}</h4>
+            <h4 className="font-display text-sm font-semibold">
+              {t("doctor.trends.heartRateTemp")}
+            </h4>
             <TrendChart
               data={health}
               series={[
@@ -426,12 +438,20 @@ function AlertsPanel({ patientId, signedIn }: { patientId: string; signedIn: boo
 
   if (alerts.isPending) return <LoadingSkeleton rows={3} />;
   if (!alerts.data?.length)
-    return <EmptyState title={t("doctor.alerts.noAlerts")} description={t("doctor.alerts.noAlertsDesc")} />;
+    return (
+      <EmptyState
+        title={t("doctor.alerts.noAlerts")}
+        description={t("doctor.alerts.noAlertsDesc")}
+      />
+    );
 
   return (
     <ul className="space-y-2">
       {alerts.data.map((a) => (
-        <li key={a.id} className="panel flex flex-wrap items-center justify-between gap-3 px-4 py-3">
+        <li
+          key={a.id}
+          className="panel flex flex-wrap items-center justify-between gap-3 px-4 py-3"
+        >
           <div className="min-w-0">
             <p className="text-sm font-medium">{a.message}</p>
             <p className="mt-0.5 text-xs text-muted-foreground">
@@ -445,7 +465,13 @@ function AlertsPanel({ patientId, signedIn }: { patientId: string; signedIn: boo
           </div>
           <div className="flex items-center gap-2">
             <StatusBadge
-              status={a.severity === "critical" ? "critical" : a.severity === "warning" ? "warning" : "normal"}
+              status={
+                a.severity === "critical"
+                  ? "critical"
+                  : a.severity === "warning"
+                    ? "warning"
+                    : "normal"
+              }
               label={a.severity}
             />
             <Badge variant="outline">{a.status}</Badge>
@@ -514,7 +540,9 @@ function AdherencePanel({ patientId, signedIn }: { patientId: string; signedIn: 
         )}
       </div>
       <div className="panel p-5">
-        <h4 className="font-display text-sm font-semibold">{t("doctor.adherence.recentSessions")}</h4>
+        <h4 className="font-display text-sm font-semibold">
+          {t("doctor.adherence.recentSessions")}
+        </h4>
         {(sessions.data ?? []).length === 0 ? (
           <p className="mt-3 text-sm text-muted-foreground">{t("doctor.adherence.noSessions")}</p>
         ) : (
@@ -529,7 +557,9 @@ function AdherencePanel({ patientId, signedIn }: { patientId: string; signedIn: 
                 </span>
                 <span className="tabular-nums">
                   {t("doctor.adherence.sessionProgress", {
-                    percent: Math.round((s.elapsed_seconds / Math.max(1, s.prescribed_seconds)) * 100),
+                    percent: Math.round(
+                      (s.elapsed_seconds / Math.max(1, s.prescribed_seconds)) * 100,
+                    ),
                     status: s.status,
                   })}
                 </span>
@@ -592,7 +622,10 @@ function NotesPanel({ patientId, signedIn }: { patientId: string; signedIn: bool
       {notes.isPending ? (
         <LoadingSkeleton rows={2} />
       ) : !notes.data?.length ? (
-        <EmptyState title={t("doctor.notes.emptyTitle")} description={t("doctor.notes.emptyDesc")} />
+        <EmptyState
+          title={t("doctor.notes.emptyTitle")}
+          description={t("doctor.notes.emptyDesc")}
+        />
       ) : (
         <ul className="space-y-2">
           {notes.data.map((n: any) => (
@@ -724,7 +757,8 @@ function CarePlanList({ patientId }: { patientId: string }) {
                 {plan.medication} · {plan.dosage}
               </p>
               <p className="text-xs text-muted-foreground">
-                {plan.duration_minutes} min · {plan.frequency_per_day}x daily · from {plan.start_date}
+                {plan.duration_minutes} min · {plan.frequency_per_day}x daily · from{" "}
+                {plan.start_date}
                 {plan.end_date ? ` to ${plan.end_date}` : ""}
               </p>
               {plan.time_slots?.length ? (

@@ -12,7 +12,10 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as DeleteAccountRouteImport } from './routes/delete-account'
+import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
+import { Route as TermsRouteImport } from './routes/terms'
 import { Route as AuthenticatedAdminDashboardRouteImport } from './routes/_authenticated/admin/dashboard'
 import { Route as AuthenticatedCaregiverAlertsRouteImport } from './routes/_authenticated/caregiver/alerts'
 import { Route as AuthenticatedCaregiverCarePlansRouteImport } from './routes/_authenticated/caregiver/care-plans'
@@ -60,9 +63,24 @@ const AuthRoute = AuthRouteImport.update({
   path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DeleteAccountRoute = DeleteAccountRouteImport.update({
+  id: '/delete-account',
+  path: '/delete-account',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PrivacyRoute = PrivacyRouteImport.update({
+  id: '/privacy',
+  path: '/privacy',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ResetPasswordRoute = ResetPasswordRouteImport.update({
   id: '/reset-password',
   path: '/reset-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TermsRoute = TermsRouteImport.update({
+  id: '/terms',
+  path: '/terms',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedAdminDashboardRoute =
@@ -260,7 +278,10 @@ const ApiPublicCronEvaluateAlertsRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/delete-account': typeof DeleteAccountRoute
+  '/privacy': typeof PrivacyRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/terms': typeof TermsRoute
   '/admin/dashboard': typeof AuthenticatedAdminDashboardRoute
   '/caregiver/alerts': typeof AuthenticatedCaregiverAlertsRoute
   '/caregiver/care-plans': typeof AuthenticatedCaregiverCarePlansRoute
@@ -297,7 +318,10 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/delete-account': typeof DeleteAccountRoute
+  '/privacy': typeof PrivacyRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/terms': typeof TermsRoute
   '/admin/dashboard': typeof AuthenticatedAdminDashboardRoute
   '/caregiver/alerts': typeof AuthenticatedCaregiverAlertsRoute
   '/caregiver/care-plans': typeof AuthenticatedCaregiverCarePlansRoute
@@ -336,7 +360,10 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
+  '/delete-account': typeof DeleteAccountRoute
+  '/privacy': typeof PrivacyRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/terms': typeof TermsRoute
   '/_authenticated/admin/dashboard': typeof AuthenticatedAdminDashboardRoute
   '/_authenticated/caregiver/alerts': typeof AuthenticatedCaregiverAlertsRoute
   '/_authenticated/caregiver/care-plans': typeof AuthenticatedCaregiverCarePlansRoute
@@ -375,7 +402,10 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/auth'
+    | '/delete-account'
+    | '/privacy'
     | '/reset-password'
+    | '/terms'
     | '/admin/dashboard'
     | '/caregiver/alerts'
     | '/caregiver/care-plans'
@@ -412,7 +442,10 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/auth'
+    | '/delete-account'
+    | '/privacy'
     | '/reset-password'
+    | '/terms'
     | '/admin/dashboard'
     | '/caregiver/alerts'
     | '/caregiver/care-plans'
@@ -450,7 +483,10 @@ export interface FileRouteTypes {
     | '/'
     | '/_authenticated'
     | '/auth'
+    | '/delete-account'
+    | '/privacy'
     | '/reset-password'
+    | '/terms'
     | '/_authenticated/admin/dashboard'
     | '/_authenticated/caregiver/alerts'
     | '/_authenticated/caregiver/care-plans'
@@ -489,7 +525,10 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
+  DeleteAccountRoute: typeof DeleteAccountRoute
+  PrivacyRoute: typeof PrivacyRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
+  TermsRoute: typeof TermsRoute
   ApiPublicCronEvaluateAlertsRoute: typeof ApiPublicCronEvaluateAlertsRoute
 }
 
@@ -516,11 +555,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/delete-account': {
+      id: '/delete-account'
+      path: '/delete-account'
+      fullPath: '/delete-account'
+      preLoaderRoute: typeof DeleteAccountRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/privacy': {
+      id: '/privacy'
+      path: '/privacy'
+      fullPath: '/privacy'
+      preLoaderRoute: typeof PrivacyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/reset-password': {
       id: '/reset-password'
       path: '/reset-password'
       fullPath: '/reset-password'
       preLoaderRoute: typeof ResetPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/terms': {
+      id: '/terms'
+      path: '/terms'
+      fullPath: '/terms'
+      preLoaderRoute: typeof TermsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated/admin/dashboard': {
@@ -828,7 +888,10 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
+  DeleteAccountRoute: DeleteAccountRoute,
+  PrivacyRoute: PrivacyRoute,
   ResetPasswordRoute: ResetPasswordRoute,
+  TermsRoute: TermsRoute,
   ApiPublicCronEvaluateAlertsRoute: ApiPublicCronEvaluateAlertsRoute,
 }
 export const routeTree = rootRouteImport

@@ -56,7 +56,11 @@ export const listMyCarePatients = createServerFn({ method: "GET" })
         .in("patient_id", ids)
         .order("recorded_at", { ascending: false })
         .limit(600),
-      supabase.from("alerts").select("patient_id, severity").in("patient_id", ids).eq("status", "active"),
+      supabase
+        .from("alerts")
+        .select("patient_id, severity")
+        .in("patient_id", ids)
+        .eq("status", "active"),
       supabase
         .from("nebulization_sessions")
         .select("patient_id, status, started_at")
@@ -68,7 +72,11 @@ export const listMyCarePatients = createServerFn({ method: "GET" })
         .in("patient_id", ids)
         .eq("status", "published")
         .order("start_date", { ascending: false }),
-      supabase.from("sos_events").select("patient_id, status").in("patient_id", ids).neq("status", "resolved"),
+      supabase
+        .from("sos_events")
+        .select("patient_id, status")
+        .in("patient_id", ids)
+        .neq("status", "resolved"),
     ]);
 
     type HealthRow = NonNullable<typeof health.data>[number];

@@ -94,7 +94,9 @@ function DoctorSettingsPage() {
           <div className="grid gap-5 xl:grid-cols-2">
             <LanguagePanel />
             <section className="panel space-y-5 p-5">
-              <h2 className="font-display text-sm font-semibold">{t("doctor.settings.alerting")}</h2>
+              <h2 className="font-display text-sm font-semibold">
+                {t("doctor.settings.alerting")}
+              </h2>
 
               <div className="flex items-start justify-between gap-4">
                 <div>
@@ -147,12 +149,15 @@ function DoctorSettingsPage() {
                   );
                 }}
               >
-                <Volume2 className="mr-2 size-4" aria-hidden /> {t("doctor.settings.testVoiceAlert")}
+                <Volume2 className="mr-2 size-4" aria-hidden />{" "}
+                {t("doctor.settings.testVoiceAlert")}
               </Button>
             </section>
 
             <section className="panel space-y-5 p-5">
-              <h2 className="font-display text-sm font-semibold">{t("doctor.settings.appearanceSession")}</h2>
+              <h2 className="font-display text-sm font-semibold">
+                {t("doctor.settings.appearanceSession")}
+              </h2>
 
               <div className="space-y-1.5">
                 <Label htmlFor="theme">{t("doctor.settings.theme")}</Label>
@@ -179,7 +184,12 @@ function DoctorSettingsPage() {
                 <p className="mt-1 text-xs text-muted-foreground">
                   {t("doctor.settings.signOutDesc")}
                 </p>
-                <Button variant="destructive" size="sm" className="mt-3" onClick={() => void signOut()}>
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  className="mt-3"
+                  onClick={() => void signOut()}
+                >
                   <LogOut className="mr-2 size-4" aria-hidden /> {t("action.signOut")}
                 </Button>
               </div>

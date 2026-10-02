@@ -73,7 +73,10 @@ export const updateAlertThresholds = createServerFn({ method: "POST" })
     if (data.alertsEnabled !== undefined) patch["alerts_enabled"] = data.alertsEnabled;
     if (!Object.keys(patch).length) return { ok: true };
 
-    const { error } = await supabase.from("patients").update(patch as any).eq("id", data.patientId);
+    const { error } = await supabase
+      .from("patients")
+      .update(patch as any)
+      .eq("id", data.patientId);
     if (error) throw new Error(error.message);
 
     await supabase.from("audit_logs").insert({

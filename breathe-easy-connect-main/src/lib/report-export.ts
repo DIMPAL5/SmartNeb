@@ -39,16 +39,13 @@ const esc = (v: unknown) => {
 };
 
 function section(title: string, headers: string[], rows: unknown[][]): string {
-  return [
-    `# ${title}`,
-    headers.join(","),
-    ...rows.map((r) => r.map(esc).join(",")),
-    "",
-  ].join("\n");
+  return [`# ${title}`, headers.join(","), ...rows.map((r) => r.map(esc).join(",")), ""].join("\n");
 }
 
 export function reportSlug(report: SmartNebReport, ext: string) {
-  const name = String(report.patient?.full_name ?? "patient").replace(/\W+/g, "-").toLowerCase();
+  const name = String(report.patient?.full_name ?? "patient")
+    .replace(/\W+/g, "-")
+    .toLowerCase();
   return `smartneb-${name}-${new Date().toISOString().slice(0, 10)}.${ext}`;
 }
 
@@ -138,7 +135,10 @@ export function exportReportCSV(report: SmartNebReport) {
       ]),
     ),
   ];
-  download(new Blob([parts.join("\n")], { type: "text/csv;charset=utf-8" }), reportSlug(report, "csv"));
+  download(
+    new Blob([parts.join("\n")], { type: "text/csv;charset=utf-8" }),
+    reportSlug(report, "csv"),
+  );
 }
 
 export function exportReportPDF(report: SmartNebReport) {
@@ -175,63 +175,71 @@ export function exportReportPDF(report: SmartNebReport) {
     y = (doc as any).lastAutoTable.finalY;
   };
 
-  table("Vitals summary", ["Metric", "Value"], [
-    ["Samples", report.vitals["samples"]],
-    ["Average heart rate (bpm)", report.vitals["avgBpm"]],
-    ["Peak heart rate (bpm)", report.vitals["maxBpm"]],
-    ["Average SpO₂ (%)", report.vitals["avgSpo2"]],
-    ["Lowest SpO₂ (%)", report.vitals["minSpo2"]],
-    ["Average body temp (°C)", report.vitals["avgTemp"]],
-    ["Peak body temp (°C)", report.vitals["maxTemp"]],
-  ]);
+  table(
+    "Vitals summary",
+    ["Metric", "Value"],
+    [
+      ["Samples", report.vitals["samples"]],
+      ["Average heart rate (bpm)", report.vitals["avgBpm"]],
+      ["Peak heart rate (bpm)", report.vitals["maxBpm"]],
+      ["Average SpO₂ (%)", report.vitals["avgSpo2"]],
+      ["Lowest SpO₂ (%)", report.vitals["minSpo2"]],
+      ["Average body temp (°C)", report.vitals["avgTemp"]],
+      ["Peak body temp (°C)", report.vitals["maxTemp"]],
+    ],
+  );
 
   const plan = report.carePlan;
-  table("Care plan", ["Medication", "Dosage", "Duration", "Per day", "Status"], plan ? [[
-    plan.medication,
-    plan.dosage,
-    `${plan.duration_minutes} min`,
-    plan.frequency_per_day,
-    plan.status,
-  ]] : []);
+  table(
+    "Care plan",
+    ["Medication", "Dosage", "Duration", "Per day", "Status"],
+    plan
+      ? [
+          [
+            plan.medication,
+            plan.dosage,
+            `${plan.duration_minutes} min`,
+            plan.frequency_per_day,
+            plan.status,
+          ],
+        ]
+      : [],
+  );
 
   const ad = report.adherenceSummary;
-  table("Adherence", ["Scheduled", "Completed", "Partial", "Missed"], ad ? [[
-    ad.scheduled,
-    ad.completed,
-    ad.partial,
-    ad.missed,
-  ]] : []);
+  table(
+    "Adherence",
+    ["Scheduled", "Completed", "Partial", "Missed"],
+    ad ? [[ad.scheduled, ad.completed, ad.partial, ad.missed]] : [],
+  );
 
   table(
     "Nebulization sessions",
     ["Started", "Status", "Medication", "Minutes"],
-    report.sessions.slice(0, 40).map((s) => [
-      new Date(s.started_at).toLocaleString(),
-      s.status,
-      s.medication ?? "--",
-      Math.round((s.elapsed_seconds ?? 0) / 60),
-    ]),
+    report.sessions
+      .slice(0, 40)
+      .map((s) => [
+        new Date(s.started_at).toLocaleString(),
+        s.status,
+        s.medication ?? "--",
+        Math.round((s.elapsed_seconds ?? 0) / 60),
+      ]),
   );
 
   table(
     "Alerts",
     ["Time", "Severity", "Type", "Message"],
-    report.alerts.slice(0, 40).map((a) => [
-      new Date(a.created_at).toLocaleString(),
-      a.severity,
-      a.type,
-      a.message,
-    ]),
+    report.alerts
+      .slice(0, 40)
+      .map((a) => [new Date(a.created_at).toLocaleString(), a.severity, a.type, a.message]),
   );
 
   table(
     "Emergency SOS",
     ["Time", "Source", "Status"],
-    (report.sos ?? []).slice(0, 20).map((e) => [
-      new Date(e.created_at).toLocaleString(),
-      e.source,
-      e.status,
-    ]),
+    (report.sos ?? [])
+      .slice(0, 20)
+      .map((e) => [new Date(e.created_at).toLocaleString(), e.source, e.status]),
   );
 
   doc.setFontSize(8);

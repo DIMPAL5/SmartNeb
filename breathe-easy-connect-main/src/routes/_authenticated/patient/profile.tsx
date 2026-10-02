@@ -16,7 +16,8 @@ export const Route = createFileRoute("/_authenticated/patient/profile")({
       { title: "Profile — SmartNeb" },
       {
         name: "description",
-        content: "Manage your personal details, emergency contact and linked SmartNeb device information.",
+        content:
+          "Manage your personal details, emergency contact and linked SmartNeb device information.",
       },
       { property: "og:title", content: "Profile — SmartNeb" },
       { property: "og:description", content: "Your SmartNeb account and device details." },
@@ -112,9 +113,7 @@ function ProfileBody({ patientId }: { patientId: string }) {
             </div>
           ))}
         </dl>
-        <p className="text-xs text-muted-foreground">
-          {t("patient.profile.maintainedNote")}
-        </p>
+        <p className="text-xs text-muted-foreground">{t("patient.profile.maintainedNote")}</p>
       </section>
     </div>
   );

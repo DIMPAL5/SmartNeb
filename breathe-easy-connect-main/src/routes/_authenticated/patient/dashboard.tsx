@@ -146,7 +146,8 @@ function DashboardBody({ patientId, fullName }: { patientId: string; fullName: s
   const spo2 = tel.spo2 ?? (health?.spo2 == null ? null : Number(health.spo2));
   const bpm = tel.bpm ?? (health?.bpm == null ? null : Number(health.bpm));
   const temp =
-    tel.bodyTemperature ?? (health?.body_temperature == null ? null : Number(health.body_temperature));
+    tel.bodyTemperature ??
+    (health?.body_temperature == null ? null : Number(health.body_temperature));
   const ambient =
     tel.ambientTemperature ??
     (environment?.ambient_temperature == null ? null : Number(environment.ambient_temperature));
@@ -190,8 +191,6 @@ function DashboardBody({ patientId, fullName }: { patientId: string; fullName: s
   if (snap.isError || !snap.data)
     return <ErrorState message={(snap.error as Error)?.message} onRetry={() => snap.refetch()} />;
 
-
-
   return (
     <div className="space-y-6">
       <section className="panel grid-mesh flex flex-wrap items-center justify-between gap-4 p-6">
@@ -205,15 +204,25 @@ function DashboardBody({ patientId, fullName }: { patientId: string; fullName: s
           <div className="flex flex-wrap items-center gap-2">
             <StatusBadge
               status={tel.online ? "normal" : "critical"}
-              label={tel.online ? t("patient.dashboard.esp32Connected") : t("patient.dashboard.esp32Offline")}
+              label={
+                tel.online
+                  ? t("patient.dashboard.esp32Connected")
+                  : t("patient.dashboard.esp32Offline")
+              }
             />
             <StatusBadge
               status={dev.firebaseConnected ? "normal" : "warning"}
-              label={dev.firebaseConnected ? t("patient.dashboard.cloudLinked") : t("patient.dashboard.cloudDown")}
+              label={
+                dev.firebaseConnected
+                  ? t("patient.dashboard.cloudLinked")
+                  : t("patient.dashboard.cloudDown")
+              }
             />
             <StatusBadge
               status={tel.nebulizer.relay ? "normal" : "unknown"}
-              label={tel.nebulizer.relay ? t("patient.dashboard.nebOn") : t("patient.dashboard.nebOff")}
+              label={
+                tel.nebulizer.relay ? t("patient.dashboard.nebOn") : t("patient.dashboard.nebOff")
+              }
             />
           </div>
           <AlertDialog>
@@ -226,7 +235,11 @@ function DashboardBody({ patientId, fullName }: { patientId: string; fullName: s
               <AlertDialogHeader>
                 <AlertDialogTitle>{t("patient.dashboard.sosConfirmTitle")}</AlertDialogTitle>
                 <AlertDialogDescription>
-                  {t("patient.dashboard.sosConfirmDesc", { spo2: spo2 ?? "--", bpm: bpm ?? "--", temp: temp ?? "--" })}
+                  {t("patient.dashboard.sosConfirmDesc", {
+                    spo2: spo2 ?? "--",
+                    bpm: bpm ?? "--",
+                    temp: temp ?? "--",
+                  })}
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
@@ -281,7 +294,13 @@ function DashboardBody({ patientId, fullName }: { patientId: string; fullName: s
           unit="%"
           icon={<BatteryMedium className="size-4" />}
           status={
-            battPct == null ? "unknown" : battPct < 15 ? "critical" : battPct < 30 ? "warning" : "normal"
+            battPct == null
+              ? "unknown"
+              : battPct < 15
+                ? "critical"
+                : battPct < 30
+                  ? "warning"
+                  : "normal"
           }
           hint={`${tel.battery.voltage ?? battery?.voltage ?? "--"} V · ${tel.battery.temperature ?? battery?.cell_temperature ?? "--"} °C`}
         />
@@ -290,7 +309,9 @@ function DashboardBody({ patientId, fullName }: { patientId: string; fullName: s
       <section className="grid gap-4 lg:grid-cols-3">
         <div className="panel space-y-4 p-5 lg:col-span-2">
           <div className="flex items-center justify-between">
-            <p className="font-display text-sm font-semibold">{t("patient.dashboard.environment")}</p>
+            <p className="font-display text-sm font-semibold">
+              {t("patient.dashboard.environment")}
+            </p>
             <StatusBadge
               status={
                 environment?.aqi == null
@@ -311,8 +332,18 @@ function DashboardBody({ patientId, fullName }: { patientId: string; fullName: s
           <div className="grid gap-4 sm:grid-cols-3">
             {[
               { label: t("vitals.ambientTemp"), value: ambient, unit: "°C", icon: Thermometer },
-              { label: t("patient.dashboard.humidity"), value: environment?.humidity ?? null, unit: "%", icon: Droplets },
-              { label: t("patient.dashboard.airQualityIndex"), value: environment?.aqi ?? null, unit: "AQI", icon: Wind },
+              {
+                label: t("patient.dashboard.humidity"),
+                value: environment?.humidity ?? null,
+                unit: "%",
+                icon: Droplets,
+              },
+              {
+                label: t("patient.dashboard.airQualityIndex"),
+                value: environment?.aqi ?? null,
+                unit: "AQI",
+                icon: Wind,
+              },
             ].map((m) => (
               <div key={m.label} className="rounded-xl border bg-surface-2 p-4">
                 <div className="flex items-center gap-2 text-xs text-muted-foreground">
@@ -336,9 +367,14 @@ function DashboardBody({ patientId, fullName }: { patientId: string; fullName: s
               <div className="flex items-center gap-2">
                 <Cpu className="size-4 text-primary" />
                 <div>
-                  <p className="text-sm font-medium">{device?.device_code ?? t("patient.dashboard.noDevice")}</p>
+                  <p className="text-sm font-medium">
+                    {device?.device_code ?? t("patient.dashboard.noDevice")}
+                  </p>
                   <p className="text-xs text-muted-foreground">
-                    {t("patient.dashboard.firmwareLastSeen", { firmware: device?.firmware ?? "--", seen: freshness(device?.last_seen_at).text })}
+                    {t("patient.dashboard.firmwareLastSeen", {
+                      firmware: device?.firmware ?? "--",
+                      seen: freshness(device?.last_seen_at).text,
+                    })}
                   </p>
                 </div>
               </div>
@@ -349,14 +385,19 @@ function DashboardBody({ patientId, fullName }: { patientId: string; fullName: s
                 />
                 <StatusBadge
                   status={dev.firebaseConnected ? "normal" : "warning"}
-                  label={dev.firebaseConnected ? t("patient.dashboard.realtimeLinked") : t("patient.dashboard.realtimeDown")}
+                  label={
+                    dev.firebaseConnected
+                      ? t("patient.dashboard.realtimeLinked")
+                      : t("patient.dashboard.realtimeDown")
+                  }
                 />
                 <StatusBadge
                   status={tel.nebulizer.relay ? "normal" : "unknown"}
                   label={`${t("patient.dashboard.relayLabel")} ${tel.nebulizer.relay ? "ON" : "OFF"}`}
                 />
                 <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
-                  <Radio className="size-3.5" /> {t("patient.dashboard.chamberPct", { value: Number(device?.fluid_level ?? 0) })}
+                  <Radio className="size-3.5" />{" "}
+                  {t("patient.dashboard.chamberPct", { value: Number(device?.fluid_level ?? 0) })}
                 </span>
               </div>
             </div>
@@ -378,7 +419,9 @@ function DashboardBody({ patientId, fullName }: { patientId: string; fullName: s
       <section className="panel p-5">
         <div className="mb-3 flex items-center gap-2">
           <Gauge className="size-4 text-primary" />
-          <p className="font-display text-sm font-semibold">{t("patient.dashboard.activeAlerts")}</p>
+          <p className="font-display text-sm font-semibold">
+            {t("patient.dashboard.activeAlerts")}
+          </p>
         </div>
         {snap.data.activeAlerts.length === 0 ? (
           <p className="text-sm text-muted-foreground">{t("patient.dashboard.noActiveAlerts")}</p>
@@ -396,7 +439,13 @@ function DashboardBody({ patientId, fullName }: { patientId: string; fullName: s
                   </p>
                 </div>
                 <StatusBadge
-                  status={a.severity === "critical" ? "critical" : a.severity === "warning" ? "warning" : "normal"}
+                  status={
+                    a.severity === "critical"
+                      ? "critical"
+                      : a.severity === "warning"
+                        ? "warning"
+                        : "normal"
+                  }
                   label={a.severity}
                 />
               </li>

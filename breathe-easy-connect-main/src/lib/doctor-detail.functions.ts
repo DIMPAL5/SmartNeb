@@ -369,7 +369,10 @@ const editSchema = z.object({
   instructions: z.string().max(1000).optional().nullable(),
   startDate: z.string().min(8),
   endDate: z.string().min(8).optional().nullable(),
-  timeSlots: z.array(z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/)).max(12).optional(),
+  timeSlots: z
+    .array(z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/))
+    .max(12)
+    .optional(),
 });
 
 export type CarePlanEditInput = z.infer<typeof editSchema>;

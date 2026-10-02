@@ -32,11 +32,7 @@ async function resolveDoctorId(
   supabase: { from: (t: string) => any },
   userId: string,
 ): Promise<string | null> {
-  const { data } = await supabase
-    .from("doctors")
-    .select("id")
-    .eq("user_id", userId)
-    .maybeSingle();
+  const { data } = await supabase.from("doctors").select("id").eq("user_id", userId).maybeSingle();
   return (data as { id: string } | null)?.id ?? null;
 }
 
@@ -154,7 +150,10 @@ const carePlanSchema = z.object({
   instructions: z.string().max(1000).optional(),
   startDate: z.string().min(8),
   endDate: z.string().min(8).optional().nullable(),
-  timeSlots: z.array(z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/)).max(12).optional(),
+  timeSlots: z
+    .array(z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/))
+    .max(12)
+    .optional(),
   publish: z.boolean().optional(),
 });
 

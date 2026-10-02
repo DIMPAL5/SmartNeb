@@ -136,12 +136,15 @@ function AssistantBody({ patientId }: { patientId: string }) {
             setPendingUser([]);
           }}
         >
-          <MessageSquarePlus className="mr-2 size-4" aria-hidden /> {t("patient.assistant.newConversation")}
+          <MessageSquarePlus className="mr-2 size-4" aria-hidden />{" "}
+          {t("patient.assistant.newConversation")}
         </Button>
         <ScrollArea className="min-h-0 flex-1">
           <ul className="space-y-1">
             {(conversations.data ?? []).length === 0 ? (
-              <li className="px-2 py-3 text-xs text-muted-foreground">{t("patient.assistant.noConversations")}</li>
+              <li className="px-2 py-3 text-xs text-muted-foreground">
+                {t("patient.assistant.noConversations")}
+              </li>
             ) : null}
             {(conversations.data ?? []).map((c) => (
               <li key={c.id} className="flex items-center gap-1">
@@ -234,7 +237,11 @@ function AssistantBody({ patientId }: { patientId: string }) {
               placeholder={t("patient.assistant.inputPlaceholder")}
               aria-label={t("patient.assistant.inputAria")}
             />
-            <Button type="submit" disabled={ask.isPending} aria-label={t("patient.assistant.sendAria")}>
+            <Button
+              type="submit"
+              disabled={ask.isPending}
+              aria-label={t("patient.assistant.sendAria")}
+            >
               <Send className="size-4" />
             </Button>
           </form>

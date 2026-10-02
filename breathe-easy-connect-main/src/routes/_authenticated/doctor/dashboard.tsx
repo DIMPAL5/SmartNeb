@@ -166,7 +166,9 @@ function DoctorDashboard() {
             (p.condition ?? "").toLowerCase().includes(needle),
         )
       : list;
-    return [...filtered].sort((a, b) => b.criticalAlerts - a.criticalAlerts || b.activeAlerts - a.activeAlerts);
+    return [...filtered].sort(
+      (a, b) => b.criticalAlerts - a.criticalAlerts || b.activeAlerts - a.activeAlerts,
+    );
   }, [roster.data, q]);
 
   if (me.isPending) {
@@ -202,54 +204,57 @@ function DoctorDashboard() {
         <ErrorState message={t("doctor.noClinicianRecord")} />
       ) : (
         <div className="space-y-6">
-        <SOSPanel enabled={signedIn} title={t("doctor.sos.assignedPatients")} />
-        <div className="grid gap-6 xl:grid-cols-[340px_minmax(0,1fr)]">
-          <section className="panel flex max-h-[calc(100vh-11rem)] flex-col p-4">
-            <div className="flex items-center gap-2">
-              <Search className="size-4 text-muted-foreground" aria-hidden />
-              <Input
-                value={q}
-                onChange={(e) => setQ(e.target.value)}
-                placeholder={t("doctor.patients.searchPlaceholder")}
-                aria-label={t("doctor.patients.searchAria")}
-                className="h-9"
-              />
-            </div>
-            <ScrollArea className="mt-3 flex-1">
-              {roster.isLoading ? (
-                <LoadingSkeleton rows={4} />
-              ) : patients.length === 0 ? (
-                <EmptyState
-                  title={t("doctor.patients.noAssigned")}
-                  description={t("doctor.patients.noAssignedDesc")}
+          <SOSPanel enabled={signedIn} title={t("doctor.sos.assignedPatients")} />
+          <div className="grid gap-6 xl:grid-cols-[340px_minmax(0,1fr)]">
+            <section className="panel flex max-h-[calc(100vh-11rem)] flex-col p-4">
+              <div className="flex items-center gap-2">
+                <Search className="size-4 text-muted-foreground" aria-hidden />
+                <Input
+                  value={q}
+                  onChange={(e) => setQ(e.target.value)}
+                  placeholder={t("doctor.patients.searchPlaceholder")}
+                  aria-label={t("doctor.patients.searchAria")}
+                  className="h-9"
                 />
-              ) : (
-                <ul className="space-y-2 pr-2">
-                  {patients.map((p) => (
-                    <li key={p.id}>
-                      <RosterCard
-                        patient={p}
-                        active={p.id === selected}
-                        onSelect={() => setSelected(p.id)}
-                      />
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </ScrollArea>
-          </section>
+              </div>
+              <ScrollArea className="mt-3 flex-1">
+                {roster.isLoading ? (
+                  <LoadingSkeleton rows={4} />
+                ) : patients.length === 0 ? (
+                  <EmptyState
+                    title={t("doctor.patients.noAssigned")}
+                    description={t("doctor.patients.noAssignedDesc")}
+                  />
+                ) : (
+                  <ul className="space-y-2 pr-2">
+                    {patients.map((p) => (
+                      <li key={p.id}>
+                        <RosterCard
+                          patient={p}
+                          active={p.id === selected}
+                          onSelect={() => setSelected(p.id)}
+                        />
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </ScrollArea>
+            </section>
 
-          {selected ? (
-            <PatientWorkspace
-              key={selected}
-              signedIn={signedIn}
-              patient={patients.find((p) => p.id === selected) ?? null}
-              patientId={selected}
-            />
-          ) : (
-            <EmptyState title={t("doctor.patients.selectPatient")} description={t("doctor.patients.selectPatientDesc")} />
-          )}
-        </div>
+            {selected ? (
+              <PatientWorkspace
+                key={selected}
+                signedIn={signedIn}
+                patient={patients.find((p) => p.id === selected) ?? null}
+                patientId={selected}
+              />
+            ) : (
+              <EmptyState
+                title={t("doctor.patients.selectPatient")}
+                description={t("doctor.patients.selectPatientDesc")}
+              />
+            )}
+          </div>
         </div>
       )}
     </AppShell>
@@ -328,8 +333,7 @@ function PatientWorkspace({
   const p = snap?.patient;
   const spo2 = snap?.health?.spo2 == null ? null : Number(snap.health.spo2);
   const bpm = snap?.health?.bpm == null ? null : Number(snap.health.bpm);
-  const temp =
-    snap?.health?.body_temperature == null ? null : Number(snap.health.body_temperature);
+  const temp = snap?.health?.body_temperature == null ? null : Number(snap.health.body_temperature);
   const prevSpo2 = snap?.healthPrev?.spo2 == null ? null : Number(snap.healthPrev.spo2);
   const prevBpm = snap?.healthPrev?.bpm == null ? null : Number(snap.healthPrev.bpm);
   const fresh = freshness(snap?.health?.recorded_at, Date.now());
@@ -408,7 +412,13 @@ function PatientWorkspace({
               >
                 <span>{a.message}</span>
                 <StatusBadge
-                  status={a.severity === "critical" ? "critical" : a.severity === "warning" ? "warning" : "normal"}
+                  status={
+                    a.severity === "critical"
+                      ? "critical"
+                      : a.severity === "warning"
+                        ? "warning"
+                        : "normal"
+                  }
                   label={a.severity}
                 />
               </li>
@@ -568,9 +578,7 @@ function CarePlanDialog({ patientId }: { patientId: string }) {
       <DialogContent className="max-w-lg">
         <DialogHeader>
           <DialogTitle>{t("doctor.carePlans.createTitle")}</DialogTitle>
-          <DialogDescription>
-            {t("doctor.carePlans.createDesc")}
-          </DialogDescription>
+          <DialogDescription>{t("doctor.carePlans.createDesc")}</DialogDescription>
         </DialogHeader>
         <form
           className="space-y-4"
@@ -655,7 +663,9 @@ function CarePlanDialog({ patientId }: { patientId: string }) {
           </div>
           <DialogFooter>
             <Button type="submit" disabled={create.isPending}>
-              {create.isPending ? t("doctor.carePlans.publishing") : t("doctor.carePlans.publishPlan")}
+              {create.isPending
+                ? t("doctor.carePlans.publishing")
+                : t("doctor.carePlans.publishPlan")}
             </Button>
           </DialogFooter>
         </form>
@@ -707,7 +717,10 @@ function NotesPanel({ patientId }: { patientId: string }) {
       {notes.isLoading ? (
         <LoadingSkeleton rows={2} />
       ) : !notes.data?.length ? (
-        <EmptyState title={t("doctor.notes.emptyTitle")} description={t("doctor.notes.emptyDesc")} />
+        <EmptyState
+          title={t("doctor.notes.emptyTitle")}
+          description={t("doctor.notes.emptyDesc")}
+        />
       ) : (
         <ul className="space-y-2">
           {notes.data.map((n) => (

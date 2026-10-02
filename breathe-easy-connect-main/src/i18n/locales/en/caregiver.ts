@@ -15,7 +15,8 @@ export const en_caregiver: Record<string, string> = {
   careDoctorLabel: "Care doctor",
   carePlanReadOnlyNote: "This care plan is read-only. Contact the prescribing doctor for changes.",
   carePlanTab: "Care Plan",
-  carePlansSubtitle: "Read-only view of doctor-prescribed medication, dosage, schedule, duration and instructions.",
+  carePlansSubtitle:
+    "Read-only view of doctor-prescribed medication, dosage, schedule, duration and instructions.",
   caregiverNotesTab: "Caregiver Notes",
   chamber: "Chamber",
   chamberPercent: "{value}% chamber",
@@ -60,7 +61,8 @@ export const en_caregiver: Record<string, string> = {
   noCarePlanDescription: "No care plan has been prescribed for this patient yet.",
   noCarePlans: "No Care Plans",
   noCarePlansDescription: "No care plans have been prescribed for your assigned patients yet.",
-  noCaregiverRecord: "No caregiver record was found for your account. Please contact your administrator.",
+  noCaregiverRecord:
+    "No caregiver record was found for your account. Please contact your administrator.",
   noCaregiverRecordShort: "No caregiver record found for your account.",
   noConditionRecorded: "No condition recorded",
   noDevice: "No Device",
@@ -99,7 +101,8 @@ export const en_caregiver: Record<string, string> = {
   searchPatients: "Search patients",
   searchPatientsPlaceholder: "Search by name, MRN or condition…",
   selectAPatient: "Select a patient",
-  selectAPatientDescription: "Choose a patient from the list to view their live vitals and history.",
+  selectAPatientDescription:
+    "Choose a patient from the list to view their live vitals and history.",
   selectAPatientTitle: "Select a Patient",
   selectPatient: "Select patient",
   sessionLength: "Session Length",
@@ -108,7 +111,8 @@ export const en_caregiver: Record<string, string> = {
   sosHistory: "SOS History",
   sosSubtitle: "Real-time emergency SOS events from your assigned patients.",
   spokenCriticalAlerts: "Spoken Critical Alerts",
-  spokenCriticalAlertsDescription: "Play a spoken alert when a critical event occurs for your patients.",
+  spokenCriticalAlertsDescription:
+    "Play a spoken alert when a critical event occurs for your patients.",
   staleLabel: "Stale · {time}",
   start: "Start",
   telemetryDescription: "Readings from the last 24 hours will appear here.",

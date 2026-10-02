@@ -75,7 +75,12 @@ function ReportsBody({ patientId }: { patientId: string }) {
       <section className="panel flex flex-wrap items-center justify-between gap-4 p-5 print:hidden">
         <div className="flex flex-wrap gap-2">
           {[7, 14, 30, 90].map((d) => (
-            <Button key={d} size="sm" variant={days === d ? "default" : "outline"} onClick={() => setDays(d)}>
+            <Button
+              key={d}
+              size="sm"
+              variant={days === d ? "default" : "outline"}
+              onClick={() => setDays(d)}
+            >
               {t("patient.reports.lastDays", { days: d })}
             </Button>
           ))}
@@ -108,7 +113,9 @@ function ReportsBody({ patientId }: { patientId: string }) {
       {report ? (
         <article className="panel space-y-6 p-8">
           <header className="border-b pb-4">
-            <h2 className="font-display text-2xl font-semibold">{t("patient.reports.clinicalSummary")}</h2>
+            <h2 className="font-display text-2xl font-semibold">
+              {t("patient.reports.clinicalSummary")}
+            </h2>
             <p className="text-sm text-muted-foreground">
               {t("patient.reports.summaryMeta", {
                 name: report.patient?.full_name ?? "",
@@ -132,7 +139,9 @@ function ReportsBody({ patientId }: { patientId: string }) {
           </section>
 
           <section>
-            <h3 className="mb-2 font-display text-sm font-semibold">{t("patient.reports.carePlanHeading")}</h3>
+            <h3 className="mb-2 font-display text-sm font-semibold">
+              {t("patient.reports.carePlanHeading")}
+            </h3>
             <p className="text-sm text-muted-foreground">
               {report.carePlan
                 ? t("patient.reports.carePlanLine", {

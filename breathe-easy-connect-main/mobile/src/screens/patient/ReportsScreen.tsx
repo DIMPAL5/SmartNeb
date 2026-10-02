@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert } from 'react-native';
-import { useAuth } from '../../context/AuthContext';
-import { apiClient } from '../../api/client';
+import React, { useState, useEffect } from "react";
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert } from "react-native";
+import { useAuth } from "../../context/AuthContext";
+import { apiClient } from "../../api/client";
 
 export const ReportsScreen = () => {
   const { user } = useAuth();
@@ -9,14 +9,18 @@ export const ReportsScreen = () => {
 
   useEffect(() => {
     if (user?.patientId) {
-      apiClient.get(`/reports/summary?patientId=${user.patientId}`)
+      apiClient
+        .get(`/reports/summary?patientId=${user.patientId}`)
         .then((res) => setReport(res.data?.report))
         .catch(console.error);
     }
   }, [user?.patientId]);
 
   const handleExportPDF = () => {
-    Alert.alert('Clinical PDF Export', 'Exporting SmartNeb Respiratory Therapy Summary report as PDF...');
+    Alert.alert(
+      "Clinical PDF Export",
+      "Exporting SmartNeb Respiratory Therapy Summary report as PDF...",
+    );
   };
 
   return (
@@ -52,17 +56,24 @@ export const ReportsScreen = () => {
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#0f172a' },
+  container: { flex: 1, backgroundColor: "#0f172a" },
   scroll: { padding: 18 },
-  title: { color: '#f8fafc', fontSize: 24, fontWeight: '900' },
-  subtitle: { color: '#94a3b8', fontSize: 13, marginBottom: 16 },
-  card: { backgroundColor: '#1e293b', borderRadius: 20, padding: 20 },
-  cardHeader: { color: '#38bdf8', fontSize: 18, fontWeight: '800' },
-  cardSub: { color: '#94a3b8', fontSize: 12, marginTop: 2, marginBottom: 16 },
-  statsGrid: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 20 },
-  statBox: { backgroundColor: '#0f172a', padding: 14, borderRadius: 12, alignItems: 'center', flex: 1, marginHorizontal: 4 },
-  statVal: { color: '#f8fafc', fontSize: 22, fontWeight: '800' },
-  statLab: { color: '#94a3b8', fontSize: 11, marginTop: 4 },
-  pdfBtn: { backgroundColor: '#0284c7', padding: 14, borderRadius: 12, alignItems: 'center' },
-  pdfBtnText: { color: '#ffffff', fontWeight: '800', fontSize: 14 },
+  title: { color: "#f8fafc", fontSize: 24, fontWeight: "900" },
+  subtitle: { color: "#94a3b8", fontSize: 13, marginBottom: 16 },
+  card: { backgroundColor: "#1e293b", borderRadius: 20, padding: 20 },
+  cardHeader: { color: "#38bdf8", fontSize: 18, fontWeight: "800" },
+  cardSub: { color: "#94a3b8", fontSize: 12, marginTop: 2, marginBottom: 16 },
+  statsGrid: { flexDirection: "row", justifyContent: "space-between", marginBottom: 20 },
+  statBox: {
+    backgroundColor: "#0f172a",
+    padding: 14,
+    borderRadius: 12,
+    alignItems: "center",
+    flex: 1,
+    marginHorizontal: 4,
+  },
+  statVal: { color: "#f8fafc", fontSize: 22, fontWeight: "800" },
+  statLab: { color: "#94a3b8", fontSize: 11, marginTop: 4 },
+  pdfBtn: { backgroundColor: "#0284c7", padding: 14, borderRadius: 12, alignItems: "center" },
+  pdfBtnText: { color: "#ffffff", fontWeight: "800", fontSize: 14 },
 });

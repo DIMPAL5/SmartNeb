@@ -97,8 +97,7 @@ function AuthPage() {
 
   function passwordProblem(value: string) {
     if (value.length < 8) return t("auth.passwordMinLength");
-    if (!/[A-Za-z]/.test(value) || !/[0-9]/.test(value))
-      return t("auth.passwordLettersNumbers");
+    if (!/[A-Za-z]/.test(value) || !/[0-9]/.test(value)) return t("auth.passwordLettersNumbers");
     return null;
   }
 

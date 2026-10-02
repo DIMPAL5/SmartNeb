@@ -119,7 +119,9 @@ function DoctorPatientsPage() {
                     <li key={p.id} className="panel p-5">
                       <div className="flex items-start justify-between gap-3">
                         <div className="min-w-0">
-                          <p className="truncate font-display text-base font-semibold">{p.full_name}</p>
+                          <p className="truncate font-display text-base font-semibold">
+                            {p.full_name}
+                          </p>
                           <p className="truncate text-xs text-muted-foreground">
                             {t("doctor.patients.mrnCondition", {
                               mrn: p.mrn,

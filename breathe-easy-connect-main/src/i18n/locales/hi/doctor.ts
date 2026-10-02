@@ -102,7 +102,8 @@ export const hi_doctor: Record<string, string> = {
   "doctor.reports.filter": "फ़िल्टर",
   "doctor.reports.allPatients": "सभी मरीज़",
   "doctor.reports.emptyTitle": "अभी तक कोई रिपोर्ट नहीं",
-  "doctor.reports.emptyDesc": "वाइटल्स, पालन और अलर्ट का सारांश बनाने के लिए क्लिनिकल रिपोर्ट तैयार करें।",
+  "doctor.reports.emptyDesc":
+    "वाइटल्स, पालन और अलर्ट का सारांश बनाने के लिए क्लिनिकल रिपोर्ट तैयार करें।",
   "doctor.reports.requestedByYou": "आपके द्वारा अनुरोधित",
   "doctor.reports.careTeam": "देखभाल टीम",
   "doctor.reports.pdf": "पीडीएफ़",
@@ -191,7 +192,8 @@ export const hi_doctor: Record<string, string> = {
   "doctor.settings.saved": "सेटिंग्स सहेजी गईं",
 
   "doctor.dashboard.title": "क्लिनिकल डैशबोर्ड",
-  "doctor.dashboard.subtitle": "{count} सौंपे गए मरीज़ · {critical} गंभीर अलर्ट · {inTherapy} थेरेपी में",
+  "doctor.dashboard.subtitle":
+    "{count} सौंपे गए मरीज़ · {critical} गंभीर अलर्ट · {inTherapy} थेरेपी में",
 
   "doctor.vitals.oxygenSaturation": "ऑक्सीजन संतृप्ति",
   "doctor.vitals.heartRate": "हृदय गति",

@@ -15,6 +15,12 @@ enum AppRole {
   super_admin
 }
 
+enum HospitalStatus {
+  pending
+  approved
+  suspended
+}
+
 enum DeviceStatus {
   online
   offline
@@ -62,21 +68,70 @@ enum CommandState {
   sent
   acked
   failed
+  timeout
+}
+
+model Hospital {
+  id           String         @id @default(uuid())
+  name         String
+  slug         String         @unique
+  code         String         @unique
+  contactEmail String?        @map("contact_email")
+  phone        String?
+  address      String?
+  status       HospitalStatus @default(pending)
+  approvedAt   DateTime?      @map("approved_at")
+  createdAt    DateTime       @default(now()) @map("created_at")
+  updatedAt    DateTime       @updatedAt @map("updated_at")
+
+  users        User[]
+  patients     Patient[]
+  devices      Device[]
+  inviteCodes  InviteCode[]
+
+  @@map("hospitals")
+}
+
+model InviteCode {
+  id          String    @id @default(uuid())
+  code        String    @unique
+  hospitalId  String    @map("hospital_id")
+  role        AppRole   @default(patient)
+  createdById String?   @map("created_by_id")
+  isUsed      Boolean   @default(false) @map("is_used")
+  expiresAt   DateTime? @map("expires_at")
+  createdAt   DateTime  @default(now()) @map("created_at")
+
+  hospital    Hospital  @relation(fields: [hospitalId], references: [id], onDelete: Cascade)
+  createdBy   User?     @relation("AdminCreatedInvites", fields: [createdById], references: [id], onDelete: SetNull)
+  usedByUser  User?     @relation("UserUsedInvite")
+
+  @@map("invite_codes")
 }
 
 model User {
-  id           String   @id @default(uuid())
-  email        String   @unique
-  passwordHash String   @map("password_hash")
-  fullName     String   @default("New User") @map("full_name")
-  phone        String?
-  avatarUrl    String?  @map("avatar_url")
-  theme        String   @default("system")
-  voiceAlerts  Boolean  @default(true) @map("voice_alerts")
-  notifyEmail  Boolean  @default(true) @map("notify_email")
-  isActive     Boolean  @default(true) @map("is_active")
-  createdAt    DateTime @default(now()) @map("created_at")
-  updatedAt    DateTime @updatedAt @map("updated_at")
+  id                String     @id @default(uuid())
+  email             String     @unique
+  passwordHash      String     @map("password_hash")
+  fullName          String     @default("New User") @map("full_name")
+  phone             String?
+  avatarUrl         String?    @map("avatar_url")
+  theme             String     @default("system")
+  voiceAlerts       Boolean    @default(true) @map("voice_alerts")
+  notifyEmail       Boolean    @default(true) @map("notify_email")
+  isActive          Boolean    @default(true) @map("is_active")
+  hospitalId        String?    @map("hospital_id")
+  usedInviteCodeId  String?    @unique @map("used_invite_code_id")
+  consentGivenAt    DateTime?  @map("consent_given_at")
+  guardianConsentAt DateTime?  @map("guardian_consent_at")
+  isMinor           Boolean    @default(false) @map("is_minor")
+  deletedAt         DateTime?  @map("deleted_at")
+  createdAt         DateTime   @default(now()) @map("created_at")
+  updatedAt         DateTime   @updatedAt @map("updated_at")
+
+  hospital          Hospital?   @relation(fields: [hospitalId], references: [id], onDelete: SetNull)
+  usedInviteCode    InviteCode? @relation("UserUsedInvite", fields: [usedInviteCodeId], references: [id], onDelete: SetNull)
+  createdInvites    InviteCode[] @relation("AdminCreatedInvites")
 
   roles            UserRole[]
   patientProfile   Patient?
@@ -104,11 +159,14 @@ model UserRole {
 model Patient {
   id               String    @id @default(uuid())
   userId           String?   @unique @map("user_id")
+  hospitalId       String?   @map("hospital_id")
   fullName         String    @map("full_name")
   mrn              String    @unique
-  dateOfBirth      DateTime? @map("date_of_birth") @db.Date
+  dateOfBirth      DateTime? @map("date_of_birth")
   sex              String?
   condition        String?
+  guardianName     String?   @map("guardian_name")
+  guardianPhone    String?   @map("guardian_phone")
   spo2Threshold    Float     @default(92) @map("spo2_threshold")
   bpmLowThreshold  Float     @default(50) @map("bpm_low_threshold")
   bpmHighThreshold Float     @default(120) @map("bpm_high_threshold")
@@ -117,7 +175,8 @@ model Patient {
   updatedAt        DateTime  @updatedAt @map("updated_at")
   deletedAt        DateTime? @map("deleted_at")
 
-  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+  user     User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
+  hospital Hospital? @relation(fields: [hospitalId], references: [id], onDelete: SetNull)
 
   devices                Device[]
   doctorAssignments      DoctorPatientAssignment[]
@@ -198,6 +257,7 @@ model CaregiverPatientAssignment {
 model Device {
   id             String       @id @default(uuid())
   deviceCode     String       @unique @map("device_code")
+  hospitalId     String?      @map("hospital_id")
   patientId      String?      @map("patient_id")
   status         DeviceStatus @default(offline)
   firmware       String       @default("1.0.0")
@@ -205,10 +265,13 @@ model Device {
   cloudConnected Boolean      @default(false) @map("cloud_connected")
   nebulizerState String       @default("OFF") @map("nebulizer_state")
   fluidLevel     Float        @default(100) @map("fluid_level")
+  mqttUsername   String?      @map("mqtt_username")
+  mqttPassword   String?      @map("mqtt_password")
   lastSeenAt     DateTime?    @map("last_seen_at")
   registeredAt   DateTime     @default(now()) @map("registered_at")
 
-  patient Patient? @relation(fields: [patientId], references: [id], onDelete: SetNull)
+  hospital Hospital? @relation(fields: [hospitalId], references: [id], onDelete: SetNull)
+  patient  Patient?  @relation(fields: [patientId], references: [id], onDelete: SetNull)
 
   healthTelemetry        HealthTelemetry[]
   environmentalTelemetry EnvironmentalTelemetry[]
@@ -283,8 +346,8 @@ model CarePlan {
   durationMinutes Int            @default(10) @map("duration_minutes")
   frequencyPerDay Int            @default(2) @map("frequency_per_day")
   instructions    String?        @db.Text
-  startDate       DateTime       @default(now()) @map("start_date") @db.Date
-  endDate         DateTime?      @map("end_date") @db.Date
+  startDate       DateTime       @default(now()) @map("start_date")
+  endDate         DateTime?      @map("end_date")
   status          CarePlanStatus @default(draft)
   createdAt       DateTime       @default(now()) @map("created_at")
   updatedAt       DateTime       @updatedAt @map("updated_at")
@@ -328,7 +391,7 @@ model AdherenceRecord {
   patientId       String          @map("patient_id")
   carePlanId      String?         @map("care_plan_id")
   sessionId       String?         @map("session_id")
-  scheduledFor    DateTime        @default(now()) @map("scheduled_for") @db.Date
+  scheduledFor    DateTime        @default(now()) @map("scheduled_for")
   status          AdherenceStatus @default(scheduled)
   completionRatio Float           @default(0) @map("completion_ratio")
   createdAt       DateTime        @default(now()) @map("created_at")
@@ -355,15 +418,20 @@ model FluidRefill {
 }
 
 model DeviceCommand {
-  id        String       @id @default(uuid())
-  deviceId  String?      @map("device_id")
-  patientId String       @map("patient_id")
-  sessionId String?      @map("session_id")
-  command   String
-  state     CommandState @default(sent)
-  issuedBy  String?      @map("issued_by")
-  createdAt DateTime     @default(now()) @map("created_at")
-  ackedAt   DateTime?    @map("acked_at")
+  id             String       @id @default(uuid())
+  deviceId       String?      @map("device_id")
+  patientId      String       @map("patient_id")
+  sessionId      String?      @map("session_id")
+  command        String
+  idempotencyKey String?      @unique @map("idempotency_key")
+  payload        Json?
+  state          CommandState @default(sent)
+  issuedBy       String?      @map("issued_by")
+  timeoutAt      DateTime?    @map("timeout_at")
+  errorMessage   String?      @map("error_message")
+  response       Json?
+  createdAt      DateTime     @default(now()) @map("created_at")
+  ackedAt        DateTime?    @map("acked_at")
 
   device  Device?              @relation(fields: [deviceId], references: [id], onDelete: Cascade)
   patient Patient              @relation(fields: [patientId], references: [id], onDelete: Cascade)

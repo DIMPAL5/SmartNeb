@@ -74,7 +74,10 @@ function DoctorAlertsPage() {
         if (alerts.isPending) return <LoadingSkeleton rows={4} />;
         if (alerts.isError)
           return (
-            <ErrorState message={(alerts.error as Error)?.message} onRetry={() => alerts.refetch()} />
+            <ErrorState
+              message={(alerts.error as Error)?.message}
+              onRetry={() => alerts.refetch()}
+            />
           );
 
         return (
@@ -97,7 +100,9 @@ function DoctorAlertsPage() {
                   variant={includeResolved ? "default" : "outline"}
                   onClick={() => setIncludeResolved((v) => !v)}
                 >
-                  {includeResolved ? t("doctor.alerts.hidingNothing") : t("doctor.alerts.showResolved")}
+                  {includeResolved
+                    ? t("doctor.alerts.hidingNothing")
+                    : t("doctor.alerts.showResolved")}
                 </Button>
               </div>
             </div>
@@ -110,7 +115,10 @@ function DoctorAlertsPage() {
             ) : (
               <ul className="space-y-2">
                 {rows.map((a) => (
-                  <li key={a.id} className="panel flex flex-wrap items-center justify-between gap-3 px-4 py-3">
+                  <li
+                    key={a.id}
+                    className="panel flex flex-wrap items-center justify-between gap-3 px-4 py-3"
+                  >
                     <div className="min-w-0">
                       <div className="flex flex-wrap items-center gap-2">
                         <StatusBadge
@@ -150,7 +158,10 @@ function DoctorAlertsPage() {
                         </Button>
                       ) : null}
                       {a.status !== "resolved" ? (
-                        <Button size="sm" onClick={() => respond.mutate({ alertId: a.id, resolve: true })}>
+                        <Button
+                          size="sm"
+                          onClick={() => respond.mutate({ alertId: a.id, resolve: true })}
+                        >
                           {t("doctor.alerts.resolve")}
                         </Button>
                       ) : null}

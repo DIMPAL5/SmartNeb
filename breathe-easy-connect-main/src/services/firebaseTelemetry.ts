@@ -37,7 +37,7 @@ export const EMPTY_TELEMETRY: DeviceTelemetry = {
 
 /** Seconds without a value change after which the ESP32 counts as offline. */
 export const OFFLINE_AFTER_MS = Number(
-  (import.meta.env['VITE_DEVICE_OFFLINE_AFTER_MS'] as string) || 45_000,
+  (import.meta.env["VITE_DEVICE_OFFLINE_AFTER_MS"] as string) || 45_000,
 );
 
 function num(v: unknown): number | null {
@@ -71,25 +71,24 @@ export const TELEMETRY_KEYS = [
 export function normalize(raw: Record<string, unknown> | null): Omit<DeviceTelemetry, "online"> {
   if (!raw) return { ...EMPTY_TELEMETRY };
   return {
-    bpm: inRange(num(raw['BPM']), 0, 300),
-    spo2: inRange(num(raw['SpO2']), 0, 100),
-    bodyTemperature: inRange(num(raw['BodyTemp']), -20, 60),
-    ambientTemperature: inRange(num(raw['AmbientTemp']), -40, 85),
+    bpm: inRange(num(raw["BPM"]), 0, 300),
+    spo2: inRange(num(raw["SpO2"]), 0, 100),
+    bodyTemperature: inRange(num(raw["BodyTemp"]), -20, 60),
+    ambientTemperature: inRange(num(raw["AmbientTemp"]), -40, 85),
     battery: {
-      voltage: inRange(num(raw['BatteryVoltage']), 0, 30),
-      percentage: inRange(num(raw['BatteryPercent']), 0, 100),
-      current: num(raw['BatteryCurrent']),
-      power: num(raw['BatteryPower']),
-      temperature: inRange(num(raw['BatteryTemp']), -40, 125),
+      voltage: inRange(num(raw["BatteryVoltage"]), 0, 30),
+      percentage: inRange(num(raw["BatteryPercent"]), 0, 100),
+      current: num(raw["BatteryCurrent"]),
+      power: num(raw["BatteryPower"]),
+      temperature: inRange(num(raw["BatteryTemp"]), -40, 125),
     },
-    nebulizer: { relay: raw['Relay'] === true || raw['Relay'] === "true" || raw['Relay'] === 1 },
+    nebulizer: { relay: raw["Relay"] === true || raw["Relay"] === "true" || raw["Relay"] === 1 },
     lastUpdated: Date.now(),
   };
 }
 
 export type TelemetryEvent =
-  | { kind: "data"; telemetry: Omit<DeviceTelemetry, "online"> }
-  | { kind: "error"; message: string };
+  { kind: "data"; telemetry: Omit<DeviceTelemetry, "online"> } | { kind: "error"; message: string };
 
 /**
  * Subscribe to a device node (e.g. "Patient1").
@@ -138,7 +137,6 @@ export function subscribeTelemetry(node: string, cb: (e: TelemetryEvent) => void
     detach.forEach((off) => off());
   };
 }
-
 
 /** Subscribe to Firebase connectivity itself (not the ESP32). */
 export function subscribeFirebaseConnection(cb: (connected: boolean) => void): Unsubscribe {

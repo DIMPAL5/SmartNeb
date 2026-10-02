@@ -22,7 +22,8 @@ export const kn_patient: Record<string, string> = {
   "patient.neb.stop": "ನಿಲ್ಲಿಸಿ",
   "patient.neb.offlineSimulatorNote":
     "ಸಾಧನ ಆಫ್‌ಲೈನ್ ಆಗಿದೆ — ಸಿಮ್ಯುಲೇಟರ್ ಮೋಡ್‌ನಲ್ಲಿ ಚಾಲನೆಯಲ್ಲಿದೆ. ಸೆಷನ್ ನಿಮ್ಮ ದಾಖಲೆಯಲ್ಲಿ ದಾಖಲಾಗಿದೆ, ಆದರೆ ಭೌತಿಕ ನೆಬ್ಯುಲೈಸರ್ ಆನ್ ಆಗಿಲ್ಲ.",
-  "patient.neb.stateReflectsNote": "ಸ್ಥಿತಿಯು ಸಾಧನದಿಂದ ಸ್ವೀಕರಿಸಿದ ಕೊನೆಯ ಖಚಿತಪಡಿಕೆಯನ್ನು ಪ್ರತಿಬಿಂಬಿಸುತ್ತದೆ.",
+  "patient.neb.stateReflectsNote":
+    "ಸ್ಥಿತಿಯು ಸಾಧನದಿಂದ ಸ್ವೀಕರಿಸಿದ ಕೊನೆಯ ಖಚಿತಪಡಿಕೆಯನ್ನು ಪ್ರತಿಬಿಂಬಿಸುತ್ತದೆ.",
   "patient.neb.confirmTitle": "ನೆಬ್ಯುಲೈಸೇಶನ್ ಸೆಷನ್ ಪ್ರಾರಂಭಿಸಬೇಕೇ?",
   "patient.neb.minuteSession": "{minutes} ನಿಮಿಷದ ಸೆಷನ್.",
   "patient.neb.confirmSimulatedNote":
@@ -67,7 +68,8 @@ export const kn_patient: Record<string, string> = {
   "patient.dashboard.unableConnect": "ಸಾಧನದ ಡೇಟಾಗೆ ಸಂಪರ್ಕಿಸಲು ಸಾಧ್ಯವಾಗುತ್ತಿಲ್ಲ",
   "patient.dashboard.onlineLive": "ಸಾಧನ ಆನ್‌ಲೈನ್ · ಲೈವ್ ESP32 ಟೆಲಿಮೆಟ್ರಿ",
   "patient.dashboard.updatedSuffix": " · {time} ನವೀಕರಿಸಲಾಗಿದೆ",
-  "patient.dashboard.offlineLastReading": "ಸಾಧನ ಆಫ್‌ಲೈನ್ — ಕೊನೆಯ ಸಂಗ್ರಹಿತ ವಾಚನ ತೋರಿಸಲಾಗುತ್ತಿದೆ ({fresh})",
+  "patient.dashboard.offlineLastReading":
+    "ಸಾಧನ ಆಫ್‌ಲೈನ್ — ಕೊನೆಯ ಸಂಗ್ರಹಿತ ವಾಚನ ತೋರಿಸಲಾಗುತ್ತಿದೆ ({fresh})",
   "patient.dashboard.esp32Connected": "ESP32 ಸಂಪರ್ಕಗೊಂಡಿದೆ",
   "patient.dashboard.esp32Offline": "ESP32 ಆಫ್‌ಲೈನ್",
   "patient.dashboard.cloudLinked": "ಸಾಧನ ಕ್ಲೌಡ್ ಜೋಡಣೆಯಾಗಿದೆ",
@@ -95,10 +97,12 @@ export const kn_patient: Record<string, string> = {
   "patient.dashboard.relayLabel": "ರಿಲೇ",
   "patient.dashboard.chamberPct": "ಚೇಂಬರ್ {value}%",
   "patient.dashboard.activeAlerts": "ಸಕ್ರಿಯ ಎಚ್ಚರಿಕೆಗಳು",
-  "patient.dashboard.noActiveAlerts": "ಯಾವುದೇ ಸಕ್ರಿಯ ಎಚ್ಚರಿಕೆಗಳಿಲ್ಲ. ಎಲ್ಲಾ ವಾಚನಗಳು ವ್ಯಾಪ್ತಿಯಲ್ಲಿವೆ.",
+  "patient.dashboard.noActiveAlerts":
+    "ಯಾವುದೇ ಸಕ್ರಿಯ ಎಚ್ಚರಿಕೆಗಳಿಲ್ಲ. ಎಲ್ಲಾ ವಾಚನಗಳು ವ್ಯಾಪ್ತಿಯಲ್ಲಿವೆ.",
   "patient.dashboard.sosHistoryTitle": "ನನ್ನ ತುರ್ತು SOS ಇತಿಹಾಸ",
   "patient.dashboard.sosSentTitle": "ತುರ್ತು SOS ಕಳುಹಿಸಲಾಗಿದೆ",
-  "patient.dashboard.sosSentDesc": "{count} ಆರೈಕೆ ತಂಡದ ಸದಸ್ಯ(ರಿಗೆ) ನಿಮ್ಮ ಇತ್ತೀಚಿನ ವೈಟಲ್ಸ್‌ನೊಂದಿಗೆ ತಿಳಿಸಲಾಗಿದೆ.",
+  "patient.dashboard.sosSentDesc":
+    "{count} ಆರೈಕೆ ತಂಡದ ಸದಸ್ಯ(ರಿಗೆ) ನಿಮ್ಮ ಇತ್ತೀಚಿನ ವೈಟಲ್ಸ್‌ನೊಂದಿಗೆ ತಿಳಿಸಲಾಗಿದೆ.",
 
   "patient.adherence.subtitle": "ಕಳೆದ 30 ದಿನಗಳಲ್ಲಿ ನಿಮ್ಮ ಚಿಕಿತ್ಸಾ ಸ್ಥಿರತೆ",
   "patient.adherence.score": "ಅನುಸರಣೆ ಸ್ಕೋರ್",
@@ -155,7 +159,8 @@ export const kn_patient: Record<string, string> = {
 
   "patient.nebulization.subtitle": "ಸೆಷನ್ ಇತಿಹಾಸ ಮತ್ತು ಫಲಿತಾಂಶಗಳು",
   "patient.nebulization.noneTitle": "ಇನ್ನೂ ಯಾವುದೇ ಸೆಷನ್‌ಗಳಿಲ್ಲ",
-  "patient.nebulization.noneDesc": "ನನ್ನ ನೆಬ್ಯುಲೈಸರ್ ಪುಟದಿಂದ ಒಂದು ಸೆಷನ್ ಪ್ರಾರಂಭಿಸಿ ಮತ್ತು ಅದು ಇಲ್ಲಿ ಕಾಣಿಸುತ್ತದೆ.",
+  "patient.nebulization.noneDesc":
+    "ನನ್ನ ನೆಬ್ಯುಲೈಸರ್ ಪುಟದಿಂದ ಒಂದು ಸೆಷನ್ ಪ್ರಾರಂಭಿಸಿ ಮತ್ತು ಅದು ಇಲ್ಲಿ ಕಾಣಿಸುತ್ತದೆ.",
   "patient.nebulization.colStarted": "ಪ್ರಾರಂಭ",
   "patient.nebulization.colMedication": "ಔಷಧಿ",
   "patient.nebulization.colDuration": "ಅವಧಿ",

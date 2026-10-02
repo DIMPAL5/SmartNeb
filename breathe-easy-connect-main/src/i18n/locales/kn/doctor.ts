@@ -192,7 +192,8 @@ export const kn_doctor: Record<string, string> = {
   "doctor.settings.saved": "ಸೆಟ್ಟಿಂಗ್‌ಗಳನ್ನು ಉಳಿಸಲಾಗಿದೆ",
 
   "doctor.dashboard.title": "ಕ್ಲಿನಿಕಲ್ ಡ್ಯಾಶ್‌ಬೋರ್ಡ್",
-  "doctor.dashboard.subtitle": "{count} ನಿಯೋಜಿತ ರೋಗಿಗಳು · {critical} ಗಂಭೀರ ಎಚ್ಚರಿಕೆಗಳು · {inTherapy} ಚಿಕಿತ್ಸೆಯಲ್ಲಿ",
+  "doctor.dashboard.subtitle":
+    "{count} ನಿಯೋಜಿತ ರೋಗಿಗಳು · {critical} ಗಂಭೀರ ಎಚ್ಚರಿಕೆಗಳು · {inTherapy} ಚಿಕಿತ್ಸೆಯಲ್ಲಿ",
 
   "doctor.vitals.oxygenSaturation": "ಆಮ್ಲಜನಕ ಸ್ಯಾಚುರೇಶನ್",
   "doctor.vitals.heartRate": "ಹೃದಯ ಬಡಿತ",

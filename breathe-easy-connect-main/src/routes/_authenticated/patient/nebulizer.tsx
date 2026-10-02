@@ -19,10 +19,14 @@ export const Route = createFileRoute("/_authenticated/patient/nebulizer")({
       { title: "My Nebulizer — SmartNeb" },
       {
         name: "description",
-        content: "Control your connected nebulizer, track chamber fluid level and log medication refills.",
+        content:
+          "Control your connected nebulizer, track chamber fluid level and log medication refills.",
       },
       { property: "og:title", content: "My Nebulizer — SmartNeb" },
-      { property: "og:description", content: "Start, pause and monitor your nebulization therapy." },
+      {
+        property: "og:description",
+        content: "Start, pause and monitor your nebulization therapy.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
@@ -75,7 +79,10 @@ function NebulizerBody({ patientId }: { patientId: string }) {
     [t("patient.nebulizer.medication"), carePlan?.medication],
     [t("patient.nebulizer.dosage"), carePlan?.dosage],
     [t("patient.nebulizer.duration"), carePlan ? `${carePlan.duration_minutes} min` : null],
-    [t("patient.nebulizer.frequency"), carePlan ? t("patient.nebulizer.perDay", { count: carePlan.frequency_per_day }) : null],
+    [
+      t("patient.nebulizer.frequency"),
+      carePlan ? t("patient.nebulizer.perDay", { count: carePlan.frequency_per_day }) : null,
+    ],
     [
       t("patient.nebulizer.scheduledTimes"),
       (carePlan as { time_slots?: string[] | null } | undefined)?.time_slots?.length
@@ -99,7 +106,9 @@ function NebulizerBody({ patientId }: { patientId: string }) {
 
         <section className="panel space-y-4 p-5">
           <div className="flex items-center justify-between">
-            <p className="font-display text-sm font-semibold">{t("patient.nebulizer.prescription")}</p>
+            <p className="font-display text-sm font-semibold">
+              {t("patient.nebulizer.prescription")}
+            </p>
             <StatusBadge
               status={carePlan ? "normal" : "warning"}
               label={carePlan ? t("patient.nebulizer.activePlan") : t("patient.nebulizer.noPlan")}
@@ -115,29 +124,37 @@ function NebulizerBody({ patientId }: { patientId: string }) {
               ))}
               {carePlan.instructions ? (
                 <div className="rounded-lg border bg-surface-2 p-4 sm:col-span-2">
-                  <dt className="text-xs text-muted-foreground">{t("patient.nebulizer.instructions")}</dt>
+                  <dt className="text-xs text-muted-foreground">
+                    {t("patient.nebulizer.instructions")}
+                  </dt>
                   <dd className="mt-1 text-sm">{carePlan.instructions}</dd>
                 </div>
               ) : null}
             </dl>
           ) : (
-            <p className="text-sm text-muted-foreground">
-              {t("patient.nebulizer.noCarePlan")}
-            </p>
+            <p className="text-sm text-muted-foreground">{t("patient.nebulizer.noCarePlan")}</p>
           )}
         </section>
       </div>
 
       <div className="space-y-6">
         <section className="panel flex flex-col items-center gap-4 p-5">
-          <p className="self-start font-display text-sm font-semibold">{t("patient.nebulizer.chamber")}</p>
+          <p className="self-start font-display text-sm font-semibold">
+            {t("patient.nebulizer.chamber")}
+          </p>
           <Gauge value={fluid} label={t("patient.nebulizer.fluidLevel")} unit="%" />
           <div className="w-full space-y-3">
             <div className="flex items-center justify-between text-xs text-muted-foreground">
               <span>{t("patient.nebulizer.refillTo")}</span>
               <span className="tabular-nums">{level}%</span>
             </div>
-            <Slider value={[level]} min={0} max={100} step={5} onValueChange={(v) => setLevel(v[0] ?? 0)} />
+            <Slider
+              value={[level]}
+              min={0}
+              max={100}
+              step={5}
+              onValueChange={(v) => setLevel(v[0] ?? 0)}
+            />
             <Button className="w-full" onClick={() => refill.mutate()} disabled={refill.isPending}>
               <Droplets className="mr-2 size-4" /> {t("patient.nebulizer.logRefill")}
             </Button>
@@ -145,11 +162,16 @@ function NebulizerBody({ patientId }: { patientId: string }) {
         </section>
 
         <section className="panel p-5">
-          <p className="mb-3 font-display text-sm font-semibold">{t("patient.nebulizer.recentRefills")}</p>
+          <p className="mb-3 font-display text-sm font-semibold">
+            {t("patient.nebulizer.recentRefills")}
+          </p>
           {refills.data && refills.data.length > 0 ? (
             <ul className="space-y-2 text-sm">
               {refills.data.map((r) => (
-                <li key={r.id} className="flex items-center justify-between rounded-lg border bg-surface-2 px-3 py-2">
+                <li
+                  key={r.id}
+                  className="flex items-center justify-between rounded-lg border bg-surface-2 px-3 py-2"
+                >
                   <span className="text-muted-foreground">
                     {new Date(r.created_at).toLocaleString()}
                   </span>

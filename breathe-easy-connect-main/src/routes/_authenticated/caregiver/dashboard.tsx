@@ -117,9 +117,17 @@ function CaregiverDashboard() {
     };
     const channel = supabase
       .channel("caregiver-live")
-      .on("postgres_changes", { event: "*", schema: "public", table: "health_telemetry" }, invalidate)
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "health_telemetry" },
+        invalidate,
+      )
       .on("postgres_changes", { event: "*", schema: "public", table: "alerts" }, invalidate)
-      .on("postgres_changes", { event: "*", schema: "public", table: "nebulization_sessions" }, invalidate)
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "nebulization_sessions" },
+        invalidate,
+      )
       .subscribe();
     return () => {
       void supabase.removeChannel(channel);
@@ -267,8 +275,12 @@ function RosterCard({
         <StatusBadge status={spo2Status(patient.spo2, patient.spo2_threshold)} />
       </div>
       <div className="mt-2 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
-        <span className="tabular-nums">{t("vitals.spo2")} {patient.spo2 ?? "--"}%</span>
-        <span className="tabular-nums">{t("caregiver.hrAbbrev")} {patient.bpm ?? "--"}</span>
+        <span className="tabular-nums">
+          {t("vitals.spo2")} {patient.spo2 ?? "--"}%
+        </span>
+        <span className="tabular-nums">
+          {t("caregiver.hrAbbrev")} {patient.bpm ?? "--"}
+        </span>
         <span>{fresh.text}</span>
         {patient.activeSOS > 0 ? (
           <Badge variant="destructive" className="gap-1">
@@ -333,12 +345,18 @@ function PatientWorkspace({
           </h2>
           <p className="text-sm text-muted-foreground">
             {p?.mrn ?? patient?.mrn} · {p?.condition ?? t("caregiver.noConditionRecorded")}
-            {patient?.relation ? ` · ${t("caregiver.yourRelation", { relation: patient.relation })}` : ""}
+            {patient?.relation
+              ? ` · ${t("caregiver.yourRelation", { relation: patient.relation })}`
+              : ""}
           </p>
         </div>
         <StatusBadge
           status={fresh.stale ? "unknown" : "normal"}
-          label={fresh.stale ? t("caregiver.staleLabel", { time: fresh.text }) : t("caregiver.liveLabel", { time: fresh.text })}
+          label={
+            fresh.stale
+              ? t("caregiver.staleLabel", { time: fresh.text })
+              : t("caregiver.liveLabel", { time: fresh.text })
+          }
         />
       </div>
 
@@ -377,7 +395,13 @@ function PatientWorkspace({
             value={battPct}
             unit="%"
             status={
-              battPct == null ? "unknown" : battPct < 15 ? "critical" : battPct < 30 ? "warning" : "normal"
+              battPct == null
+                ? "unknown"
+                : battPct < 15
+                  ? "critical"
+                  : battPct < 30
+                    ? "warning"
+                    : "normal"
             }
             hint={fresh.text}
             icon={<BatteryMedium className="size-4" aria-hidden />}
@@ -390,7 +414,9 @@ function PatientWorkspace({
           <div className="flex items-center gap-2">
             <Cpu className="size-4 text-primary" aria-hidden />
             <div>
-              <p className="text-sm font-medium">{device?.device_code ?? t("caregiver.noDevice")}</p>
+              <p className="text-sm font-medium">
+                {device?.device_code ?? t("caregiver.noDevice")}
+              </p>
               <p className="text-xs text-muted-foreground">
                 {t("caregiver.firmwareLastSeen", {
                   firmware: device?.firmware ?? "--",
@@ -417,7 +443,9 @@ function PatientWorkspace({
                     : "unknown"
               }
               label={
-                snap?.activeSession ? t("caregiver.therapyStatus", { status: snap.activeSession.status }) : t("caregiver.noActiveTherapy")
+                snap?.activeSession
+                  ? t("caregiver.therapyStatus", { status: snap.activeSession.status })
+                  : t("caregiver.noActiveTherapy")
               }
             />
             <span className="text-xs text-muted-foreground">
@@ -474,7 +502,12 @@ function AlertsTab({ patientId, signedIn }: { patientId: string; signedIn: boole
 
   if (q.isLoading) return <LoadingSkeleton rows={3} />;
   if (!q.data?.length)
-    return <EmptyState title={t("caregiver.noAlerts")} description={t("caregiver.readingsWithinRange")} />;
+    return (
+      <EmptyState
+        title={t("caregiver.noAlerts")}
+        description={t("caregiver.readingsWithinRange")}
+      />
+    );
 
   return (
     <ul className="space-y-2">
@@ -490,7 +523,13 @@ function AlertsTab({ patientId, signedIn }: { patientId: string; signedIn: boole
             </p>
           </div>
           <StatusBadge
-            status={a.severity === "critical" ? "critical" : a.severity === "warning" ? "warning" : "normal"}
+            status={
+              a.severity === "critical"
+                ? "critical"
+                : a.severity === "warning"
+                  ? "warning"
+                  : "normal"
+            }
             label={a.severity}
           />
         </li>
@@ -536,11 +575,15 @@ function AdherenceTab({ patientId, signedIn }: { patientId: string; signedIn: bo
       </div>
 
       <div className="panel p-5">
-        <h3 className="font-display text-sm font-semibold">{t("caregiver.recentTherapySessions")}</h3>
+        <h3 className="font-display text-sm font-semibold">
+          {t("caregiver.recentTherapySessions")}
+        </h3>
         {sessions.isLoading ? (
           <LoadingSkeleton rows={2} className="mt-3" />
         ) : !sessions.data?.length ? (
-          <p className="mt-3 text-sm text-muted-foreground">{t("caregiver.noSessionsRecordedYet")}</p>
+          <p className="mt-3 text-sm text-muted-foreground">
+            {t("caregiver.noSessionsRecordedYet")}
+          </p>
         ) : (
           <ul className="mt-3 space-y-2">
             {sessions.data.map((s) => (
@@ -553,8 +596,8 @@ function AdherenceTab({ patientId, signedIn }: { patientId: string; signedIn: bo
                   {new Date(s.started_at).toLocaleString()}
                 </span>
                 <span className="text-xs text-muted-foreground">
-                  {Math.round(s.elapsed_seconds / 60)} / {Math.round(s.prescribed_seconds / 60)} min ·{" "}
-                  {s.status}
+                  {Math.round(s.elapsed_seconds / 60)} / {Math.round(s.prescribed_seconds / 60)} min
+                  · {s.status}
                 </span>
               </li>
             ))}
@@ -584,12 +627,19 @@ function HistoryTab({ patientId, signedIn }: { patientId: string; signedIn: bool
   }));
 
   if (!health.length)
-    return <EmptyState title={t("caregiver.noTelemetryYet")} description={t("caregiver.readingsLast24h")} />;
+    return (
+      <EmptyState
+        title={t("caregiver.noTelemetryYet")}
+        description={t("caregiver.readingsLast24h")}
+      />
+    );
 
   return (
     <div className="space-y-4">
       <div className="panel p-5">
-        <h3 className="font-display text-sm font-semibold">{t("caregiver.oxygenSaturationLast24h")}</h3>
+        <h3 className="font-display text-sm font-semibold">
+          {t("caregiver.oxygenSaturationLast24h")}
+        </h3>
         <TrendChart
           data={health}
           series={[{ key: "spo2", label: "SpO₂ %", color: "var(--chart-1)" }]}
@@ -598,7 +648,9 @@ function HistoryTab({ patientId, signedIn }: { patientId: string; signedIn: bool
         />
       </div>
       <div className="panel p-5">
-        <h3 className="font-display text-sm font-semibold">{t("caregiver.heartRateTempLast24h")}</h3>
+        <h3 className="font-display text-sm font-semibold">
+          {t("caregiver.heartRateTempLast24h")}
+        </h3>
         <TrendChart
           data={health}
           series={[

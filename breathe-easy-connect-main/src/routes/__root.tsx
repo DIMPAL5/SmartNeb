@@ -15,7 +15,6 @@ import { ThemeProvider } from "@/components/smartneb/theme";
 import { LanguageProvider, useT } from "@/i18n";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 
-
 function NotFoundComponent() {
   const t = useT();
   return (
@@ -80,10 +79,17 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
       { title: "SmartNeb — IoT Respiratory Therapy Platform" },
-      { name: "description", content: "SmartNeb connects nebulizer hardware, live vitals and clinicians in one respiratory therapy platform." },
+      {
+        name: "description",
+        content:
+          "SmartNeb connects nebulizer hardware, live vitals and clinicians in one respiratory therapy platform.",
+      },
       { name: "author", content: "Lovable" },
       { property: "og:title", content: "SmartNeb — IoT Respiratory Therapy Platform" },
-      { property: "og:description", content: "Real-time nebulizer control, vitals monitoring and clinical oversight." },
+      {
+        property: "og:description",
+        content: "Real-time nebulizer control, vitals monitoring and clinical oversight.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:site", content: "@Lovable" },
@@ -134,7 +140,6 @@ function RootComponent() {
           <Toaster position="top-right" richColors />
         </LanguageProvider>
       </ThemeProvider>
-
     </QueryClientProvider>
   );
 }

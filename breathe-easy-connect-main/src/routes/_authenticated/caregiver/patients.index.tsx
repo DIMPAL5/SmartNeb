@@ -73,7 +73,10 @@ function PatientGrid({
         )
       : patients;
     return [...list].sort(
-      (a, b) => b.activeSOS - a.activeSOS || b.criticalAlerts - a.criticalAlerts || b.activeAlerts - a.activeAlerts,
+      (a, b) =>
+        b.activeSOS - a.activeSOS ||
+        b.criticalAlerts - a.criticalAlerts ||
+        b.activeAlerts - a.activeAlerts,
     );
   }, [patients, q]);
 
@@ -122,7 +125,10 @@ function PatientGrid({
                     {[
                       [t("vitals.spo2"), p.spo2 == null ? "--" : `${p.spo2}%`],
                       [t("caregiver.heartRate"), p.bpm == null ? "--" : `${p.bpm}`],
-                      [t("caregiver.temp"), p.bodyTemperature == null ? "--" : `${p.bodyTemperature.toFixed(1)}°`],
+                      [
+                        t("caregiver.temp"),
+                        p.bodyTemperature == null ? "--" : `${p.bodyTemperature.toFixed(1)}°`,
+                      ],
                     ].map(([k, v]) => (
                       <div key={k} className="rounded-lg border bg-surface-2 p-2">
                         <dt className="text-[11px] text-muted-foreground">{k}</dt>
@@ -133,12 +139,14 @@ function PatientGrid({
 
                   <div className="mt-3 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
                     <span className="inline-flex items-center gap-1">
-                      <Cpu className="size-3.5" aria-hidden /> {p.deviceCode ?? t("caregiver.noDevice")} ·{" "}
+                      <Cpu className="size-3.5" aria-hidden />{" "}
+                      {p.deviceCode ?? t("caregiver.noDevice")} ·{" "}
                       {p.deviceStatus ?? t("status.unknown")}
                     </span>
                     <span className="inline-flex items-center gap-1">
                       <BatteryMedium className="size-3.5" aria-hidden />{" "}
-                      {p.fluidLevel == null ? "--" : `${Math.round(p.fluidLevel)}%`} {t("caregiver.chamber")}
+                      {p.fluidLevel == null ? "--" : `${Math.round(p.fluidLevel)}%`}{" "}
+                      {t("caregiver.chamber")}
                     </span>
                     <span>{t("caregiver.updated", { time: fresh.text })}</span>
                   </div>
@@ -151,7 +159,8 @@ function PatientGrid({
                     ) : null}
                     {p.activeAlerts > 0 ? (
                       <Badge variant="destructive" className="gap-1">
-                        <AlertTriangle className="size-3" aria-hidden /> {t("caregiver.alertsCount", { count: p.activeAlerts })}
+                        <AlertTriangle className="size-3" aria-hidden />{" "}
+                        {t("caregiver.alertsCount", { count: p.activeAlerts })}
                       </Badge>
                     ) : null}
                     {p.sessionStatus === "running" ? (
@@ -159,9 +168,7 @@ function PatientGrid({
                         <Wind className="size-3" aria-hidden /> {t("caregiver.inTherapy")}
                       </Badge>
                     ) : null}
-                    {p.planMedication ? (
-                      <Badge variant="outline">{p.planMedication}</Badge>
-                    ) : null}
+                    {p.planMedication ? <Badge variant="outline">{p.planMedication}</Badge> : null}
                   </div>
                 </Link>
               </li>

@@ -32,5 +32,7 @@ async function handle(request: Request) {
 }
 
 export const Route = createFileRoute("/api/public/cron/evaluate-alerts")({
-  server: { handlers: { POST: ({ request }) => handle(request), GET: ({ request }) => handle(request) } },
+  server: {
+    handlers: { POST: ({ request }) => handle(request), GET: ({ request }) => handle(request) },
+  },
 });

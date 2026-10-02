@@ -120,5 +120,6 @@ export const en_common = {
   "error.pageNotFound": "Page not found",
   "error.pageNotFoundBody": "The page you're looking for doesn't exist or has been moved.",
   "error.pageFailed": "This page didn't load",
-  "error.pageFailedBody": "Something went wrong on our end. You can try refreshing or head back home.",
+  "error.pageFailedBody":
+    "Something went wrong on our end. You can try refreshing or head back home.",
 } as const;

@@ -18,12 +18,15 @@ import { StatusBadge } from "./vitals";
 import { cn } from "@/lib/utils";
 import { useT } from "@/i18n";
 
-export type NebState = "OFF" | "READY" | "COMMAND_SENT" | "RUNNING" | "PAUSED" | "COMPLETED" | "ERROR";
+export type NebState =
+  "OFF" | "READY" | "COMMAND_SENT" | "RUNNING" | "PAUSED" | "COMPLETED" | "ERROR";
 
 function chime() {
   try {
-    const ctx = new (window.AudioContext ||
-      (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)();
+    const ctx = new (
+      window.AudioContext ||
+      (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext
+    )();
     [880, 1174].forEach((f, i) => {
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
@@ -217,8 +220,20 @@ export function NebulizerControl({
         </div>
       </div>
 
-      <svg width={size} height={size} role="img" aria-label={t("patient.neb.sessionProgressAria", { pct: Math.round(pct) })}>
-        <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="var(--border)" strokeWidth={12} />
+      <svg
+        width={size}
+        height={size}
+        role="img"
+        aria-label={t("patient.neb.sessionProgressAria", { pct: Math.round(pct) })}
+      >
+        <circle
+          cx={size / 2}
+          cy={size / 2}
+          r={r}
+          fill="none"
+          stroke="var(--border)"
+          strokeWidth={12}
+        />
         <circle
           cx={size / 2}
           cy={size / 2}
@@ -281,9 +296,7 @@ export function NebulizerControl({
       </div>
 
       {simulated ? (
-        <p className="text-center text-xs text-warn">
-          {t("patient.neb.offlineSimulatorNote")}
-        </p>
+        <p className="text-center text-xs text-warn">{t("patient.neb.offlineSimulatorNote")}</p>
       ) : (
         <p className="text-center text-xs text-muted-foreground">
           {t("patient.neb.stateReflectsNote")}
@@ -297,9 +310,7 @@ export function NebulizerControl({
             <AlertDialogDescription>
               {medication ? `${medication}${dosage ? ` · ${dosage}` : ""} — ` : ""}
               {t("patient.neb.minuteSession", { minutes: Math.round(prescribed / 60) })}
-              {simulated
-                ? t("patient.neb.confirmSimulatedNote")
-                : t("patient.neb.confirmLiveNote")}
+              {simulated ? t("patient.neb.confirmSimulatedNote") : t("patient.neb.confirmLiveNote")}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

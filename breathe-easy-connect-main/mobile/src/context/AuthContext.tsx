@@ -1,8 +1,8 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
-import { storage } from '../utils/storage';
-import { apiClient } from '../api/client';
+import React, { createContext, useContext, useState, useEffect } from "react";
+import { storage } from "../utils/storage";
+import { apiClient } from "../api/client";
 
-export type AppRole = 'patient' | 'doctor' | 'caregiver' | 'admin' | 'super_admin';
+export type AppRole = "patient" | "doctor" | "caregiver" | "admin" | "super_admin";
 
 export interface UserContext {
   userId: string;
@@ -30,13 +30,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const refreshUser = async () => {
     try {
-      const token = await storage.getItem('accessToken');
+      const token = await storage.getItem("accessToken");
       if (!token) {
         setUser(null);
         setIsLoading(false);
         return;
       }
-      const res = await apiClient.get('/auth/me');
+      const res = await apiClient.get("/auth/me");
       if (res.data?.user) {
         setUser(res.data.user);
       }
@@ -54,10 +54,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const login = async (email: string, pass: string) => {
     setIsLoading(true);
     try {
-      const res = await apiClient.post('/auth/login', { email, password: pass });
+      const res = await apiClient.post("/auth/login", { email, password: pass });
       if (res.data.accessToken) {
-        await storage.setItem('accessToken', res.data.accessToken);
-        await storage.setItem('refreshToken', res.data.refreshToken);
+        await storage.setItem("accessToken", res.data.accessToken);
+        await storage.setItem("refreshToken", res.data.refreshToken);
         setUser(res.data.user);
       }
     } finally {
@@ -66,8 +66,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const logout = async () => {
-    await storage.removeItem('accessToken');
-    await storage.removeItem('refreshToken');
+    await storage.removeItem("accessToken");
+    await storage.removeItem("refreshToken");
     setUser(null);
   };
 

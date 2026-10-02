@@ -18,10 +18,14 @@ export const Route = createFileRoute("/_authenticated/caregiver/profile")({
       { title: "Caregiver Profile — SmartNeb" },
       {
         name: "description",
-        content: "Manage your caregiver contact details, notification preferences and voice alerts.",
+        content:
+          "Manage your caregiver contact details, notification preferences and voice alerts.",
       },
       { property: "og:title", content: "Caregiver Profile — SmartNeb" },
-      { property: "og:description", content: "Contact details and alert preferences for caregivers." },
+      {
+        property: "og:description",
+        content: "Contact details and alert preferences for caregivers.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
@@ -82,7 +86,11 @@ function CaregiverProfilePage() {
             >
               <div className="space-y-2">
                 <Label htmlFor="full_name">{t("caregiver.fullName")}</Label>
-                <Input id="full_name" value={fullName} onChange={(e) => setFullName(e.target.value)} />
+                <Input
+                  id="full_name"
+                  value={fullName}
+                  onChange={(e) => setFullName(e.target.value)}
+                />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="phone">{t("caregiver.contactPhone")}</Label>
@@ -100,14 +108,22 @@ function CaregiverProfilePage() {
               <div className="flex items-center justify-between rounded-lg border bg-surface-2 px-4 py-3">
                 <div>
                   <p className="text-sm font-medium">{t("caregiver.spokenCriticalAlerts")}</p>
-                  <p className="text-xs text-muted-foreground">{t("caregiver.spokenCriticalAlertsDescription")}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {t("caregiver.spokenCriticalAlertsDescription")}
+                  </p>
                 </div>
-                <Switch checked={voice} onCheckedChange={setVoice} aria-label={t("caregiver.spokenCriticalAlerts")} />
+                <Switch
+                  checked={voice}
+                  onCheckedChange={setVoice}
+                  aria-label={t("caregiver.spokenCriticalAlerts")}
+                />
               </div>
               <div className="flex items-center justify-between rounded-lg border bg-surface-2 px-4 py-3">
                 <div>
                   <p className="text-sm font-medium">{t("caregiver.emailNotifications")}</p>
-                  <p className="text-xs text-muted-foreground">{t("caregiver.emailNotificationsDescription")}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {t("caregiver.emailNotificationsDescription")}
+                  </p>
                 </div>
                 <Switch
                   checked={emailNotify}
@@ -121,10 +137,16 @@ function CaregiverProfilePage() {
             </form>
 
             <section className="panel space-y-3 p-6">
-              <h2 className="font-display text-sm font-semibold">{t("caregiver.careAssignments")}</h2>
-              <p className="text-xs text-muted-foreground">{t("caregiver.careAssignmentsDescription")}</p>
+              <h2 className="font-display text-sm font-semibold">
+                {t("caregiver.careAssignments")}
+              </h2>
+              <p className="text-xs text-muted-foreground">
+                {t("caregiver.careAssignmentsDescription")}
+              </p>
               {patients.length === 0 ? (
-                <p className="text-sm text-muted-foreground">{t("caregiver.noPatientsAssignedYet")}</p>
+                <p className="text-sm text-muted-foreground">
+                  {t("caregiver.noPatientsAssignedYet")}
+                </p>
               ) : (
                 <ul className="space-y-2">
                   {patients.map((p) => (

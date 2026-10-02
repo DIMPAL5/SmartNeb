@@ -27,28 +27,28 @@ Secure role-based access control
 Device management
 Audit logging
 The final product should look and feel like a premium healthcare IoT SaaS platform, not a generic hospital website or basic CRUD application.
+
 1. CORE PRODUCT WORKFLOW
-The central product workflow is:
-SENSE → CONNECT → MONITOR → ANALYZE → ALERT → TREAT → TRACK → REPORT
-Physical/IoT architecture:
-Sensors
+   The central product workflow is:
+   SENSE → CONNECT → MONITOR → ANALYZE → ALERT → TREAT → TRACK → REPORT
+   Physical/IoT architecture:
+   Sensors
    ↓
-ESP32
+   ESP32
    ↓
-MQTT
+   MQTT
    ↓
-IoT Cloud / ThingsBoard
+   IoT Cloud / ThingsBoard
    ↓
-Backend API
+   Backend API
    ↓
-MySQL
+   MySQL
    ↓
-React Web Application
+   React Web Application
 
 The application must have a single source of truth for users, patients, devices, care plans, telemetry, sessions, alerts, adherence, reports, and audit records.
 Do NOT create disconnected dashboards with hard-coded data.
-All roles must work with shared database entities and relationships.
-2. TECHNOLOGY STACK
+All roles must work with shared database entities and relationships. 2. TECHNOLOGY STACK
 Use this technology stack.
 Frontend
 React
@@ -99,92 +99,91 @@ Never store plain-text passwords.
 AI
 Use Gemini through a secure backend endpoint:
 /api/v1/ai/ask
-Never expose Gemini API keys in frontend code.
-3. ARCHITECTURE
+Never expose Gemini API keys in frontend code. 3. ARCHITECTURE
 Use a clean separation:
 Frontend
 React + TypeScript
-        ↓
+↓
 REST API / WebSocket
-        ↓
+↓
 Node.js + Express
-        ↓
+↓
 Service Layer
-        ↓
+↓
 Prisma ORM
-        ↓
+↓
 MySQL
 
 IoT:
 ESP32
- ↓
+↓
 MQTT
- ↓
+↓
 IoT Cloud / MQTT Broker
- ↓
+↓
 Node.js MQTT Service
- ↓
+↓
 Telemetry Service
- ↓
+↓
 MySQL
- ↓
+↓
 WebSocket
- ↓
+↓
 React
 
 AI:
 User
- ↓
+↓
 React AI Chat
- ↓
+↓
 /api/v1/ai/ask
- ↓
+↓
 Authentication
- ↓
+↓
 RBAC permission check
- ↓
+↓
 Authorized MySQL data
- ↓
+↓
 Gemini
- ↓
+↓
 Response
 
 4. ROLE SYSTEM
-Create exactly these roles:
-PATIENT
-DOCTOR
-CAREGIVER
-ADMIN
-SUPER_ADMIN
-Every role must have:
-Separate navigation
-Separate dashboard
-Separate permissions
-Separate accessible resources
-Shared underlying database relationships
-Do NOT simply hide buttons in React.
-Authorization must be enforced in the backend.
+   Create exactly these roles:
+   PATIENT
+   DOCTOR
+   CAREGIVER
+   ADMIN
+   SUPER_ADMIN
+   Every role must have:
+   Separate navigation
+   Separate dashboard
+   Separate permissions
+   Separate accessible resources
+   Shared underlying database relationships
+   Do NOT simply hide buttons in React.
+   Authorization must be enforced in the backend.
 5. ROLE RELATIONSHIP
-The system must work like this:
-SUPER ADMIN
-     ↓
-ADMIN
-     ↓
- ┌───┴──────────────┐
- ↓                  ↓
-DOCTOR          CAREGIVER
- ↓                  ↓
- └────────┬─────────┘
-          ↓
-       PATIENT
-          ↓
-       DEVICE
-          ↓
-        ESP32
-          ↓
-        MQTT
-          ↓
-       CLOUD
+   The system must work like this:
+   SUPER ADMIN
+   ↓
+   ADMIN
+   ↓
+   ┌───┴──────────────┐
+   ↓ ↓
+   DOCTOR CAREGIVER
+   ↓ ↓
+   └────────┬─────────┘
+   ↓
+   PATIENT
+   ↓
+   DEVICE
+   ↓
+   ESP32
+   ↓
+   MQTT
+   ↓
+   CLOUD
 
 Admin assigns:
 Patient → Doctor
@@ -203,8 +202,7 @@ Session + Health Telemetry + Battery Telemetry
 Platform generates:
 Adherence + Alerts + Reports
 
-Doctor/caregiver receive authorized information.
-6. COMPLETE ROLE FEATURE MATRIX
+Doctor/caregiver receive authorized information. 6. COMPLETE ROLE FEATURE MATRIX
 PATIENT
 Can:
 View own dashboard
@@ -236,8 +234,7 @@ Edit doctor prescriptions
 Edit clinical notes
 Manage users
 Manage devices globally
-Manage system settings
-7. DOCTOR
+Manage system settings 7. DOCTOR
 Can:
 View doctor dashboard
 View assigned patients
@@ -264,8 +261,7 @@ Manage global users
 Register devices globally
 Assign unrelated patients
 Modify system configuration
-Directly control patient nebulizer unless explicitly authorized by a future controlled workflow
-8. CAREGIVER
+Directly control patient nebulizer unless explicitly authorized by a future controlled workflow 8. CAREGIVER
 Can:
 View caregiver dashboard
 View assigned patients
@@ -286,8 +282,7 @@ Edit clinical notes
 Manage users
 Register devices
 Assign patients
-Modify system settings
-9. ADMIN
+Modify system settings 9. ADMIN
 Can:
 View admin dashboard
 Manage users
@@ -309,8 +304,7 @@ Monitor devices
 View system health
 View audit logs
 Manage limited system settings
-Admin does NOT make clinical decisions.
-10. SUPER ADMIN
+Admin does NOT make clinical decisions. 10. SUPER ADMIN
 Can:
 Manage administrators
 Manage global users
@@ -321,8 +315,7 @@ View global analytics
 View all devices
 View all system activity
 View all audit logs
-Configure global settings
-11. AUTHENTICATION
+Configure global settings 11. AUTHENTICATION
 Create:
 Login
 Register
@@ -341,251 +334,251 @@ ADMIN → /admin/dashboard
 SUPER_ADMIN → /super-admin/dashboard
 
 12. PATIENT PORTAL
-Patient navigation:
-Dashboard
-My Nebulizer
-Health Monitoring
-Nebulization
-Adherence
-Health History
-Alerts
-Reports
-AI Assistant
-Profile
-Settings
+    Patient navigation:
+    Dashboard
+    My Nebulizer
+    Health Monitoring
+    Nebulization
+    Adherence
+    Health History
+    Alerts
+    Reports
+    AI Assistant
+    Profile
+    Settings
 
 13. PATIENT DASHBOARD
-Create a premium command-center dashboard.
-Header:
-"Good Evening, [Patient Name]"
-Subtitle:
-"Your health and nebulizer status"
-Display live cards:
-Heart Rate
-BPM
-Normal/warning/critical
-Trend
-Last update
-SpO₂
-Percentage
-Status
-Trend
-Last update
-Body Temperature
-°C
-Status
-Trend
-Battery
-%
-Status
-Trend
-Environmental section:
-Ambient temperature
-Humidity
-AQI
-Air quality status
-Device card:
-Device ID
-Online/offline
-Last update
-MQTT connection
-Cloud connection
-Nebulizer card:
-Status
-Medication
-Prescribed duration
-Session progress
-Start/stop control
+    Create a premium command-center dashboard.
+    Header:
+    "Good Evening, [Patient Name]"
+    Subtitle:
+    "Your health and nebulizer status"
+    Display live cards:
+    Heart Rate
+    BPM
+    Normal/warning/critical
+    Trend
+    Last update
+    SpO₂
+    Percentage
+    Status
+    Trend
+    Last update
+    Body Temperature
+    °C
+    Status
+    Trend
+    Battery
+    %
+    Status
+    Trend
+    Environmental section:
+    Ambient temperature
+    Humidity
+    AQI
+    Air quality status
+    Device card:
+    Device ID
+    Online/offline
+    Last update
+    MQTT connection
+    Cloud connection
+    Nebulizer card:
+    Status
+    Medication
+    Prescribed duration
+    Session progress
+    Start/stop control
 14. LIVE HEALTH MONITORING
-Display real-time:
-BPM
-SpO₂
-Body temperature
-Use WebSocket updates where possible.
-Do not require page refreshes.
-Display:
-Last updated
-Connection status
-Data freshness
-If data becomes stale, show:
-"Last updated 32 seconds ago"
-and then:
-"Data connection interrupted"
+    Display real-time:
+    BPM
+    SpO₂
+    Body temperature
+    Use WebSocket updates where possible.
+    Do not require page refreshes.
+    Display:
+    Last updated
+    Connection status
+    Data freshness
+    If data becomes stale, show:
+    "Last updated 32 seconds ago"
+    and then:
+    "Data connection interrupted"
 15. ENVIRONMENTAL TELEMETRY
-Display:
-Ambient temperature
-Room humidity
-AQI
-Air quality classification
-Support future real sensors.
-If currently simulated:
-Mark as simulated in development mode
-Keep the database schema ready for real telemetry
+    Display:
+    Ambient temperature
+    Room humidity
+    AQI
+    Air quality classification
+    Support future real sensors.
+    If currently simulated:
+    Mark as simulated in development mode
+    Keep the database schema ready for real telemetry
 16. NEBULIZER CONTROL
-Create a premium interactive control interface.
-States:
-OFF
-READY
-RUNNING
-PAUSED
-COMPLETED
-ERROR
-Controls:
-Start
-Pause
-Resume
-Stop
-Use:
-Animated SVG timer ring
-Countdown
-Elapsed duration
-Prescribed duration
-Progress indicator
-When session completes:
-Play completion chime
-Show completion animation
-Store session
-Update adherence
-Notify patient
-Hardware state must eventually come from actual ESP32/relay state.
-Do not pretend the device changed if the backend has not confirmed it.
+    Create a premium interactive control interface.
+    States:
+    OFF
+    READY
+    RUNNING
+    PAUSED
+    COMPLETED
+    ERROR
+    Controls:
+    Start
+    Pause
+    Resume
+    Stop
+    Use:
+    Animated SVG timer ring
+    Countdown
+    Elapsed duration
+    Prescribed duration
+    Progress indicator
+    When session completes:
+    Play completion chime
+    Show completion animation
+    Store session
+    Update adherence
+    Notify patient
+    Hardware state must eventually come from actual ESP32/relay state.
+    Do not pretend the device changed if the backend has not confirmed it.
 17. DOSAGE / MEDICATION
-Display:
-Medication name
-Dosage
-Duration
-Frequency
-Instructions
-Start date
-End date
-The care plan is primarily doctor-controlled.
+    Display:
+    Medication name
+    Dosage
+    Duration
+    Frequency
+    Instructions
+    Start date
+    End date
+    The care plan is primarily doctor-controlled.
 18. FLUID CHAMBER / REFILL
-Create:
-Fluid level doughnut gauge
-Current level
-Consumption
-Estimated remaining
-Low fluid warning
-Manual refill
-Refill history
+    Create:
+    Fluid level doughnut gauge
+    Current level
+    Consumption
+    Estimated remaining
+    Low fluid warning
+    Manual refill
+    Refill history
 19. BATTERY / POWER TELEMETRY
-Display:
-Battery percentage
-Voltage
-Current
-Power
-Cell temperature
-Create:
-Interactive doughnut gauge
-Battery status
-Charging state if available
-Low battery warning
-Critical battery warning
-High temperature warning
+    Display:
+    Battery percentage
+    Voltage
+    Current
+    Power
+    Cell temperature
+    Create:
+    Interactive doughnut gauge
+    Battery status
+    Charging state if available
+    Low battery warning
+    Critical battery warning
+    High temperature warning
 20. REAL-TIME CHARTS
-Create interactive Chart.js/Recharts graphs.
-Graphs:
-BPM
-SpO₂
-Temperature
-BPM vs SpO₂
-Humidity
-Ambient temperature
-AQI
-Battery percentage
-Voltage
-Current
-Time filters:
-5 minutes
-15 minutes
-1 hour
-6 hours
-24 hours
-7 days
-30 days
-Custom
-Features:
-Zoom
-Tooltip
-Legend
-Dataset toggling
-Fullscreen
-Export PNG
+    Create interactive Chart.js/Recharts graphs.
+    Graphs:
+    BPM
+    SpO₂
+    Temperature
+    BPM vs SpO₂
+    Humidity
+    Ambient temperature
+    AQI
+    Battery percentage
+    Voltage
+    Current
+    Time filters:
+    5 minutes
+    15 minutes
+    1 hour
+    6 hours
+    24 hours
+    7 days
+    30 days
+    Custom
+    Features:
+    Zoom
+    Tooltip
+    Legend
+    Dataset toggling
+    Fullscreen
+    Export PNG
 21. ADHERENCE
-Create:
-Adherence percentage
-Prescribed sessions
-Completed sessions
-Missed sessions
-Partial sessions
-Monthly calendar
-Weekly summary
-Monthly summary
-Session history
-Every nebulizer session must create an adherence record.
-Store:
-Start time
-End time
-Duration
-Medication
-Dosage
-Prescribed duration
-Completion status
+    Create:
+    Adherence percentage
+    Prescribed sessions
+    Completed sessions
+    Missed sessions
+    Partial sessions
+    Monthly calendar
+    Weekly summary
+    Monthly summary
+    Session history
+    Every nebulizer session must create an adherence record.
+    Store:
+    Start time
+    End time
+    Duration
+    Medication
+    Dosage
+    Prescribed duration
+    Completion status
 22. ALERT ENGINE
-Monitor:
-SpO₂
-BPM
-Temperature
-Battery
-Battery temperature
-Fluid level
-Device connection
-Missed session
-Alert levels:
-Critical
-Warning
-Information
-Resolved
-Alert fields:
-ID
-Patient
-Device
-Type
-Severity
-Current value
-Threshold
-Message
-Created time
-Acknowledged time
-Resolved time
-Acknowledged by
-Resolved by
+    Monitor:
+    SpO₂
+    BPM
+    Temperature
+    Battery
+    Battery temperature
+    Fluid level
+    Device connection
+    Missed session
+    Alert levels:
+    Critical
+    Warning
+    Information
+    Resolved
+    Alert fields:
+    ID
+    Patient
+    Device
+    Type
+    Severity
+    Current value
+    Threshold
+    Message
+    Created time
+    Acknowledged time
+    Resolved time
+    Acknowledged by
+    Resolved by
 23. SPO₂ ALERT
-Retain the existing behavior:
-When SpO₂ goes below the configured threshold:
-Create alert
-Play audio chime
-Optional Web Speech voice alert
-Show visual alert
-Store alert
-Notify authorized doctor/caregiver
-Show patient warning
-Use a configurable threshold.
-Do not hard-code medical diagnosis.
+    Retain the existing behavior:
+    When SpO₂ goes below the configured threshold:
+    Create alert
+    Play audio chime
+    Optional Web Speech voice alert
+    Show visual alert
+    Store alert
+    Notify authorized doctor/caregiver
+    Show patient warning
+    Use a configurable threshold.
+    Do not hard-code medical diagnosis.
 24. EMERGENCY SOS
-Support:
-Manual SOS
-Voice SOS
-API-triggered SOS
-Use WebSocket/Socket.IO.
-Flow:
-Patient
- ↓
-SOS
- ↓
-Backend
- ↓
-Authorized Doctor + Caregiver
+    Support:
+    Manual SOS
+    Voice SOS
+    API-triggered SOS
+    Use WebSocket/Socket.IO.
+    Flow:
+    Patient
+    ↓
+    SOS
+    ↓
+    Backend
+    ↓
+    Authorized Doctor + Caregiver
 
 Show:
 Patient
@@ -596,8 +589,7 @@ Emergency state
 Actions:
 Acknowledge
 Resolve
-Record full SOS history.
-25. VOICE CONTROL
+Record full SOS history. 25. VOICE CONTROL
 Use Web Speech API.
 Patient:
 "Start nebulizer"
@@ -613,8 +605,7 @@ Doctor:
 Caregiver:
 "Show patient status"
 "Show alerts"
-All commands must pass authorization checks.
-26. MULTI-PATIENT MANAGEMENT
+All commands must pass authorization checks. 26. MULTI-PATIENT MANAGEMENT
 Do not hard-code patients.
 Create database-driven patients.
 Seed development data:
@@ -632,8 +623,7 @@ Care plan
 Sessions
 Adherence
 Alerts
-Reports
-27. DOCTOR PORTAL
+Reports 27. DOCTOR PORTAL
 Navigation:
 Dashboard
 My Patients
@@ -663,8 +653,7 @@ Device
 Battery
 Nebulizer
 Adherence
-Status
-28. DOCTOR PATIENT PROFILE
+Status 28. DOCTOR PATIENT PROFILE
 Tabs:
 Overview
 Live Vitals
@@ -674,8 +663,7 @@ Adherence
 Care Plan
 Alerts
 Reports
-Clinical Notes
-29. DOCTOR CARE PLANS
+Clinical Notes 29. DOCTOR CARE PLANS
 Doctor can:
 Create
 Edit
@@ -692,46 +680,46 @@ End date
 Instructions
 When published:
 Doctor
- ↓
+↓
 Care Plan
- ↓
+↓
 Patient Notification
- ↓
+↓
 Patient Dashboard
- ↓
+↓
 Nebulization Schedule
 
 30. CLINICAL NOTES
-Doctor can create private notes.
-Store:
-Patient
-Doctor
-Note
-Timestamp
-Updated timestamp
-Do not expose doctor notes to unauthorized caregivers/patients.
+    Doctor can create private notes.
+    Store:
+    Patient
+    Doctor
+    Note
+    Timestamp
+    Updated timestamp
+    Do not expose doctor notes to unauthorized caregivers/patients.
 31. DOCTOR ANALYTICS
-Show:
-SpO₂ trends
-BPM trends
-Temperature trends
-Adherence trends
-Session duration
-Alert frequency
-Patient comparisons
-Only allow doctors to analyze patients assigned to them.
+    Show:
+    SpO₂ trends
+    BPM trends
+    Temperature trends
+    Adherence trends
+    Session duration
+    Alert frequency
+    Patient comparisons
+    Only allow doctors to analyze patients assigned to them.
 32. CAREGIVER PORTAL
-Navigation:
-Dashboard
-My Patients
-Live Monitoring
-Sessions
-Adherence
-Alerts
-Reports
-AI Assistant
-Profile
-Settings
+    Navigation:
+    Dashboard
+    My Patients
+    Live Monitoring
+    Sessions
+    Adherence
+    Alerts
+    Reports
+    AI Assistant
+    Profile
+    Settings
 
 Show assigned patients only.
 Features:
@@ -742,8 +730,7 @@ Sessions
 Adherence
 Alerts
 SOS
-Reports
-33. ADMIN PORTAL
+Reports 33. ADMIN PORTAL
 Navigation:
 Dashboard
 Users
@@ -758,45 +745,44 @@ Audit Logs
 Settings
 
 34. ADMIN USER MANAGEMENT
-Create:
-User table
-Search
-Filters
-Role filter
-Status filter
-Actions:
-Create
-Edit
-Disable
-Enable
-Assign role
-Reset access
+    Create:
+    User table
+    Search
+    Filters
+    Role filter
+    Status filter
+    Actions:
+    Create
+    Edit
+    Disable
+    Enable
+    Assign role
+    Reset access
 35. ADMIN DEVICE MANAGEMENT
-Create device registry.
-Device fields:
-Device ID
-Patient
-Status
-Battery
-Last communication
-MQTT status
-Firmware
-Registration date
-Actions:
-Register
-Assign
-Unassign
-Disable
-View telemetry
-View device logs
+    Create device registry.
+    Device fields:
+    Device ID
+    Patient
+    Status
+    Battery
+    Last communication
+    MQTT status
+    Firmware
+    Registration date
+    Actions:
+    Register
+    Assign
+    Unassign
+    Disable
+    View telemetry
+    View device logs
 36. ADMIN ASSIGNMENTS
-Admin can manage:
-Patient → Doctor
-Patient → Caregiver
-Patient → Device
+    Admin can manage:
+    Patient → Doctor
+    Patient → Caregiver
+    Patient → Device
 
-Do not hard-code these relationships.
-37. SUPER ADMIN
+Do not hard-code these relationships. 37. SUPER ADMIN
 Navigation:
 Dashboard
 Administrators
@@ -808,8 +794,7 @@ Global Analytics
 Audit Logs
 Platform Settings
 
-Super Admin controls global platform configuration.
-38. REPORTING
+Super Admin controls global platform configuration. 38. REPORTING
 Create professional report generation.
 Clinical PDF must contain:
 Patient information
@@ -826,8 +811,7 @@ Date range
 Support:
 PDF
 CSV
-PNG
-39. NOTIFICATION CENTER
+PNG 39. NOTIFICATION CENTER
 Global notification system.
 Types:
 Care plan published
@@ -840,8 +824,7 @@ SOS
 Device offline
 Adherence reminder
 Refill reminder
-Notifications must be role-aware.
-40. GEMINI AI MEDICAL ASSISTANT
+Notifications must be role-aware. 40. GEMINI AI MEDICAL ASSISTANT
 Retain the existing API:
 /api/v1/ai/ask
 Build a professional conversational interface.
@@ -861,8 +844,7 @@ Admin:
 "How many active patients are there?"
 The AI must only access data permitted by the user's role and relationships.
 Never allow AI to bypass RBAC.
-The AI is an informational assistant and must not present itself as a replacement for professional medical judgment.
-41. PROFILE
+The AI is an informational assistant and must not present itself as a replacement for professional medical judgment. 41. PROFILE
 All roles:
 Avatar upload
 Display name
@@ -871,15 +853,13 @@ Phone
 Password
 Notification preferences
 Voice settings
-Theme settings
-42. THEME
+Theme settings 42. THEME
 Implement:
 Light
 Dark
 System
 Persist preference.
-Charts and all components must support both themes.
-43. AUDIT LOGS
+Charts and all components must support both themes. 43. AUDIT LOGS
 Track:
 Login
 Logout
@@ -899,8 +879,7 @@ Show:
 Actor
 Action
 Target
-Timestamp
-44. MYSQL DATABASE DESIGN
+Timestamp 44. MYSQL DATABASE DESIGN
 Use MySQL with Prisma.
 Create proper relational tables/models:
 User
@@ -958,8 +937,7 @@ doctor_id
 caregiver_id
 alert status
 session date
-Telemetry tables should be designed for high-volume writes.
-45. API STRUCTURE
+Telemetry tables should be designed for high-volume writes. 45. API STRUCTURE
 Create clean REST endpoints.
 Example:
 /api/v1/auth
@@ -984,8 +962,7 @@ Every endpoint must verify:
 Authentication
 Role
 Resource ownership/assignment
-Permission
-46. REAL-TIME MQTT
+Permission 46. REAL-TIME MQTT
 Create a backend MQTT service.
 The service should be structured to receive telemetry such as:
 bpm
@@ -1004,29 +981,28 @@ nebulizerState
 
 Store telemetry in MySQL.
 Broadcast relevant updates to authorized frontend clients through WebSocket/Socket.IO.
-Do not send one patient's private telemetry to another patient's browser.
-47. DEVICE CONTROL
+Do not send one patient's private telemetry to another patient's browser. 47. DEVICE CONTROL
 Nebulizer commands should use a proper command flow:
 Frontend
- ↓
+↓
 Backend API
- ↓
+↓
 Authorization
- ↓
+↓
 Device Command
- ↓
+↓
 MQTT
- ↓
+↓
 ESP32
- ↓
+↓
 Relay
- ↓
+↓
 Device State
- ↓
+↓
 ESP32 publishes confirmation
- ↓
+↓
 Backend
- ↓
+↓
 Frontend
 
 Do not assume that clicking "Start" means the physical device successfully started.
@@ -1035,8 +1011,7 @@ Command sent
 Starting
 Running
 Failed
-Stopped
-48. ERROR HANDLING
+Stopped 48. ERROR HANDLING
 Every page must have:
 Loading skeleton
 Empty state
@@ -1045,8 +1020,7 @@ Retry
 Offline state
 Stale data indication
 Use toast notifications for actions.
-Never show blank screens.
-49. DEVELOPMENT / DEMO MODE
+Never show blank screens. 49. DEVELOPMENT / DEMO MODE
 Create realistic seed data for development.
 Seed:
 Users:
@@ -1071,8 +1045,7 @@ Care plans
 Adherence
 Notifications
 Do not hard-code this information into React components.
-Use MySQL seed data.
-50. UI DESIGN SYSTEM
+Use MySQL seed data. 50. UI DESIGN SYSTEM
 Create reusable components:
 HealthCard
 VitalCard
@@ -1102,64 +1075,64 @@ ErrorState
 LoadingSkeleton
 
 51. ANIMATION
-Use Framer Motion selectively.
-Animate:
-Page transitions
-Card appearance
-Vital updates
-Timer progress
-Nebulizer state
-Alerts
-Notifications
-Modals
-Avoid excessive animation.
-Animations must feel premium and purposeful.
+    Use Framer Motion selectively.
+    Animate:
+    Page transitions
+    Card appearance
+    Vital updates
+    Timer progress
+    Nebulizer state
+    Alerts
+    Notifications
+    Modals
+    Avoid excessive animation.
+    Animations must feel premium and purposeful.
 52. ACCESSIBILITY
-Implement:
-Keyboard navigation
-Focus states
-ARIA labels
-Accessible dialogs
-Accessible forms
-Sufficient contrast
-Large touch targets
-Screen-reader-friendly status messages
-Never rely only on color.
+    Implement:
+    Keyboard navigation
+    Focus states
+    ARIA labels
+    Accessible dialogs
+    Accessible forms
+    Sufficient contrast
+    Large touch targets
+    Screen-reader-friendly status messages
+    Never rely only on color.
 53. SECURITY REQUIREMENTS
-Implement:
-Secure authentication
-Password hashing
-JWT
-Refresh tokens
-Backend RBAC
-Resource-level authorization
-Input validation
-Zod validation
-SQL injection protection through Prisma
-CORS configuration
-Secure environment variables
-Rate limiting for sensitive APIs
-API validation
-Audit logs
-Never expose:
-Database credentials
-JWT secrets
-Gemini API key
-MQTT credentials
-in frontend code.
+    Implement:
+    Secure authentication
+    Password hashing
+    JWT
+    Refresh tokens
+    Backend RBAC
+    Resource-level authorization
+    Input validation
+    Zod validation
+    SQL injection protection through Prisma
+    CORS configuration
+    Secure environment variables
+    Rate limiting for sensitive APIs
+    API validation
+    Audit logs
+    Never expose:
+    Database credentials
+    JWT secrets
+    Gemini API key
+    MQTT credentials
+    in frontend code.
 54. FINAL SIDEBARS
-PATIENT
-Dashboard
-My Nebulizer
-Health Monitoring
-Nebulization
-Adherence
-Health History
-Alerts
-Reports
-AI Assistant
-Profile
-Settings
+    PATIENT
+    Dashboard
+    My Nebulizer
+    Health Monitoring
+    Nebulization
+    Adherence
+    Health History
+    Alerts
+    Reports
+    AI Assistant
+    Profile
+    Settings
 
 DOCTOR
 Dashboard
@@ -1212,159 +1185,159 @@ Audit Logs
 Platform Settings
 
 55. ROLE FEATURE MATRIX
-Implement this exact permission model:
-FeaturePatientDoctorCaregiverAdminSuper AdminOwn DashboardYESYESYESYESYESOwn Health DataYESNONOLIMITEDALLLive Patient VitalsOwnAssignedAssignedSystemAllNebulizer ControlYESNONONONOStart/Stop SessionYESNONONONOMedication ViewYESYESVIEWNONOCreate Care PlanNOYESNONONOEdit Care PlanNOYESNONONOClinical NotesNOYESNONONOHealth HistoryOwnAssignedAssignedLimitedAllAnalyticsOwnAssignedLimitedSystemGlobalAdherenceOwnAssignedAssignedSystemGlobalAlertsOwnAssignedAssignedSystemGlobalTrigger SOSYESNONONONOReceive SOSNOYESYESOptionalOptionalReportsOwnAssignedAssignedSystemGlobalAIOwnAssignedAssignedSystemGlobalVoice ControlYESLimitedLimitedNONOUser ManagementNONONOYESYESDevice RegistrationNONONOYESYESDevice AssignmentNONONOYESYESPatient AssignmentNONONOYESYESRole ManagementNONONOLimitedYESPermission ManagementNONONONOYESAudit LogsOwnRelevantOwnSystemGlobal
+    Implement this exact permission model:
+    FeaturePatientDoctorCaregiverAdminSuper AdminOwn DashboardYESYESYESYESYESOwn Health DataYESNONOLIMITEDALLLive Patient VitalsOwnAssignedAssignedSystemAllNebulizer ControlYESNONONONOStart/Stop SessionYESNONONONOMedication ViewYESYESVIEWNONOCreate Care PlanNOYESNONONOEdit Care PlanNOYESNONONOClinical NotesNOYESNONONOHealth HistoryOwnAssignedAssignedLimitedAllAnalyticsOwnAssignedLimitedSystemGlobalAdherenceOwnAssignedAssignedSystemGlobalAlertsOwnAssignedAssignedSystemGlobalTrigger SOSYESNONONONOReceive SOSNOYESYESOptionalOptionalReportsOwnAssignedAssignedSystemGlobalAIOwnAssignedAssignedSystemGlobalVoice ControlYESLimitedLimitedNONOUser ManagementNONONOYESYESDevice RegistrationNONONOYESYESDevice AssignmentNONONOYESYESPatient AssignmentNONONOYESYESRole ManagementNONONOLimitedYESPermission ManagementNONONONOYESAudit LogsOwnRelevantOwnSystemGlobal
 56. DEVELOPMENT PHASES
-Do not attempt to create a fragile implementation by putting everything into one component.
-Build systematically.
-Phase 1
-Authentication
-Database
-MySQL
-Prisma
-RBAC
-User profiles
-Phase 2
-Patient/Doctor/Caregiver relationships
-Device relationships
-Admin management
-Phase 3
-IoT telemetry architecture
-MQTT
-WebSockets
-Device status
-Phase 4
-Patient dashboard
-Live vitals
-Nebulizer
-Battery
-Environment
-Phase 5
-Sessions
-Adherence
-Care plans
-Medication
-Phase 6
-Doctor portal
-Patient management
-Analytics
-Clinical notes
-Phase 7
-Caregiver portal
-Alerts
-SOS
-Notifications
-Phase 8
-Admin portal
-Device management
-User management
-Assignments
-Audit logs
-Phase 9
-Reports
-PDF
-CSV
-PNG
-Phase 10
-Voice control
-Phase 11
-Gemini AI
-Phase 12
-Performance
-Security
-Accessibility
-Responsive polish
+    Do not attempt to create a fragile implementation by putting everything into one component.
+    Build systematically.
+    Phase 1
+    Authentication
+    Database
+    MySQL
+    Prisma
+    RBAC
+    User profiles
+    Phase 2
+    Patient/Doctor/Caregiver relationships
+    Device relationships
+    Admin management
+    Phase 3
+    IoT telemetry architecture
+    MQTT
+    WebSockets
+    Device status
+    Phase 4
+    Patient dashboard
+    Live vitals
+    Nebulizer
+    Battery
+    Environment
+    Phase 5
+    Sessions
+    Adherence
+    Care plans
+    Medication
+    Phase 6
+    Doctor portal
+    Patient management
+    Analytics
+    Clinical notes
+    Phase 7
+    Caregiver portal
+    Alerts
+    SOS
+    Notifications
+    Phase 8
+    Admin portal
+    Device management
+    User management
+    Assignments
+    Audit logs
+    Phase 9
+    Reports
+    PDF
+    CSV
+    PNG
+    Phase 10
+    Voice control
+    Phase 11
+    Gemini AI
+    Phase 12
+    Performance
+    Security
+    Accessibility
+    Responsive polish
 57. IMPORTANT IMPLEMENTATION RULES
-DO NOT:
-Use Supabase
-Use PostgreSQL
-Replace MySQL
-Hard-code patients
-Hard-code role permissions
-Put database credentials in frontend
-Put Gemini credentials in frontend
-Use frontend-only authorization
-Create disconnected dashboards
-Fake successful hardware commands
-Allow AI to bypass permissions
-Remove existing features
-DO:
-Use MySQL
-Use Prisma
-Use Node.js + Express
-Use React + TypeScript
-Use proper relational models
-Use backend RBAC
-Use resource-level authorization
-Use MQTT for IoT
-Use WebSockets for real-time UI
-Use reusable components
-Use realistic seed data
-Keep the architecture production-ready
-Keep the existing /api/v1/ai/ask concept
-Preserve real-time health monitoring
-Preserve nebulizer relay control
-Preserve dosage/refill tracking
-Preserve adherence
-Preserve SOS
-Preserve voice control
-Preserve reports and exports
-Preserve dark/light mode
+    DO NOT:
+    Use Supabase
+    Use PostgreSQL
+    Replace MySQL
+    Hard-code patients
+    Hard-code role permissions
+    Put database credentials in frontend
+    Put Gemini credentials in frontend
+    Use frontend-only authorization
+    Create disconnected dashboards
+    Fake successful hardware commands
+    Allow AI to bypass permissions
+    Remove existing features
+    DO:
+    Use MySQL
+    Use Prisma
+    Use Node.js + Express
+    Use React + TypeScript
+    Use proper relational models
+    Use backend RBAC
+    Use resource-level authorization
+    Use MQTT for IoT
+    Use WebSockets for real-time UI
+    Use reusable components
+    Use realistic seed data
+    Keep the architecture production-ready
+    Keep the existing /api/v1/ai/ask concept
+    Preserve real-time health monitoring
+    Preserve nebulizer relay control
+    Preserve dosage/refill tracking
+    Preserve adherence
+    Preserve SOS
+    Preserve voice control
+    Preserve reports and exports
+    Preserve dark/light mode
 58. FINAL PRODUCT EXPERIENCE
-The finished platform should demonstrate this complete real-world workflow:
-ADMIN
- ↓
-Creates patient
- ↓
-Creates doctor
- ↓
-Creates caregiver
- ↓
-Registers ESP32 device
- ↓
-Assigns device to patient
- ↓
-Assigns doctor
- ↓
-Assigns caregiver
- ↓
-DOCTOR
- ↓
-Creates care plan
- ↓
-PATIENT
- ↓
-Receives care plan
- ↓
-Starts nebulization
- ↓
-ESP32
- ↓
-Collects health/device telemetry
- ↓
-MQTT
- ↓
-IoT Cloud
- ↓
-Backend
- ↓
-MySQL
- ↓
-Real-time WebSocket
- ↓
-PATIENT / DOCTOR / CAREGIVER
- ↓
-Monitoring + Analytics
- ↓
-Threshold engine
- ↓
-Alerts / SOS
- ↓
-Adherence
- ↓
-Reports
- ↓
-Gemini AI
+    The finished platform should demonstrate this complete real-world workflow:
+    ADMIN
+    ↓
+    Creates patient
+    ↓
+    Creates doctor
+    ↓
+    Creates caregiver
+    ↓
+    Registers ESP32 device
+    ↓
+    Assigns device to patient
+    ↓
+    Assigns doctor
+    ↓
+    Assigns caregiver
+    ↓
+    DOCTOR
+    ↓
+    Creates care plan
+    ↓
+    PATIENT
+    ↓
+    Receives care plan
+    ↓
+    Starts nebulization
+    ↓
+    ESP32
+    ↓
+    Collects health/device telemetry
+    ↓
+    MQTT
+    ↓
+    IoT Cloud
+    ↓
+    Backend
+    ↓
+    MySQL
+    ↓
+    Real-time WebSocket
+    ↓
+    PATIENT / DOCTOR / CAREGIVER
+    ↓
+    Monitoring + Analytics
+    ↓
+    Threshold engine
+    ↓
+    Alerts / SOS
+    ↓
+    Adherence
+    ↓
+    Reports
+    ↓
+    Gemini AI
 
 The final application must look and feel like a professional, advanced IoT healthcare SaaS platform suitable for a serious engineering project demonstration.
 The primary product story is:

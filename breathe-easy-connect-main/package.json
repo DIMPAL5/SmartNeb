@@ -12,7 +12,9 @@
     "format": "prettier --write ."
   },
   "overrides": {
-    "rolldown": "1.2.1"
+    "rolldown": "1.2.1",
+    "dompurify": "^3.2.4",
+    "@grpc/grpc-js": "^1.13.6"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",

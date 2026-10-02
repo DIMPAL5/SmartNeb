@@ -166,7 +166,9 @@ function DoctorReportsPage() {
                       <div className="flex items-center gap-2">
                         <Badge variant="outline">{r.kind}</Badge>
                         <Badge variant={r.mine ? "secondary" : "outline"}>
-                          {r.mine ? t("doctor.reports.requestedByYou") : t("doctor.reports.careTeam")}
+                          {r.mine
+                            ? t("doctor.reports.requestedByYou")
+                            : t("doctor.reports.careTeam")}
                         </Badge>
                         <span className="text-xs text-muted-foreground">
                           {new Date(r.created_at).toLocaleString()}
@@ -174,16 +176,22 @@ function DoctorReportsPage() {
                         <Button
                           size="sm"
                           variant="outline"
-                          onClick={() => exportReport(r.payload, "pdf", t("doctor.reports.noPayload"))}
+                          onClick={() =>
+                            exportReport(r.payload, "pdf", t("doctor.reports.noPayload"))
+                          }
                         >
-                          <FileDown className="mr-2 size-3.5" aria-hidden /> {t("doctor.reports.pdf")}
+                          <FileDown className="mr-2 size-3.5" aria-hidden />{" "}
+                          {t("doctor.reports.pdf")}
                         </Button>
                         <Button
                           size="sm"
                           variant="outline"
-                          onClick={() => exportReport(r.payload, "csv", t("doctor.reports.noPayload"))}
+                          onClick={() =>
+                            exportReport(r.payload, "csv", t("doctor.reports.noPayload"))
+                          }
                         >
-                          <FileSpreadsheet className="mr-2 size-3.5" aria-hidden /> {t("doctor.reports.csv")}
+                          <FileSpreadsheet className="mr-2 size-3.5" aria-hidden />{" "}
+                          {t("doctor.reports.csv")}
                         </Button>
                       </div>
                     </div>

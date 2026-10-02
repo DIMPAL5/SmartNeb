@@ -11,8 +11,12 @@ import { DISCLAIMER, MAX_PER_HOUR } from "./assistant.constants";
  * - The model is read-only: it can never write to clinical tables.
  */
 
-
-export type AiMessage = { id: string; role: "user" | "assistant"; content: string; createdAt: string };
+export type AiMessage = {
+  id: string;
+  role: "user" | "assistant";
+  content: string;
+  createdAt: string;
+};
 export type AiConversation = { id: string; title: string; createdAt: string };
 
 export const listConversations = createServerFn({ method: "GET" })
@@ -82,7 +86,9 @@ async function buildScope(supabase: any, patientId: string) {
       .limit(40),
     supabase
       .from("care_plans")
-      .select("medication, dosage, duration_minutes, frequency_per_day, time_slots, instructions, status")
+      .select(
+        "medication, dosage, duration_minutes, frequency_per_day, time_slots, instructions, status",
+      )
       .eq("patient_id", patientId)
       .eq("status", "published")
       .limit(1)

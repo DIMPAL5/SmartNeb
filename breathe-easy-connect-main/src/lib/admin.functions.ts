@@ -94,7 +94,9 @@ export const getAdminOverview = createServerFn({ method: "GET" })
     const sosRows = sos.data ?? [];
     const sessionRows = sessions.data ?? [];
 
-    const reporting = new Set(telemetryRows.filter((t: any) => t.recorded_at >= hourAgo).map((t: any) => t.patient_id));
+    const reporting = new Set(
+      telemetryRows.filter((t: any) => t.recorded_at >= hourAgo).map((t: any) => t.patient_id),
+    );
     const assigned = new Set([
       ...(dpa.data ?? []).map((r: any) => r.patient_id),
       ...(cpa.data ?? []).map((r: any) => r.patient_id),
@@ -134,8 +136,10 @@ export const getAdminOverview = createServerFn({ method: "GET" })
       },
       alerts: {
         active: alertRows.filter((a: any) => a.status === "active").length,
-        critical: alertRows.filter((a: any) => a.status === "active" && a.severity === "critical").length,
-        warning: alertRows.filter((a: any) => a.status === "active" && a.severity === "warning").length,
+        critical: alertRows.filter((a: any) => a.status === "active" && a.severity === "critical")
+          .length,
+        warning: alertRows.filter((a: any) => a.status === "active" && a.severity === "warning")
+          .length,
         acknowledged: alertRows.filter((a: any) => a.status === "acknowledged").length,
       },
       sos: {
@@ -192,8 +196,12 @@ export const listAdminUsers = createServerFn({ method: "GET" })
     for (const r of roles.data ?? []) {
       roleBy.set(r.user_id, [...(roleBy.get(r.user_id) ?? []), r.role]);
     }
-    const patientBy = new Map((patients.data ?? []).filter((p: any) => p.user_id).map((p: any) => [p.user_id, p]));
-    const doctorBy = new Map((doctors.data ?? []).filter((d: any) => d.user_id).map((d: any) => [d.user_id, d]));
+    const patientBy = new Map(
+      (patients.data ?? []).filter((p: any) => p.user_id).map((p: any) => [p.user_id, p]),
+    );
+    const doctorBy = new Map(
+      (doctors.data ?? []).filter((d: any) => d.user_id).map((d: any) => [d.user_id, d]),
+    );
     const caregiverBy = new Map(
       (caregivers.data ?? []).filter((c: any) => c.user_id).map((c: any) => [c.user_id, c]),
     );
@@ -284,7 +292,9 @@ export const listAdminPatients = createServerFn({ method: "GET" })
     const doctorBy = new Map((doctors.data ?? []).map((d: any) => [d.id, d.full_name]));
     const caregiverBy = new Map((caregivers.data ?? []).map((c: any) => [c.id, c.full_name]));
     const activeBy = new Map((profiles.data ?? []).map((p: any) => [p.id, p.is_active !== false]));
-    const deviceBy = new Map((devices.data ?? []).filter((d: any) => d.patient_id).map((d: any) => [d.patient_id, d]));
+    const deviceBy = new Map(
+      (devices.data ?? []).filter((d: any) => d.patient_id).map((d: any) => [d.patient_id, d]),
+    );
     const lastTelemetry = new Map<string, string>();
     for (const t of telemetry.data ?? []) {
       if (!lastTelemetry.has(t.patient_id)) lastTelemetry.set(t.patient_id, t.recorded_at);
@@ -302,7 +312,10 @@ export const listAdminPatients = createServerFn({ method: "GET" })
         .map((a: any) => ({ id: a.doctor_id, name: doctorBy.get(a.doctor_id) ?? "Doctor" })),
       caregivers: (cpa.data ?? [])
         .filter((a: any) => a.patient_id === p.id)
-        .map((a: any) => ({ id: a.caregiver_id, name: caregiverBy.get(a.caregiver_id) ?? "Caregiver" })),
+        .map((a: any) => ({
+          id: a.caregiver_id,
+          name: caregiverBy.get(a.caregiver_id) ?? "Caregiver",
+        })),
       deviceCode: deviceBy.get(p.id)?.device_code ?? null,
       deviceStatus: deviceBy.get(p.id)?.status ?? null,
       lastSeenAt: deviceBy.get(p.id)?.last_seen_at ?? null,
@@ -393,7 +406,6 @@ export const setAssignment = createServerFn({ method: "POST" })
       if (error) throw new Error(error.message);
     }
 
-
     await audit(context as Ctx, `assignment.${data.action}`, data.kind, data.staffId, {
       patient_id: data.patientId,
     });
@@ -438,7 +450,8 @@ export const listAdminDevices = createServerFn({ method: "GET" })
     const patientBy = new Map((patients.data ?? []).map((p: any) => [p.id, p]));
     const lastByDevice = new Map<string, string>();
     for (const t of telemetry.data ?? []) {
-      if (t.device_id && !lastByDevice.has(t.device_id)) lastByDevice.set(t.device_id, t.recorded_at);
+      if (t.device_id && !lastByDevice.has(t.device_id))
+        lastByDevice.set(t.device_id, t.recorded_at);
     }
     return (devices.data ?? []).map((d: any) => ({
       id: d.id,
@@ -514,7 +527,10 @@ export const updateDevice = createServerFn({ method: "POST" })
     if (data.firmware) patch["firmware"] = data.firmware;
     if (!Object.keys(patch).length) return { ok: true };
 
-    const { error } = await context.supabase.from("devices").update(patch as any).eq("id", data.deviceId);
+    const { error } = await context.supabase
+      .from("devices")
+      .update(patch as any)
+      .eq("id", data.deviceId);
     if (error) throw new Error(error.message);
     await audit(context as Ctx, "device.update", "device", data.deviceId, patch);
     return { ok: true };

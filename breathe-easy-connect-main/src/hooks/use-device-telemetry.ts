@@ -86,7 +86,9 @@ export function useDeviceTelemetry(opts: {
         ...e.telemetry,
         // Keep the previous change timestamp when nothing actually changed so
         // a stale device eventually flips to offline.
-        lastUpdated: changed ? e.telemetry.lastUpdated : (prev.lastUpdated ?? e.telemetry.lastUpdated),
+        lastUpdated: changed
+          ? e.telemetry.lastUpdated
+          : (prev.lastUpdated ?? e.telemetry.lastUpdated),
         online: true,
       };
       lastRef.current = next;

@@ -13,9 +13,11 @@ export const hi_caregiver: Record<string, string> = {
   careDashboard: "देखभाल डैशबोर्ड",
   careDashboardSubtitle: "{count} मरीज · {sos} सक्रिय SOS · {critical} गंभीर अलर्ट",
   careDoctorLabel: "देखभाल चिकित्सक",
-  carePlanReadOnlyNote: "यह देखभाल योजना केवल पढ़ने के लिए है। परिवर्तन हेतु प्रिस्क्राइब करने वाले डॉक्टर से संपर्क करें।",
+  carePlanReadOnlyNote:
+    "यह देखभाल योजना केवल पढ़ने के लिए है। परिवर्तन हेतु प्रिस्क्राइब करने वाले डॉक्टर से संपर्क करें।",
   carePlanTab: "देखभाल योजना",
-  carePlansSubtitle: "आपको सौंपे गए मरीजों के लिए डॉक्टर द्वारा निर्धारित दवा, खुराक, समय-सारणी, अवधि और निर्देशों का केवल-पढ़ने वाला दृश्य।",
+  carePlansSubtitle:
+    "आपको सौंपे गए मरीजों के लिए डॉक्टर द्वारा निर्धारित दवा, खुराक, समय-सारणी, अवधि और निर्देशों का केवल-पढ़ने वाला दृश्य।",
   caregiverNotesTab: "देखभालकर्ता टिप्पणियाँ",
   chamber: "चैंबर",
   chamberPercent: "{value}% चैंबर",
@@ -30,7 +32,8 @@ export const hi_caregiver: Record<string, string> = {
   dobLabel: "जन्म तिथि {date}",
   email: "ईमेल",
   emailNotifications: "ईमेल सूचनाएं",
-  emailNotificationsDescription: "अपने मरीजों के अलर्ट और घटनाओं के बारे में ईमेल अपडेट प्राप्त करें।",
+  emailNotificationsDescription:
+    "अपने मरीजों के अलर्ट और घटनाओं के बारे में ईमेल अपडेट प्राप्त करें।",
   emergencyHistory: "आपातकालीन इतिहास",
   emergencySosPeopleInCare: "आपातकालीन SOS — देखभाल में लोग",
   end: "समाप्ति",
@@ -59,8 +62,10 @@ export const hi_caregiver: Record<string, string> = {
   noCarePlan: "कोई देखभाल योजना नहीं",
   noCarePlanDescription: "इस मरीज के लिए अभी तक कोई देखभाल योजना निर्धारित नहीं की गई है।",
   noCarePlans: "कोई देखभाल योजनाएँ नहीं",
-  noCarePlansDescription: "आपके सौंपे गए मरीजों के लिए अभी तक कोई देखभाल योजना निर्धारित नहीं की गई है।",
-  noCaregiverRecord: "आपके खाते के लिए कोई देखभालकर्ता रिकॉर्ड नहीं मिला। कृपया अपने प्रशासक से संपर्क करें।",
+  noCarePlansDescription:
+    "आपके सौंपे गए मरीजों के लिए अभी तक कोई देखभाल योजना निर्धारित नहीं की गई है।",
+  noCaregiverRecord:
+    "आपके खाते के लिए कोई देखभालकर्ता रिकॉर्ड नहीं मिला। कृपया अपने प्रशासक से संपर्क करें।",
   noCaregiverRecordShort: "आपके खाते के लिए कोई देखभालकर्ता रिकॉर्ड नहीं मिला।",
   noConditionRecorded: "कोई स्थिति दर्ज नहीं",
   noDevice: "कोई डिवाइस नहीं",
@@ -80,13 +85,15 @@ export const hi_caregiver: Record<string, string> = {
   oxygenSaturationLast24h: "ऑक्सीजन संतृप्ति — पिछले 24 घंटे",
   partial: "आंशिक",
   patient: "मरीज",
-  patientDetailSubtitle: "लाइव और ऐतिहासिक वाइटल्स, डिवाइस स्थिति, अलर्ट, देखभाल योजना और टिप्पणियाँ।",
+  patientDetailSubtitle:
+    "लाइव और ऐतिहासिक वाइटल्स, डिवाइस स्थिति, अलर्ट, देखभाल योजना और टिप्पणियाँ।",
   patientDetailTitle: "मरीज विवरण",
   prescribedBy: "{name} द्वारा निर्धारित",
   profileSubtitle: "अपने संपर्क विवरण, सूचना प्राथमिकताएं और वॉयस अलर्ट प्रबंधित करें।",
   profileUpdated: "प्रोफ़ाइल अपडेट की गई।",
   rangeHint: "सीमा {value}",
-  readOnlyPlanNotice: "ये देखभाल योजनाएँ केवल पढ़ने के लिए हैं। परिवर्तन हेतु प्रिस्क्राइब करने वाले डॉक्टर से संपर्क करें।",
+  readOnlyPlanNotice:
+    "ये देखभाल योजनाएँ केवल पढ़ने के लिए हैं। परिवर्तन हेतु प्रिस्क्राइब करने वाले डॉक्टर से संपर्क करें।",
   readingsLast24h: "पिछले 24 घंटों की रीडिंग यहाँ दिखाई देंगी।",
   readingsWithinRange: "सभी रीडिंग वर्तमान में सीमा के भीतर हैं।",
   recentTherapySessions: "हाल के थेरेपी सत्र",
@@ -108,7 +115,8 @@ export const hi_caregiver: Record<string, string> = {
   sosHistory: "SOS इतिहास",
   sosSubtitle: "आपके सौंपे गए मरीजों से वास्तविक समय की आपातकालीन SOS घटनाएँ।",
   spokenCriticalAlerts: "बोले गए गंभीर अलर्ट",
-  spokenCriticalAlertsDescription: "जब आपके मरीज के लिए कोई गंभीर घटना हो, तो एक बोला गया अलर्ट चलाएँ।",
+  spokenCriticalAlertsDescription:
+    "जब आपके मरीज के लिए कोई गंभीर घटना हो, तो एक बोला गया अलर्ट चलाएँ।",
   staleLabel: "पुराना · {time}",
   start: "आरंभ",
   telemetryDescription: "पिछले 24 घंटों की रीडिंग यहाँ दिखाई देंगी।",

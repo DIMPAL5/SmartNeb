@@ -68,7 +68,11 @@ export function VitalCard({
 }) {
   const t = useT();
   const TrendIcon =
-    trend == null || Math.abs(trend) < 0.01 ? ArrowRight : trend > 0 ? ArrowUpRight : ArrowDownRight;
+    trend == null || Math.abs(trend) < 0.01
+      ? ArrowRight
+      : trend > 0
+        ? ArrowUpRight
+        : ArrowDownRight;
 
   return (
     <div className="panel group relative overflow-hidden p-5 transition-shadow hover:shadow-glow">
@@ -93,16 +97,16 @@ export function VitalCard({
         <StatusBadge status={status} />
       </div>
       <div className="mt-4 flex items-baseline gap-1.5">
-        <span className="font-display text-4xl font-semibold tabular-nums">
-          {value ?? "--"}
-        </span>
+        <span className="font-display text-4xl font-semibold tabular-nums">{value ?? "--"}</span>
         {unit ? <span className="text-sm text-muted-foreground">{unit}</span> : null}
       </div>
       <div className="mt-2 flex items-center gap-2 text-xs text-muted-foreground">
         {trend != null ? (
           <span className="inline-flex items-center gap-1">
             <TrendIcon className="size-3.5" aria-hidden />
-            {t("patient.vitals.vsPrevious", { value: `${trend > 0 ? "+" : ""}${trend.toFixed(1)}` })}
+            {t("patient.vitals.vsPrevious", {
+              value: `${trend > 0 ? "+" : ""}${trend.toFixed(1)}`,
+            })}
           </span>
         ) : null}
         {hint ? <span>{hint}</span> : null}

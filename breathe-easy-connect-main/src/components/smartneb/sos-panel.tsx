@@ -68,7 +68,9 @@ export function SOSCard({
     mutationFn: (action: "acknowledge" | "resolve") =>
       respondToSOS({ data: { sosId: event.id, action } }),
     onSuccess: (_r, action) => {
-      toast.success(action === "resolve" ? t("patient.sos.resolved") : t("patient.sos.acknowledged"));
+      toast.success(
+        action === "resolve" ? t("patient.sos.resolved") : t("patient.sos.acknowledged"),
+      );
       void qc.invalidateQueries({ queryKey: ["sos-events"] });
       void qc.invalidateQueries({ queryKey: ["caregiver-patients"] });
       void qc.invalidateQueries({ queryKey: ["doctor-patients"] });
@@ -92,16 +94,29 @@ export function SOSCard({
               {event.patientName} · {event.mrn}
             </p>
             <StatusBadge
-              status={event.severity === "critical" ? "critical" : event.severity === "warning" ? "warning" : "normal"}
+              status={
+                event.severity === "critical"
+                  ? "critical"
+                  : event.severity === "warning"
+                    ? "warning"
+                    : "normal"
+              }
               label={event.severity}
             />
             <StatusBadge
-              status={event.status === "resolved" ? "normal" : event.status === "acknowledged" ? "warning" : "critical"}
+              status={
+                event.status === "resolved"
+                  ? "normal"
+                  : event.status === "acknowledged"
+                    ? "warning"
+                    : "critical"
+              }
               label={event.status}
             />
           </div>
           <p className="mt-1 text-xs text-muted-foreground">
-            {event.condition ?? t("patient.sos.noCondition")} · {t("patient.sos.viaSource", { source: event.source })} ·{" "}
+            {event.condition ?? t("patient.sos.noCondition")} ·{" "}
+            {t("patient.sos.viaSource", { source: event.source })} ·{" "}
             {new Date(event.created_at).toLocaleString()}
           </p>
         </div>
@@ -118,7 +133,11 @@ export function SOSCard({
               </Button>
             ) : null}
             {event.status !== "resolved" ? (
-              <Button size="sm" disabled={respond.isPending} onClick={() => respond.mutate("resolve")}>
+              <Button
+                size="sm"
+                disabled={respond.isPending}
+                onClick={() => respond.mutate("resolve")}
+              >
                 {t("patient.sos.resolve")}
               </Button>
             ) : null}
@@ -158,7 +177,9 @@ export function SOSCard({
 
       {event.acknowledged_at ? (
         <p className="mt-2 text-[11px] text-muted-foreground">
-          {t("patient.sos.acknowledgedAt", { date: new Date(event.acknowledged_at).toLocaleString() })}
+          {t("patient.sos.acknowledgedAt", {
+            date: new Date(event.acknowledged_at).toLocaleString(),
+          })}
         </p>
       ) : null}
       {event.resolved_at ? (
@@ -194,7 +215,9 @@ export function SOSPanel({
         <h3 className="font-display text-sm font-semibold">{resolvedTitle}</h3>
         {(q.data ?? []).some((e) => e.status === "active") ? (
           <span className="rounded-full bg-critical px-2 py-0.5 text-[11px] font-semibold text-critical-foreground">
-            {t("patient.sos.activeCount", { count: (q.data ?? []).filter((e) => e.status === "active").length })}
+            {t("patient.sos.activeCount", {
+              count: (q.data ?? []).filter((e) => e.status === "active").length,
+            })}
           </span>
         ) : null}
       </div>

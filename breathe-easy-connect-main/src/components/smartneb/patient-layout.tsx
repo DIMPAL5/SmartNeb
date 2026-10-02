@@ -68,7 +68,8 @@ export function PatientPage({
   );
 }
 
-export function greetingKey(): "patient.greeting.morning" | "patient.greeting.afternoon" | "patient.greeting.evening" {
+export function greetingKey():
+  "patient.greeting.morning" | "patient.greeting.afternoon" | "patient.greeting.evening" {
   const h = new Date().getHours();
   if (h < 12) return "patient.greeting.morning";
   if (h < 17) return "patient.greeting.afternoon";

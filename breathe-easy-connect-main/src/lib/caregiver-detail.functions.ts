@@ -66,7 +66,12 @@ export type CarePatientDetail = {
     fluid_level: number;
     last_seen_at: string | null;
   } | null;
-  health: { bpm: number | null; spo2: number | null; body_temperature: number | null; recorded_at: string } | null;
+  health: {
+    bpm: number | null;
+    spo2: number | null;
+    body_temperature: number | null;
+    recorded_at: string;
+  } | null;
   battery: { percentage: number | null; charging: boolean; recorded_at: string } | null;
   activeSession: { id: string; status: string; started_at: string } | null;
   carePlans: CarePlanRow[];
@@ -112,7 +117,10 @@ export const getCarePatientDetail = createServerFn({ method: "GET" })
         .eq("patient_id", id)
         .order("start_date", { ascending: false })
         .limit(20),
-      supabase.from("doctor_patient_assignments").select("doctors(full_name, specialty)").eq("patient_id", id),
+      supabase
+        .from("doctor_patient_assignments")
+        .select("doctors(full_name, specialty)")
+        .eq("patient_id", id),
     ]);
 
     if (!patient.data) throw new Error("Patient not found.");

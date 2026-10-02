@@ -5,7 +5,8 @@ export const kn_admin: Record<string, string> = {
   "admin.hoursAgo": "{count} ಗಂಟೆಗಳ ಹಿಂದೆ",
   "admin.daysAgo": "{count} ದಿನಗಳ ಹಿಂದೆ",
   "admin.accessRequired": "ಈ ಕನ್ಸೋಲ್ ತೆರೆಯಲು ನಿರ್ವಾಹಕ ಪ್ರವೇಶ ಅಗತ್ಯವಿದೆ.",
-  "admin.subtitle": "{users} ಬಳಕೆದಾರರು · {devices} ಸಾಧನಗಳು · {alerts} ಸಕ್ರಿಯ ಎಚ್ಚರಿಕೆಗಳು · {sos} ಲೈವ್ SOS",
+  "admin.subtitle":
+    "{users} ಬಳಕೆದಾರರು · {devices} ಸಾಧನಗಳು · {alerts} ಸಕ್ರಿಯ ಎಚ್ಚರಿಕೆಗಳು · {sos} ಲೈವ್ SOS",
   "admin.loadingStatus": "ಪ್ಲಾಟ್‌ಫಾರ್ಮ್ ಸ್ಥಿತಿ ಲೋಡ್ ಆಗುತ್ತಿದೆ",
   "admin.refreshData": "ಪ್ಲಾಟ್‌ಫಾರ್ಮ್ ಡೇಟಾ ರಿಫ್ರೆಶ್ ಮಾಡಿ",
   "admin.users": "ಬಳಕೆದಾರರು",

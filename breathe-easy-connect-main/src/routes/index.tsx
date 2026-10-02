@@ -16,7 +16,8 @@ export const Route = createFileRoute("/")({
       { property: "og:title", content: "SmartNeb — Connected Respiratory Therapy" },
       {
         property: "og:description",
-        content: "Real-time nebulizer control, vitals monitoring, adherence tracking and emergency escalation.",
+        content:
+          "Real-time nebulizer control, vitals monitoring, adherence tracking and emergency escalation.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -26,12 +27,32 @@ export const Route = createFileRoute("/")({
 });
 
 const FEATURES = [
-  { icon: Activity, titleKey: "landing.feature.vitals.title", bodyKey: "landing.feature.vitals.body" },
-  { icon: Wind, titleKey: "landing.feature.nebulizer.title", bodyKey: "landing.feature.nebulizer.body" },
+  {
+    icon: Activity,
+    titleKey: "landing.feature.vitals.title",
+    bodyKey: "landing.feature.vitals.body",
+  },
+  {
+    icon: Wind,
+    titleKey: "landing.feature.nebulizer.title",
+    bodyKey: "landing.feature.nebulizer.body",
+  },
   { icon: Siren, titleKey: "landing.feature.sos.title", bodyKey: "landing.feature.sos.body" },
-  { icon: Cpu, titleKey: "landing.feature.telemetry.title", bodyKey: "landing.feature.telemetry.body" },
-  { icon: Bot, titleKey: "landing.feature.assistant.title", bodyKey: "landing.feature.assistant.body" },
-  { icon: ShieldCheck, titleKey: "landing.feature.access.title", bodyKey: "landing.feature.access.body" },
+  {
+    icon: Cpu,
+    titleKey: "landing.feature.telemetry.title",
+    bodyKey: "landing.feature.telemetry.body",
+  },
+  {
+    icon: Bot,
+    titleKey: "landing.feature.assistant.title",
+    bodyKey: "landing.feature.assistant.body",
+  },
+  {
+    icon: ShieldCheck,
+    titleKey: "landing.feature.access.title",
+    bodyKey: "landing.feature.access.body",
+  },
 ] as const;
 
 function Landing() {
@@ -86,8 +107,21 @@ function Landing() {
         </div>
       </section>
 
-      <footer className="border-t py-8 text-center text-xs text-muted-foreground">
-        {t("landing.footer")}
+      <footer className="border-t py-8 text-center text-xs text-muted-foreground space-y-3">
+        <div>{t("landing.footer")}</div>
+        <div className="flex justify-center gap-6 text-xs">
+          <Link to="/privacy" className="hover:text-foreground hover:underline">
+            Privacy Policy
+          </Link>
+          <span>·</span>
+          <Link to="/terms" className="hover:text-foreground hover:underline">
+            Terms of Service
+          </Link>
+          <span>·</span>
+          <Link to="/delete-account" className="hover:text-foreground hover:underline">
+            Delete Account
+          </Link>
+        </div>
       </footer>
     </main>
   );

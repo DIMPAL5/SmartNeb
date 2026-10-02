@@ -39,7 +39,8 @@ export const Route = createFileRoute("/_authenticated/doctor/care-plans")({
       { property: "og:title", content: "Care Plans — SmartNeb Clinician" },
       {
         property: "og:description",
-        content: "Manage medication, dosage, duration and daily frequency across your patient panel.",
+        content:
+          "Manage medication, dosage, duration and daily frequency across your patient panel.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -91,7 +92,9 @@ function DoctorCarePlansPage() {
 
         if (plans.isPending) return <LoadingSkeleton rows={4} />;
         if (plans.isError)
-          return <ErrorState message={(plans.error as Error)?.message} onRetry={() => plans.refetch()} />;
+          return (
+            <ErrorState message={(plans.error as Error)?.message} onRetry={() => plans.refetch()} />
+          );
 
         return (
           <div className="space-y-4">
@@ -137,11 +140,15 @@ function DoctorCarePlansPage() {
                             freq: plan.frequency_per_day,
                             start: plan.start_date,
                           })}
-                          {plan.end_date ? t("doctor.carePlans.toDate", { end: plan.end_date }) : ""}
+                          {plan.end_date
+                            ? t("doctor.carePlans.toDate", { end: plan.end_date })
+                            : ""}
                         </p>
                         {plan.time_slots?.length ? (
                           <p className="mt-1 text-xs text-muted-foreground">
-                            {t("doctor.carePlans.timesLabel", { slots: plan.time_slots.join(" · ") })}
+                            {t("doctor.carePlans.timesLabel", {
+                              slots: plan.time_slots.join(" · "),
+                            })}
                           </p>
                         ) : null}
                         {plan.instructions ? (
@@ -152,17 +159,22 @@ function DoctorCarePlansPage() {
                         <Badge variant={plan.status === "published" ? "default" : "secondary"}>
                           {statusLabels[plan.status as StatusFilter] ?? plan.status}
                         </Badge>
-                        {!plan.mine ? <Badge variant="outline">{t("doctor.carePlans.anotherClinician")}</Badge> : null}
+                        {!plan.mine ? (
+                          <Badge variant="outline">{t("doctor.carePlans.anotherClinician")}</Badge>
+                        ) : null}
                         {plan.mine ? (
                           <>
                             <Button size="sm" variant="outline" onClick={() => setEditing(plan)}>
-                              <Pencil className="mr-2 size-3.5" aria-hidden /> {t("doctor.carePlans.edit")}
+                              <Pencil className="mr-2 size-3.5" aria-hidden />{" "}
+                              {t("doctor.carePlans.edit")}
                             </Button>
                             {plan.status !== "published" ? (
                               <Button
                                 size="sm"
                                 variant="outline"
-                                onClick={() => status.mutate({ planId: plan.id, status: "published" })}
+                                onClick={() =>
+                                  status.mutate({ planId: plan.id, status: "published" })
+                                }
                               >
                                 {t("doctor.carePlans.publish")}
                               </Button>
@@ -201,7 +213,13 @@ function DoctorCarePlansPage() {
   );
 }
 
-function EditPlanDialog({ plan, onClose }: { plan: DoctorCarePlanRow | null; onClose: () => void }) {
+function EditPlanDialog({
+  plan,
+  onClose,
+}: {
+  plan: DoctorCarePlanRow | null;
+  onClose: () => void;
+}) {
   const t = useT();
   const qc = useQueryClient();
   const [form, setForm] = useState({
@@ -260,7 +278,9 @@ function EditPlanDialog({ plan, onClose }: { plan: DoctorCarePlanRow | null; onC
         <DialogHeader>
           <DialogTitle>{t("doctor.carePlans.editTitle")}</DialogTitle>
           <DialogDescription>
-            {t("doctor.carePlans.editDesc", { name: plan?.patientName ?? t("doctor.carePlans.thePatient") })}
+            {t("doctor.carePlans.editDesc", {
+              name: plan?.patientName ?? t("doctor.carePlans.thePatient"),
+            })}
           </DialogDescription>
         </DialogHeader>
         <form

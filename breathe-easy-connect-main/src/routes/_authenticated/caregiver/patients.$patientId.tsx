@@ -19,7 +19,12 @@ import {
   getCarePatientDetail,
   listCaregiverNotes,
 } from "@/lib/caregiver-detail.functions";
-import { getAdherence, getTelemetrySeries, listAlerts, listSessions } from "@/lib/smartneb.functions";
+import {
+  getAdherence,
+  getTelemetrySeries,
+  listAlerts,
+  listSessions,
+} from "@/lib/smartneb.functions";
 import { CaregiverPage } from "@/components/smartneb/caregiver-layout";
 import { useSignedIn } from "@/components/smartneb/use-signed-in";
 import { SOSPanel } from "@/components/smartneb/sos-panel";
@@ -76,7 +81,10 @@ function CarePatientDetailPage() {
   const { patientId } = Route.useParams();
   const t = useT();
   return (
-    <CaregiverPage title={t("caregiver.patientDetailTitle")} subtitle={t("caregiver.patientDetailSubtitle")}>
+    <CaregiverPage
+      title={t("caregiver.patientDetailTitle")}
+      subtitle={t("caregiver.patientDetailSubtitle")}
+    >
       {() => <DetailBody patientId={patientId} />}
     </CaregiverPage>
   );
@@ -96,7 +104,9 @@ function DetailBody({ patientId }: { patientId: string }) {
 
   if (detail.isPending) return <LoadingSkeleton rows={4} />;
   if (detail.isError)
-    return <ErrorState message={(detail.error as Error)?.message} onRetry={() => detail.refetch()} />;
+    return (
+      <ErrorState message={(detail.error as Error)?.message} onRetry={() => detail.refetch()} />
+    );
 
   const d = detail.data;
   const p = d.patient;
@@ -122,25 +132,36 @@ function DetailBody({ patientId }: { patientId: string }) {
           </p>
           <div className="mt-2 flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
             {d.contact?.phone ? (
-              <a href={`tel:${d.contact.phone}`} className="inline-flex items-center gap-1 hover:text-foreground">
+              <a
+                href={`tel:${d.contact.phone}`}
+                className="inline-flex items-center gap-1 hover:text-foreground"
+              >
                 <Phone className="size-3.5" aria-hidden /> {d.contact.phone}
               </a>
             ) : null}
             {d.contact?.email ? (
-              <a href={`mailto:${d.contact.email}`} className="inline-flex items-center gap-1 hover:text-foreground">
+              <a
+                href={`mailto:${d.contact.email}`}
+                className="inline-flex items-center gap-1 hover:text-foreground"
+              >
                 <Mail className="size-3.5" aria-hidden /> {d.contact.email}
               </a>
             ) : null}
             {d.doctors.length ? (
               <span>
-                {t("caregiver.careDoctorLabel")}: {d.doctors.map((doc) => `${doc.full_name} (${doc.specialty})`).join(", ")}
+                {t("caregiver.careDoctorLabel")}:{" "}
+                {d.doctors.map((doc) => `${doc.full_name} (${doc.specialty})`).join(", ")}
               </span>
             ) : null}
           </div>
         </div>
         <StatusBadge
           status={fresh.stale ? "unknown" : "normal"}
-          label={fresh.stale ? t("caregiver.staleLabel", { time: fresh.text }) : t("caregiver.liveLabel", { time: fresh.text })}
+          label={
+            fresh.stale
+              ? t("caregiver.staleLabel", { time: fresh.text })
+              : t("caregiver.liveLabel", { time: fresh.text })
+          }
         />
       </section>
 
@@ -158,7 +179,9 @@ function DetailBody({ patientId }: { patientId: string }) {
           value={d.health?.bpm ?? null}
           unit="bpm"
           status={bpmStatus(d.health?.bpm ?? null, p.bpm_low_threshold, p.bpm_high_threshold)}
-          hint={t("caregiver.rangeHint", { value: `${p.bpm_low_threshold}-${p.bpm_high_threshold}` })}
+          hint={t("caregiver.rangeHint", {
+            value: `${p.bpm_low_threshold}-${p.bpm_high_threshold}`,
+          })}
           icon={<HeartPulse className="size-4" aria-hidden />}
         />
         <VitalCard
@@ -191,7 +214,9 @@ function DetailBody({ patientId }: { patientId: string }) {
         <div className="flex items-center gap-2">
           <Cpu className="size-4 text-primary" aria-hidden />
           <div>
-            <p className="text-sm font-medium">{d.device?.device_code ?? t("caregiver.noDevice")}</p>
+            <p className="text-sm font-medium">
+              {d.device?.device_code ?? t("caregiver.noDevice")}
+            </p>
             <p className="text-xs text-muted-foreground">
               {t("caregiver.firmwareLastSeen", {
                 firmware: d.device?.firmware ?? "--",
@@ -210,8 +235,18 @@ function DetailBody({ patientId }: { patientId: string }) {
             label={d.device?.mqtt_connected ? t("caregiver.mqttLinked") : t("caregiver.mqttDown")}
           />
           <StatusBadge
-            status={d.activeSession?.status === "running" ? "normal" : d.activeSession ? "warning" : "unknown"}
-            label={d.activeSession ? t("caregiver.therapyStatus", { status: d.activeSession.status }) : t("caregiver.noActiveTherapy")}
+            status={
+              d.activeSession?.status === "running"
+                ? "normal"
+                : d.activeSession
+                  ? "warning"
+                  : "unknown"
+            }
+            label={
+              d.activeSession
+                ? t("caregiver.therapyStatus", { status: d.activeSession.status })
+                : t("caregiver.noActiveTherapy")
+            }
           />
           <span className="text-xs text-muted-foreground">
             {t("caregiver.chamberPercent", { value: Math.round(d.device?.fluid_level ?? 0) })}
@@ -245,7 +280,12 @@ function DetailBody({ patientId }: { patientId: string }) {
           <NotesTab patientId={patientId} signedIn={signedIn} />
         </TabsContent>
         <TabsContent value="sos" className="mt-4">
-          <SOSPanel patientId={patientId} enabled={signedIn} includeResolved title={t("caregiver.emergencyHistory")} />
+          <SOSPanel
+            patientId={patientId}
+            enabled={signedIn}
+            includeResolved
+            title={t("caregiver.emergencyHistory")}
+          />
         </TabsContent>
       </Tabs>
     </div>
@@ -270,12 +310,19 @@ function HistoryTab({ patientId, signedIn }: { patientId: string; signedIn: bool
     temp: r.body_temperature == null ? null : Number(r.body_temperature),
   }));
   if (!health.length)
-    return <EmptyState title={t("caregiver.noTelemetryYet")} description={t("caregiver.telemetryDescription")} />;
+    return (
+      <EmptyState
+        title={t("caregiver.noTelemetryYet")}
+        description={t("caregiver.telemetryDescription")}
+      />
+    );
 
   return (
     <div className="space-y-4">
       <div className="panel p-5">
-        <h3 className="font-display text-sm font-semibold">{t("caregiver.oxygenSaturationLast24h")}</h3>
+        <h3 className="font-display text-sm font-semibold">
+          {t("caregiver.oxygenSaturationLast24h")}
+        </h3>
         <TrendChart
           data={health}
           series={[{ key: "spo2", label: t("vitals.spo2Percent"), color: "var(--chart-1)" }]}
@@ -284,7 +331,9 @@ function HistoryTab({ patientId, signedIn }: { patientId: string; signedIn: bool
         />
       </div>
       <div className="panel p-5">
-        <h3 className="font-display text-sm font-semibold">{t("caregiver.heartRateTempLast24h")}</h3>
+        <h3 className="font-display text-sm font-semibold">
+          {t("caregiver.heartRateTempLast24h")}
+        </h3>
         <TrendChart
           data={health}
           series={[
@@ -309,7 +358,12 @@ function AlertsTab({ patientId, signedIn }: { patientId: string; signedIn: boole
 
   if (q.isLoading) return <LoadingSkeleton rows={3} />;
   if (!q.data?.length)
-    return <EmptyState title={t("caregiver.noAlerts")} description={t("caregiver.readingsWithinRange")} />;
+    return (
+      <EmptyState
+        title={t("caregiver.noAlerts")}
+        description={t("caregiver.readingsWithinRange")}
+      />
+    );
 
   return (
     <ul className="space-y-2">
@@ -325,7 +379,13 @@ function AlertsTab({ patientId, signedIn }: { patientId: string; signedIn: boole
             </p>
           </div>
           <StatusBadge
-            status={a.severity === "critical" ? "critical" : a.severity === "warning" ? "warning" : "normal"}
+            status={
+              a.severity === "critical"
+                ? "critical"
+                : a.severity === "warning"
+                  ? "warning"
+                  : "normal"
+            }
             label={a.severity}
           />
         </li>
@@ -338,18 +398,32 @@ function PlanTab({
   plans,
   active,
 }: {
-  plans: { id: string; medication: string; dosage: string; duration_minutes: number; frequency_per_day: number; instructions: string | null; start_date: string; end_date: string | null; status: string; doctorName: string | null }[];
+  plans: {
+    id: string;
+    medication: string;
+    dosage: string;
+    duration_minutes: number;
+    frequency_per_day: number;
+    instructions: string | null;
+    start_date: string;
+    end_date: string | null;
+    status: string;
+    doctorName: string | null;
+  }[];
   active: { id: string } | null;
 }) {
   const t = useT();
   if (!plans.length)
-    return <EmptyState title={t("caregiver.noCarePlan")} description={t("caregiver.noCarePlanDescription")} />;
+    return (
+      <EmptyState
+        title={t("caregiver.noCarePlan")}
+        description={t("caregiver.noCarePlanDescription")}
+      />
+    );
 
   return (
     <div className="space-y-3">
-      <p className="text-xs text-muted-foreground">
-        {t("caregiver.carePlanReadOnlyNote")}
-      </p>
+      <p className="text-xs text-muted-foreground">{t("caregiver.carePlanReadOnlyNote")}</p>
       {plans.map((plan) => (
         <article key={plan.id} className="panel p-5">
           <div className="flex flex-wrap items-center justify-between gap-2">
@@ -357,14 +431,21 @@ function PlanTab({
               {plan.medication} · {plan.dosage}
             </h3>
             <div className="flex items-center gap-2">
-              {active && plan.id === active.id ? <Badge variant="secondary">{t("caregiver.current")}</Badge> : null}
-              <Badge variant={plan.status === "published" ? "default" : "outline"}>{plan.status}</Badge>
+              {active && plan.id === active.id ? (
+                <Badge variant="secondary">{t("caregiver.current")}</Badge>
+              ) : null}
+              <Badge variant={plan.status === "published" ? "default" : "outline"}>
+                {plan.status}
+              </Badge>
             </div>
           </div>
           <dl className="mt-3 grid gap-3 text-sm sm:grid-cols-4">
             {[
               [t("caregiver.sessionLength"), `${plan.duration_minutes} min`],
-              [t("caregiver.frequency"), t("caregiver.timesDaily", { count: plan.frequency_per_day })],
+              [
+                t("caregiver.frequency"),
+                t("caregiver.timesDaily", { count: plan.frequency_per_day }),
+              ],
               [t("caregiver.start"), plan.start_date],
               [t("caregiver.end"), plan.end_date ?? t("caregiver.ongoing")],
             ].map(([k, v]) => (
@@ -378,7 +459,9 @@ function PlanTab({
             <p className="mt-3 text-sm text-muted-foreground">{plan.instructions}</p>
           ) : null}
           {plan.doctorName ? (
-            <p className="mt-2 text-xs text-muted-foreground">{t("caregiver.prescribedBy", { name: plan.doctorName })}</p>
+            <p className="mt-2 text-xs text-muted-foreground">
+              {t("caregiver.prescribedBy", { name: plan.doctorName })}
+            </p>
           ) : null}
         </article>
       ))}
@@ -494,7 +577,10 @@ function NotesTab({ patientId, signedIn }: { patientId: string; signedIn: boolea
           add.mutate();
         }}
       >
-        <label htmlFor="note" className="flex items-center gap-2 font-display text-sm font-semibold">
+        <label
+          htmlFor="note"
+          className="flex items-center gap-2 font-display text-sm font-semibold"
+        >
           <NotebookPen className="size-4" aria-hidden /> {t("caregiver.addObservation")}
         </label>
         <Textarea
@@ -512,7 +598,10 @@ function NotesTab({ patientId, signedIn }: { patientId: string; signedIn: boolea
       {notes.isLoading ? (
         <LoadingSkeleton rows={2} />
       ) : !notes.data?.length ? (
-        <EmptyState title={t("caregiver.noObservationsYet")} description={t("caregiver.notesAppearHere")} />
+        <EmptyState
+          title={t("caregiver.noObservationsYet")}
+          description={t("caregiver.notesAppearHere")}
+        />
       ) : (
         <ul className="space-y-2">
           {notes.data.map((n) => (

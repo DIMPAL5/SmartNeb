@@ -103,7 +103,10 @@ function CareNotesPage() {
           ) : notes.isError ? (
             <ErrorState message={(notes.error as Error)?.message} onRetry={() => notes.refetch()} />
           ) : notes.data.length === 0 ? (
-            <EmptyState title={t("caregiver.noObservationsYet")} description={t("caregiver.noObservationsDescription")} />
+            <EmptyState
+              title={t("caregiver.noObservationsYet")}
+              description={t("caregiver.noObservationsDescription")}
+            />
           ) : (
             <ul className="space-y-2">
               {notes.data.map((n) => (

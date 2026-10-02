@@ -14,10 +14,14 @@ export const Route = createFileRoute("/_authenticated/patient/monitoring")({
       { title: "Health Monitoring — SmartNeb" },
       {
         name: "description",
-        content: "Historical heart rate, SpO₂, temperature, air quality and battery telemetry trends.",
+        content:
+          "Historical heart rate, SpO₂, temperature, air quality and battery telemetry trends.",
       },
       { property: "og:title", content: "Health Monitoring — SmartNeb" },
-      { property: "og:description", content: "Explore your respiratory telemetry trends over time." },
+      {
+        property: "og:description",
+        content: "Explore your respiratory telemetry trends over time.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
@@ -89,11 +93,17 @@ function MonitoringBody({ patientId }: { patientId: string }) {
       ) : (
         <>
           <section className="panel p-5">
-            <p className="mb-3 font-display text-sm font-semibold">{t("patient.monitoring.heartRateSpo2")}</p>
+            <p className="mb-3 font-display text-sm font-semibold">
+              {t("patient.monitoring.heartRateSpo2")}
+            </p>
             <TrendChart
               data={health}
               series={[
-                { key: "bpm", label: t("patient.history.heartRateSeries"), color: "var(--chart-1)" },
+                {
+                  key: "bpm",
+                  label: t("patient.history.heartRateSeries"),
+                  color: "var(--chart-1)",
+                },
                 { key: "spo2", label: t("patient.history.spo2Series"), color: "var(--chart-2)" },
               ]}
             />
@@ -105,19 +115,35 @@ function MonitoringBody({ patientId }: { patientId: string }) {
               data={health}
               area
               domain={[34, 41]}
-              series={[{ key: "temp", label: t("patient.monitoring.bodyTempSeries"), color: "var(--chart-4)" }]}
+              series={[
+                {
+                  key: "temp",
+                  label: t("patient.monitoring.bodyTempSeries"),
+                  color: "var(--chart-4)",
+                },
+              ]}
             />
           </section>
 
           <section className="grid gap-6 lg:grid-cols-2">
             <div className="panel p-5">
-              <p className="mb-3 font-display text-sm font-semibold">{t("patient.dashboard.environment")}</p>
+              <p className="mb-3 font-display text-sm font-semibold">
+                {t("patient.dashboard.environment")}
+              </p>
               <TrendChart
                 data={env}
                 height={220}
                 series={[
-                  { key: "ambient", label: t("patient.monitoring.ambientSeries"), color: "var(--chart-3)" },
-                  { key: "humidity", label: t("patient.monitoring.humiditySeries"), color: "var(--chart-2)" },
+                  {
+                    key: "ambient",
+                    label: t("patient.monitoring.ambientSeries"),
+                    color: "var(--chart-3)",
+                  },
+                  {
+                    key: "humidity",
+                    label: t("patient.monitoring.humiditySeries"),
+                    color: "var(--chart-2)",
+                  },
                   { key: "aqi", label: t("patient.monitoring.aqiSeries"), color: "var(--chart-5)" },
                 ]}
               />
@@ -129,8 +155,16 @@ function MonitoringBody({ patientId }: { patientId: string }) {
                 height={220}
                 area
                 series={[
-                  { key: "percentage", label: t("patient.monitoring.chargeSeries"), color: "var(--chart-2)" },
-                  { key: "voltage", label: t("patient.monitoring.voltageSeries"), color: "var(--chart-1)" },
+                  {
+                    key: "percentage",
+                    label: t("patient.monitoring.chargeSeries"),
+                    color: "var(--chart-2)",
+                  },
+                  {
+                    key: "voltage",
+                    label: t("patient.monitoring.voltageSeries"),
+                    color: "var(--chart-1)",
+                  },
                 ]}
               />
             </div>

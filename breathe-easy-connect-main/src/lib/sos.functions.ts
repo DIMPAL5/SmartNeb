@@ -65,7 +65,10 @@ export const listSOSEvents = createServerFn({ method: "GET" })
 
     const ids = [...new Set(events.map((e) => e.patient_id))];
     const [patients, devices] = await Promise.all([
-      supabase.from("patients").select("id, full_name, mrn, condition, spo2_threshold").in("id", ids),
+      supabase
+        .from("patients")
+        .select("id, full_name, mrn, condition, spo2_threshold")
+        .in("id", ids),
       supabase
         .from("devices")
         .select("patient_id, device_code, status, last_seen_at, fluid_level")
@@ -141,7 +144,13 @@ export const respondToSOS = createServerFn({ method: "POST" })
     const verb = data.action === "resolve" ? "resolved" : "acknowledged";
     const who = responder?.full_name ?? "A care team member";
 
-    const rows: { user_id: string; patient_id: string; type: string; title: string; body: string }[] = [];
+    const rows: {
+      user_id: string;
+      patient_id: string;
+      type: string;
+      title: string;
+      body: string;
+    }[] = [];
     if (patient?.user_id) {
       rows.push({
         user_id: patient.user_id,

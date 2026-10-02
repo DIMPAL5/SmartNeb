@@ -126,7 +126,11 @@ export function AdminConsole({ scope = "admin" }: { scope?: "admin" | "super_adm
     };
     const channel = supabase
       .channel("admin-live")
-      .on("postgres_changes", { event: "*", schema: "public", table: "health_telemetry" }, invalidate)
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "health_telemetry" },
+        invalidate,
+      )
       .on("postgres_changes", { event: "*", schema: "public", table: "alerts" }, invalidate)
       .on("postgres_changes", { event: "*", schema: "public", table: "sos_events" }, invalidate)
       .on("postgres_changes", { event: "*", schema: "public", table: "devices" }, invalidate)
@@ -198,7 +202,10 @@ export function AdminConsole({ scope = "admin" }: { scope?: "admin" | "super_adm
           <Stat
             label={t("admin.users")}
             value={o?.users.total ?? "--"}
-            hint={t("admin.usersHint", { active: o?.users.active ?? 0, inactive: o?.users.inactive ?? 0 })}
+            hint={t("admin.usersHint", {
+              active: o?.users.active ?? 0,
+              inactive: o?.users.inactive ?? 0,
+            })}
             icon={Users}
           />
           <Stat
@@ -214,7 +221,10 @@ export function AdminConsole({ scope = "admin" }: { scope?: "admin" | "super_adm
           <Stat
             label={t("admin.activeAlerts")}
             value={o?.alerts.active ?? 0}
-            hint={t("admin.alertsHint", { critical: o?.alerts.critical ?? 0, warning: o?.alerts.warning ?? 0 })}
+            hint={t("admin.alertsHint", {
+              critical: o?.alerts.critical ?? 0,
+              warning: o?.alerts.warning ?? 0,
+            })}
             icon={AlertTriangle}
             tone={o?.alerts.critical ? "critical" : "default"}
           />
@@ -346,7 +356,9 @@ function UsersTab({ enabled }: { enabled: boolean }) {
           aria-label={t("admin.searchUsers")}
           className="h-9 max-w-sm"
         />
-        <span className="ml-auto text-xs text-muted-foreground">{t("admin.accountsCount", { count: rows.length })}</span>
+        <span className="ml-auto text-xs text-muted-foreground">
+          {t("admin.accountsCount", { count: rows.length })}
+        </span>
       </div>
       {rows.length === 0 ? (
         <EmptyState title={t("admin.noUsersFound")} description={t("admin.noUsersFoundDesc")} />
@@ -361,7 +373,8 @@ function UsersTab({ enabled }: { enabled: boolean }) {
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-sm font-semibold">{u.fullName}</p>
                   <p className="truncate text-xs text-muted-foreground">
-                    {u.email ?? t("admin.noEmail")} · {t("admin.joined", { date: new Date(u.createdAt).toLocaleDateString() })}
+                    {u.email ?? t("admin.noEmail")} ·{" "}
+                    {t("admin.joined", { date: new Date(u.createdAt).toLocaleDateString() })}
                   </p>
                   <div className="mt-1.5 flex flex-wrap gap-1.5">
                     {(u.roles.length ? u.roles : [t("admin.noRole")]).map((r) => (
@@ -421,7 +434,9 @@ function AssignmentsTab({ enabled }: { enabled: boolean }) {
       action: "assign" | "unassign";
     }) => setAssignment({ data: vars }),
     onSuccess: (_r, vars) => {
-      toast.success(vars.action === "assign" ? t("admin.careTeamAssigned") : t("admin.assignmentRemoved"));
+      toast.success(
+        vars.action === "assign" ? t("admin.careTeamAssigned") : t("admin.assignmentRemoved"),
+      );
       void queryClient.invalidateQueries({ queryKey: ["admin-patients"] });
       void queryClient.invalidateQueries({ queryKey: ["admin-staff"] });
       void queryClient.invalidateQueries({ queryKey: ["admin-overview"] });
@@ -438,7 +453,9 @@ function AssignmentsTab({ enabled }: { enabled: boolean }) {
 
   const list = patients.data ?? [];
   if (!list.length)
-    return <EmptyState title={t("admin.noPatientsYet")} description={t("admin.noPatientsYetDesc")} />;
+    return (
+      <EmptyState title={t("admin.noPatientsYet")} description={t("admin.noPatientsYetDesc")} />
+    );
 
   return (
     <div className="space-y-3">
@@ -487,10 +504,14 @@ function AssignmentCard({
             {patient.deviceCode ?? t("admin.noDevice")}
             {patient.deviceStatus ? ` · ${patient.deviceStatus}` : ""}
           </Badge>
-          <Badge variant="outline">{t("admin.telemetryAgo", { time: ago(patient.lastTelemetryAt, t) })}</Badge>
+          <Badge variant="outline">
+            {t("admin.telemetryAgo", { time: ago(patient.lastTelemetryAt, t) })}
+          </Badge>
           {patient.activeSOS ? <Badge variant="destructive">{t("admin.sosBadge")}</Badge> : null}
           {patient.activeAlerts ? (
-            <Badge variant="destructive">{t("admin.alertsBadge", { count: patient.activeAlerts })}</Badge>
+            <Badge variant="destructive">
+              {t("admin.alertsBadge", { count: patient.activeAlerts })}
+            </Badge>
           ) : null}
         </div>
       </div>
@@ -551,8 +572,13 @@ function TeamColumn({
       )}
       <div className="mt-3 flex gap-2">
         <Select value={pick} onValueChange={setPick}>
-          <SelectTrigger className="h-9" aria-label={t("admin.selectRole", { role: heading.toLowerCase() })}>
-            <SelectValue placeholder={t("admin.addRole", { role: heading.slice(0, -1).toLowerCase() })} />
+          <SelectTrigger
+            className="h-9"
+            aria-label={t("admin.selectRole", { role: heading.toLowerCase() })}
+          >
+            <SelectValue
+              placeholder={t("admin.addRole", { role: heading.slice(0, -1).toLowerCase() })}
+            />
           </SelectTrigger>
           <SelectContent>
             {options.length === 0 ? (
@@ -678,12 +704,12 @@ function DevicesTab({ enabled }: { enabled: boolean }) {
       {devices.isLoading ? (
         <LoadingSkeleton rows={3} />
       ) : devices.isError ? (
-        <ErrorState
-          message={(devices.error as Error)?.message}
-          onRetry={() => devices.refetch()}
-        />
+        <ErrorState message={(devices.error as Error)?.message} onRetry={() => devices.refetch()} />
       ) : (devices.data ?? []).length === 0 ? (
-        <EmptyState title={t("admin.noDevicesRegistered")} description={t("admin.noDevicesRegisteredDesc")} />
+        <EmptyState
+          title={t("admin.noDevicesRegistered")}
+          description={t("admin.noDevicesRegisteredDesc")}
+        />
       ) : (
         <div className="space-y-3">
           {(devices.data ?? []).map((d) => (
@@ -718,7 +744,10 @@ function DeviceCard({
       <div className="min-w-0">
         <div className="flex flex-wrap items-center gap-2">
           <p className="font-display text-base font-semibold">{device.deviceCode}</p>
-          <Badge variant={device.status === "online" ? "secondary" : "outline"} className="capitalize">
+          <Badge
+            variant={device.status === "online" ? "secondary" : "outline"}
+            className="capitalize"
+          >
             {device.status}
           </Badge>
           <Badge variant="outline" className="gap-1">
@@ -727,15 +756,23 @@ function DeviceCard({
             ) : (
               <WifiOff className="size-3" aria-hidden />
             )}
-            {t("admin.mqttStatus", { state: device.mqttConnected ? t("admin.up") : t("admin.down") })}
+            {t("admin.mqttStatus", {
+              state: device.mqttConnected ? t("admin.up") : t("admin.down"),
+            })}
           </Badge>
-          <Badge variant="outline">{t("admin.cloudStatus", { state: device.cloudConnected ? t("admin.up") : t("admin.down") })}</Badge>
+          <Badge variant="outline">
+            {t("admin.cloudStatus", {
+              state: device.cloudConnected ? t("admin.up") : t("admin.down"),
+            })}
+          </Badge>
           <Badge variant="outline">{t("admin.fwLabel", { version: device.firmware })}</Badge>
         </div>
         <p className="mt-1.5 text-xs text-muted-foreground">
-          {device.patientName ? `${device.patientName} · ${device.mrn}` : t("admin.unassigned")} · {t("admin.nebulizerState", { state: device.nebulizerState })}{" "}
-          · {t("admin.fluidLevel", { percent: Math.round(device.fluidLevel) })} · {t("admin.seenAgo", { time: ago(device.lastSeenAt, t) })}{" "}
-          · {t("admin.telemetryAgo", { time: ago(device.lastTelemetryAt, t) })}
+          {device.patientName ? `${device.patientName} · ${device.mrn}` : t("admin.unassigned")} ·{" "}
+          {t("admin.nebulizerState", { state: device.nebulizerState })} ·{" "}
+          {t("admin.fluidLevel", { percent: Math.round(device.fluidLevel) })} ·{" "}
+          {t("admin.seenAgo", { time: ago(device.lastSeenAt, t) })} ·{" "}
+          {t("admin.telemetryAgo", { time: ago(device.lastTelemetryAt, t) })}
         </p>
       </div>
 
@@ -744,7 +781,10 @@ function DeviceCard({
           value={device.patientId ?? "unassigned"}
           onValueChange={(v) => onAssign(v === "unassigned" ? null : v)}
         >
-          <SelectTrigger className="h-9 w-56" aria-label={t("admin.assignPatientTo", { device: device.deviceCode })}>
+          <SelectTrigger
+            className="h-9 w-56"
+            aria-label={t("admin.assignPatientTo", { device: device.deviceCode })}
+          >
             <SelectValue placeholder={t("admin.assignPatient")} />
           </SelectTrigger>
           <SelectContent>
@@ -757,7 +797,10 @@ function DeviceCard({
           </SelectContent>
         </Select>
         <Select value={device.status} onValueChange={(v) => onStatus(v as "online")}>
-          <SelectTrigger className="h-9 w-40" aria-label={t("admin.setStatusFor", { device: device.deviceCode })}>
+          <SelectTrigger
+            className="h-9 w-40"
+            aria-label={t("admin.setStatusFor", { device: device.deviceCode })}
+          >
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -786,9 +829,16 @@ function AlertsTab({ enabled }: { enabled: boolean }) {
 
   if (alerts.isLoading) return <LoadingSkeleton rows={4} />;
   if (alerts.isError)
-    return <ErrorState message={(alerts.error as Error)?.message} onRetry={() => alerts.refetch()} />;
+    return (
+      <ErrorState message={(alerts.error as Error)?.message} onRetry={() => alerts.refetch()} />
+    );
   if (!(alerts.data ?? []).length)
-    return <EmptyState title={t("admin.noAlertsRecorded")} description={t("admin.noAlertsRecordedDesc")} />;
+    return (
+      <EmptyState
+        title={t("admin.noAlertsRecorded")}
+        description={t("admin.noAlertsRecordedDesc")}
+      />
+    );
 
   return (
     <div className="panel p-4">
@@ -841,7 +891,9 @@ function AuditTab({ enabled }: { enabled: boolean }) {
   if (logs.isError)
     return <ErrorState message={(logs.error as Error)?.message} onRetry={() => logs.refetch()} />;
   if (!(logs.data ?? []).length)
-    return <EmptyState title={t("admin.noAuditActivity")} description={t("admin.noAuditActivityDesc")} />;
+    return (
+      <EmptyState title={t("admin.noAuditActivity")} description={t("admin.noAuditActivityDesc")} />
+    );
 
   const rows = logs.data ?? [];
   const actions = [...new Set(rows.map((l) => l.action))].sort();

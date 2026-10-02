@@ -11,7 +11,8 @@ export const en_doctor: Record<string, string> = {
   "doctor.alerts.showResolved": "Show resolved",
   "doctor.alerts.hidingNothing": "Hiding nothing",
   "doctor.alerts.emptyTitle": "No alerts to triage",
-  "doctor.alerts.emptyDesc": "Every assigned patient is currently within their prescribed thresholds.",
+  "doctor.alerts.emptyDesc":
+    "Every assigned patient is currently within their prescribed thresholds.",
   "doctor.alerts.acknowledge": "Acknowledge",
   "doctor.alerts.resolve": "Resolve",
   "doctor.alerts.updated": "Alert updated",
@@ -192,7 +193,8 @@ export const en_doctor: Record<string, string> = {
   "doctor.settings.saved": "Settings saved",
 
   "doctor.dashboard.title": "Clinical Dashboard",
-  "doctor.dashboard.subtitle": "{count} assigned patients · {critical} critical alerts · {inTherapy} in therapy",
+  "doctor.dashboard.subtitle":
+    "{count} assigned patients · {critical} critical alerts · {inTherapy} in therapy",
 
   "doctor.vitals.oxygenSaturation": "Oxygen saturation",
   "doctor.vitals.heartRate": "Heart rate",

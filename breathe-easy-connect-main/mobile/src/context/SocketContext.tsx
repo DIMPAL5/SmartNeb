@@ -1,6 +1,7 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
-import { io, Socket } from 'socket.io-client';
-import { useAuth } from './AuthContext';
+import React, { createContext, useContext, useEffect, useState } from "react";
+import { io, Socket } from "socket.io-client";
+import { useAuth } from "./AuthContext";
+import { API_BASE_URL } from "../api/client";
 
 interface SocketContextType {
   socket: Socket | null;
@@ -21,33 +22,34 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   const [nebulizerState, setNebulizerState] = useState<any>(null);
 
   useEffect(() => {
-    const newSocket = io('http://172.16.23.35:5000', {
-      transports: ['websocket', 'polling'],
+    const socketHost = API_BASE_URL.replace(/\/api\/v1\/?$/, "");
+    const newSocket = io(socketHost, {
+      transports: ["websocket"],
       autoConnect: true,
     });
 
-    newSocket.on('connect', () => {
-      console.log('⚡ Mobile Socket connected:', newSocket.id);
+    newSocket.on("connect", () => {
+      console.log("⚡ Mobile Socket connected:", newSocket.id);
       setIsConnected(true);
       if (user?.patientId) {
-        newSocket.emit('join_patient_room', user.patientId);
+        newSocket.emit("join_patient_room", user.patientId);
       }
     });
 
-    newSocket.on('disconnect', () => {
-      console.log('🔌 Mobile Socket disconnected');
+    newSocket.on("disconnect", () => {
+      console.log("🔌 Mobile Socket disconnected");
       setIsConnected(false);
     });
 
-    newSocket.on('vitals_update', (data) => {
+    newSocket.on("vitals_update", (data) => {
       setLatestVitalsUpdate(data);
     });
 
-    newSocket.on('emergency_broadcast', (data) => {
+    newSocket.on("emergency_broadcast", (data) => {
       setEmergencyAlert(data);
     });
 
-    newSocket.on('nebulizer_state_update', (data) => {
+    newSocket.on("nebulizer_state_update", (data) => {
       setNebulizerState(data);
     });
 

@@ -13,7 +13,8 @@ export const Route = createFileRoute("/_authenticated/patient/history")({
       { title: "Health History — SmartNeb" },
       {
         name: "description",
-        content: "A 7-day timeline of your vitals, therapy sessions and clinical alerts in one view.",
+        content:
+          "A 7-day timeline of your vitals, therapy sessions and clinical alerts in one view.",
       },
       { property: "og:title", content: "Health History — SmartNeb" },
       { property: "og:description", content: "Your weekly respiratory health timeline." },
@@ -21,9 +22,7 @@ export const Route = createFileRoute("/_authenticated/patient/history")({
       { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
-  component: () => (
-    <PatientPageWrapper />
-  ),
+  component: () => <PatientPageWrapper />,
 });
 
 function PatientPageWrapper() {
@@ -52,7 +51,9 @@ function HistoryBody({ patientId }: { patientId: string }) {
 
   if (series.isLoading) return <LoadingSkeleton rows={4} />;
   if (series.isError || !series.data)
-    return <ErrorState message={(series.error as Error)?.message} onRetry={() => series.refetch()} />;
+    return (
+      <ErrorState message={(series.error as Error)?.message} onRetry={() => series.refetch()} />
+    );
 
   const data = series.data.health.map((r) => ({
     t: r.recorded_at,
@@ -76,14 +77,17 @@ function HistoryBody({ patientId }: { patientId: string }) {
       at: a.created_at,
       title: t("patient.history.severityAlert", { severity: a.severity }),
       detail: a.message,
-      tone: a.severity === "critical" ? "critical" : a.severity === "warning" ? "warning" : "normal",
+      tone:
+        a.severity === "critical" ? "critical" : a.severity === "warning" ? "warning" : "normal",
     })),
   ].sort((a, b) => new Date(b.at).getTime() - new Date(a.at).getTime());
 
   return (
     <div className="space-y-6">
       <section className="panel p-5">
-        <p className="mb-3 font-display text-sm font-semibold">{t("patient.history.weeklyVitals")}</p>
+        <p className="mb-3 font-display text-sm font-semibold">
+          {t("patient.history.weeklyVitals")}
+        </p>
         <TrendChart
           data={data}
           series={[
@@ -104,7 +108,10 @@ function HistoryBody({ patientId }: { patientId: string }) {
                 <span className="absolute -left-[27px] top-2 size-2.5 rounded-full bg-primary" />
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <p className="text-sm font-medium">{e.title}</p>
-                  <StatusBadge status={e.tone as "normal" | "warning" | "critical"} label={new Date(e.at).toLocaleString()} />
+                  <StatusBadge
+                    status={e.tone as "normal" | "warning" | "critical"}
+                    label={new Date(e.at).toLocaleString()}
+                  />
                 </div>
                 <p className="text-xs text-muted-foreground">{e.detail}</p>
               </li>

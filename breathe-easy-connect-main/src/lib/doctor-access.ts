@@ -2,11 +2,7 @@
 
 /** The doctors.id row linked to the signed-in user, or null. */
 export async function resolveDoctorId(supabase: any, userId: string): Promise<string | null> {
-  const { data } = await supabase
-    .from("doctors")
-    .select("id")
-    .eq("user_id", userId)
-    .maybeSingle();
+  const { data } = await supabase.from("doctors").select("id").eq("user_id", userId).maybeSingle();
   return (data as { id: string } | null)?.id ?? null;
 }
 

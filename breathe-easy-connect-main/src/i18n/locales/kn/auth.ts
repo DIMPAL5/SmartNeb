@@ -58,11 +58,9 @@ export const kn_auth: Record<string, string> = {
   "landing.feature.sos.body":
     "ಒಂದು ಟ್ಯಾಪ್ ನಿಯೋಜಿತ ವೈದ್ಯ ಮತ್ತು ಆರೈಕೆದಾರರಿಗೆ ಇತ್ತೀಚಿನ ವೈಟಲ್ಸ್‌ನೊಂದಿಗೆ ತಿಳಿಸುತ್ತದೆ.",
   "landing.feature.telemetry.title": "ಸಾಧನ ಟೆಲಿಮೆಟ್ರಿ",
-  "landing.feature.telemetry.body":
-    "ಬ್ಯಾಟರಿ, ಚೇಂಬರ್ ಮಟ್ಟ, MQTT ಮತ್ತು ಕ್ಲೌಡ್ ಸಂಪರ್ಕ ಒಂದೇ ನೋಟದಲ್ಲಿ.",
+  "landing.feature.telemetry.body": "ಬ್ಯಾಟರಿ, ಚೇಂಬರ್ ಮಟ್ಟ, MQTT ಮತ್ತು ಕ್ಲೌಡ್ ಸಂಪರ್ಕ ಒಂದೇ ನೋಟದಲ್ಲಿ.",
   "landing.feature.assistant.title": "AI ಸಹಾಯಕ",
-  "landing.feature.assistant.body":
-    "ರೋಗಿಯ ಸ್ವಂತ ಡೇಟಾವನ್ನು ಆಧರಿಸಿ ಸರಳ ಭಾಷೆಯ ಉತ್ತರಗಳು.",
+  "landing.feature.assistant.body": "ರೋಗಿಯ ಸ್ವಂತ ಡೇಟಾವನ್ನು ಆಧರಿಸಿ ಸರಳ ಭಾಷೆಯ ಉತ್ತರಗಳು.",
   "landing.feature.access.title": "ಪಾತ್ರ ಆಧಾರಿತ ಪ್ರವೇಶ",
   "landing.feature.access.body":
     "ರೋಗಿಗಳು, ವೈದ್ಯರು, ಆರೈಕೆದಾರರು ಮತ್ತು ನಿರ್ವಾಹಕರು ಅವರು ನೋಡಬೇಕಾದದ್ದನ್ನು ಮಾತ್ರ ನೋಡುತ್ತಾರೆ.",

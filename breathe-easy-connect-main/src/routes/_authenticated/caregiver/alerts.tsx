@@ -15,10 +15,14 @@ export const Route = createFileRoute("/_authenticated/caregiver/alerts")({
       { title: "Care Alerts — SmartNeb Caregiver" },
       {
         name: "description",
-        content: "Active health alerts for the patients assigned to you, with severity and timestamps.",
+        content:
+          "Active health alerts for the patients assigned to you, with severity and timestamps.",
       },
       { property: "og:title", content: "Care Alerts — SmartNeb Caregiver" },
-      { property: "og:description", content: "Severity-ranked alerts across your assigned patients." },
+      {
+        property: "og:description",
+        content: "Severity-ranked alerts across your assigned patients.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
@@ -55,7 +59,10 @@ function CareAlertsPage() {
         ) : q.isError ? (
           <ErrorState message={(q.error as Error)?.message} onRetry={() => q.refetch()} />
         ) : q.data.length === 0 ? (
-          <EmptyState title={t("caregiver.noAlerts")} description={t("caregiver.noAlertsDescription")} />
+          <EmptyState
+            title={t("caregiver.noAlerts")}
+            description={t("caregiver.noAlertsDescription")}
+          />
         ) : (
           <ul className="space-y-2">
             {q.data.map((a) => (
@@ -79,11 +86,18 @@ function CareAlertsPage() {
                 <div className="flex items-center gap-2">
                   <StatusBadge
                     status={
-                      a.severity === "critical" ? "critical" : a.severity === "warning" ? "warning" : "normal"
+                      a.severity === "critical"
+                        ? "critical"
+                        : a.severity === "warning"
+                          ? "warning"
+                          : "normal"
                     }
                     label={a.severity}
                   />
-                  <StatusBadge status={a.status === "resolved" ? "normal" : "unknown"} label={a.status} />
+                  <StatusBadge
+                    status={a.status === "resolved" ? "normal" : "unknown"}
+                    label={a.status}
+                  />
                 </div>
               </li>
             ))}

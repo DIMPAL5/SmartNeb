@@ -5,7 +5,8 @@ export const hi_admin: Record<string, string> = {
   "admin.hoursAgo": "{count} घंटे पहले",
   "admin.daysAgo": "{count} दिन पहले",
   "admin.accessRequired": "इस कंसोल को खोलने के लिए प्रशासक अनुमति आवश्यक है।",
-  "admin.subtitle": "{users} उपयोगकर्ता · {devices} डिवाइस · {alerts} सक्रिय अलर्ट · {sos} लाइव SOS",
+  "admin.subtitle":
+    "{users} उपयोगकर्ता · {devices} डिवाइस · {alerts} सक्रिय अलर्ट · {sos} लाइव SOS",
   "admin.loadingStatus": "प्लेटफ़ॉर्म स्थिति लोड हो रही है",
   "admin.refreshData": "प्लेटफ़ॉर्म डेटा रिफ्रेश करें",
   "admin.users": "उपयोगकर्ता",

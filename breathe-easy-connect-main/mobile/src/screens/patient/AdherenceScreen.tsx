@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, RefreshControl } from 'react-native';
-import { useAuth } from '../../context/AuthContext';
-import { apiClient } from '../../api/client';
+import React, { useState, useEffect } from "react";
+import { View, Text, StyleSheet, ScrollView, RefreshControl } from "react-native";
+import { useAuth } from "../../context/AuthContext";
+import { apiClient } from "../../api/client";
 
 export const AdherenceScreen = () => {
   const { user } = useAuth();
@@ -29,7 +29,16 @@ export const AdherenceScreen = () => {
     <ScrollView
       style={styles.container}
       contentContainerStyle={styles.scroll}
-      refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); fetchCarePlans(); }} tintColor="#38bdf8" />}
+      refreshControl={
+        <RefreshControl
+          refreshing={refreshing}
+          onRefresh={() => {
+            setRefreshing(true);
+            fetchCarePlans();
+          }}
+          tintColor="#38bdf8"
+        />
+      }
     >
       <Text style={styles.title}>Session Adherence</Text>
       <Text style={styles.subtitle}>Track prescribed nebulization compliance</Text>
@@ -48,9 +57,13 @@ export const AdherenceScreen = () => {
         plans.map((p) => (
           <View key={p.id} style={styles.planCard}>
             <Text style={styles.medTitle}>{p.medication}</Text>
-            <Text style={styles.planDetail}>Dosage: {p.dosage} | Duration: {p.durationMinutes} mins</Text>
+            <Text style={styles.planDetail}>
+              Dosage: {p.dosage} | Duration: {p.durationMinutes} mins
+            </Text>
             <Text style={styles.planDetail}>Frequency: {p.frequencyPerDay} times per day</Text>
-            <Text style={styles.instructions}>Instructions: {p.instructions || 'Inhale via nebulizer as prescribed.'}</Text>
+            <Text style={styles.instructions}>
+              Instructions: {p.instructions || "Inhale via nebulizer as prescribed."}
+            </Text>
           </View>
         ))
       )}
@@ -61,76 +74,76 @@ export const AdherenceScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#0f172a',
+    backgroundColor: "#0f172a",
   },
   scroll: {
     padding: 18,
   },
   title: {
-    color: '#f8fafc',
+    color: "#f8fafc",
     fontSize: 24,
-    fontWeight: '900',
+    fontWeight: "900",
   },
   subtitle: {
-    color: '#94a3b8',
+    color: "#94a3b8",
     fontSize: 13,
     marginBottom: 16,
   },
   card: {
-    backgroundColor: '#1e293b',
+    backgroundColor: "#1e293b",
     borderRadius: 20,
     padding: 20,
-    alignItems: 'center',
+    alignItems: "center",
     marginBottom: 20,
     borderWidth: 1,
-    borderColor: '#38bdf8',
+    borderColor: "#38bdf8",
   },
   cardLabel: {
-    color: '#94a3b8',
+    color: "#94a3b8",
     fontSize: 14,
-    fontWeight: '600',
+    fontWeight: "600",
   },
   adherenceScore: {
-    color: '#10b981',
+    color: "#10b981",
     fontSize: 48,
-    fontWeight: '900',
+    fontWeight: "900",
     marginVertical: 4,
   },
   adherenceSub: {
-    color: '#cbd5e1',
+    color: "#cbd5e1",
     fontSize: 13,
   },
   sectionTitle: {
-    color: '#cbd5e1',
+    color: "#cbd5e1",
     fontSize: 16,
-    fontWeight: '700',
+    fontWeight: "700",
     marginBottom: 10,
   },
   planCard: {
-    backgroundColor: '#1e293b',
+    backgroundColor: "#1e293b",
     borderRadius: 16,
     padding: 16,
     marginBottom: 12,
   },
   medTitle: {
-    color: '#38bdf8',
+    color: "#38bdf8",
     fontSize: 18,
-    fontWeight: '800',
+    fontWeight: "800",
     marginBottom: 4,
   },
   planDetail: {
-    color: '#f8fafc',
+    color: "#f8fafc",
     fontSize: 14,
     marginVertical: 2,
   },
   instructions: {
-    color: '#94a3b8',
+    color: "#94a3b8",
     fontSize: 12,
     marginTop: 6,
-    fontStyle: 'italic',
+    fontStyle: "italic",
   },
   emptyText: {
-    color: '#64748b',
-    fontStyle: 'italic',
+    color: "#64748b",
+    fontStyle: "italic",
   },
 });

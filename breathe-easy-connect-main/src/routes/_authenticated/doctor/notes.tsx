@@ -144,9 +144,15 @@ function DoctorNotesPage() {
             {notes.isPending ? (
               <LoadingSkeleton rows={3} />
             ) : notes.isError ? (
-              <ErrorState message={(notes.error as Error)?.message} onRetry={() => notes.refetch()} />
+              <ErrorState
+                message={(notes.error as Error)?.message}
+                onRetry={() => notes.refetch()}
+              />
             ) : rows.length === 0 ? (
-              <EmptyState title={t("doctor.notes.emptyTitle")} description={t("doctor.notes.emptyDesc")} />
+              <EmptyState
+                title={t("doctor.notes.emptyTitle")}
+                description={t("doctor.notes.emptyDesc")}
+              />
             ) : (
               <ul className="space-y-2">
                 {rows.map((n) => (
@@ -161,7 +167,9 @@ function DoctorNotesPage() {
                       </Link>
                       <div className="flex items-center gap-2">
                         <Badge variant={n.mine ? "secondary" : "outline"}>
-                          {n.mine ? t("doctor.notes.you") : (n.doctorName ?? t("doctor.notes.careTeam"))}
+                          {n.mine
+                            ? t("doctor.notes.you")
+                            : (n.doctorName ?? t("doctor.notes.careTeam"))}
                         </Badge>
                         <span className="text-xs text-muted-foreground">
                           {new Date(n.created_at).toLocaleString()}

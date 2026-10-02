@@ -79,10 +79,16 @@ function DoctorProfilePage() {
                 save.mutate();
               }}
             >
-              <h2 className="font-display text-sm font-semibold">{t("doctor.profile.contactDetails")}</h2>
+              <h2 className="font-display text-sm font-semibold">
+                {t("doctor.profile.contactDetails")}
+              </h2>
               <div className="space-y-1.5">
                 <Label htmlFor="full-name">{t("doctor.profile.fullName")}</Label>
-                <Input id="full-name" value={fullName} onChange={(e) => setFullName(e.target.value)} />
+                <Input
+                  id="full-name"
+                  value={fullName}
+                  onChange={(e) => setFullName(e.target.value)}
+                />
               </div>
               <div className="space-y-1.5">
                 <Label htmlFor="phone">{t("doctor.profile.phone")}</Label>
@@ -103,9 +109,13 @@ function DoctorProfilePage() {
             </form>
 
             <aside className="panel space-y-3 p-5">
-              <h2 className="font-display text-sm font-semibold">{t("doctor.profile.practiceSummary")}</h2>
+              <h2 className="font-display text-sm font-semibold">
+                {t("doctor.profile.practiceSummary")}
+              </h2>
               <div className="flex items-center justify-between text-sm">
-                <span className="text-muted-foreground">{t("doctor.profile.assignedPatients")}</span>
+                <span className="text-muted-foreground">
+                  {t("doctor.profile.assignedPatients")}
+                </span>
                 <span className="font-display text-lg font-semibold tabular-nums">
                   {patients.length}
                 </span>

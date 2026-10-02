@@ -17,7 +17,10 @@ export const Route = createFileRoute("/_authenticated/patient/alerts")({
         content: "Review, acknowledge and resolve threshold alerts raised by your SmartNeb device.",
       },
       { property: "og:title", content: "Alerts — SmartNeb" },
-      { property: "og:description", content: "Every threshold breach and device warning in one place." },
+      {
+        property: "og:description",
+        content: "Every threshold breach and device warning in one place.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
@@ -57,7 +60,12 @@ function AlertsBody({ patientId }: { patientId: string }) {
   if (q.isError || !q.data)
     return <ErrorState message={(q.error as Error)?.message} onRetry={() => q.refetch()} />;
   if (q.data.length === 0)
-    return <EmptyState title={t("patient.alerts.noneTitle")} description={t("patient.alerts.noneDesc")} />;
+    return (
+      <EmptyState
+        title={t("patient.alerts.noneTitle")}
+        description={t("patient.alerts.noneDesc")}
+      />
+    );
 
   return (
     <ul className="space-y-3">
@@ -66,7 +74,13 @@ function AlertsBody({ patientId }: { patientId: string }) {
           <div>
             <div className="flex flex-wrap items-center gap-2">
               <StatusBadge
-                status={a.severity === "critical" ? "critical" : a.severity === "warning" ? "warning" : "normal"}
+                status={
+                  a.severity === "critical"
+                    ? "critical"
+                    : a.severity === "warning"
+                      ? "warning"
+                      : "normal"
+                }
                 label={a.severity}
               />
               <p className="text-sm font-medium">{a.message}</p>
