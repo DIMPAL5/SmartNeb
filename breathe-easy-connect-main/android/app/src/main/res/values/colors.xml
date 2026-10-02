@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Slate/Teal color theme parameters from the CSS styles -->
+    <color name="primary">#2A8FBD</color> <!-- oklch(0.58 0.13 205) / Teal-blue -->
+    <color name="primary_dark">#12648A</color>
+    <color name="background_light">#FAFAFB</color>
+    <color name="background_dark">#1C1B1F</color>
+    <color name="surface_light">#FFFFFF</color>
+    <color name="surface_dark">#242329</color>
+    
+    <color name="vital_green">#10B981</color> <!-- Vital state normal -->
+    <color name="warn_yellow">#F59E0B</color> <!-- Warning state -->
+    <color name="critical_red">#EF4444</color> <!-- Critical state -->
+    <color name="muted_gray">#8E8E93</color>
+    <color name="border_gray">#E5E5EA</color>
+</resources>

@@ -1,0 +1,1 @@
+DROP FUNCTION IF EXISTS public.trigger_patient_sos(uuid, text);

@@ -1,0 +1,498 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum AppRole {
+  patient
+  doctor
+  caregiver
+  admin
+  super_admin
+}
+
+enum DeviceStatus {
+  online
+  offline
+  maintenance
+  disabled
+}
+
+enum CarePlanStatus {
+  draft
+  published
+  paused
+  ended
+}
+
+enum SessionStatus {
+  pending
+  starting
+  running
+  paused
+  completed
+  stopped
+  failed
+}
+
+enum AlertSeverity {
+  critical
+  warning
+  info
+}
+
+enum AlertStatus {
+  active
+  acknowledged
+  resolved
+}
+
+enum AdherenceStatus {
+  completed
+  partial
+  missed
+  scheduled
+}
+
+enum CommandState {
+  sent
+  acked
+  failed
+}
+
+model User {
+  id           String   @id @default(uuid())
+  email        String   @unique
+  passwordHash String   @map("password_hash")
+  fullName     String   @default("New User") @map("full_name")
+  phone        String?
+  avatarUrl    String?  @map("avatar_url")
+  theme        String   @default("system")
+  voiceAlerts  Boolean  @default(true) @map("voice_alerts")
+  notifyEmail  Boolean  @default(true) @map("notify_email")
+  isActive     Boolean  @default(true) @map("is_active")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  roles            UserRole[]
+  patientProfile   Patient?
+  doctorProfile    Doctor?
+  caregiverProfile Caregiver?
+  aiConversations  AIConversation[]
+  notifications    Notification[]
+  auditLogs        AuditLog[]
+
+  @@map("users")
+}
+
+model UserRole {
+  id        String   @id @default(uuid())
+  userId    String   @map("user_id")
+  role      AppRole
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, role])
+  @@map("user_roles")
+}
+
+model Patient {
+  id               String    @id @default(uuid())
+  userId           String?   @unique @map("user_id")
+  fullName         String    @map("full_name")
+  mrn              String    @unique
+  dateOfBirth      DateTime? @map("date_of_birth") @db.Date
+  sex              String?
+  condition        String?
+  spo2Threshold    Float     @default(92) @map("spo2_threshold")
+  bpmLowThreshold  Float     @default(50) @map("bpm_low_threshold")
+  bpmHighThreshold Float     @default(120) @map("bpm_high_threshold")
+  tempThreshold    Float     @default(38) @map("temp_threshold")
+  createdAt        DateTime  @default(now()) @map("created_at")
+  updatedAt        DateTime  @updatedAt @map("updated_at")
+  deletedAt        DateTime? @map("deleted_at")
+
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  devices                Device[]
+  doctorAssignments      DoctorPatientAssignment[]
+  caregiverAssignments   CaregiverPatientAssignment[]
+  healthTelemetry        HealthTelemetry[]
+  environmentalTelemetry EnvironmentalTelemetry[]
+  batteryTelemetry       BatteryTelemetry[]
+  carePlans              CarePlan[]
+  nebulizationSessions   NebulizationSession[]
+  adherenceRecords       AdherenceRecord[]
+  fluidRefills           FluidRefill[]
+  deviceCommands         DeviceCommand[]
+  alerts                 Alert[]
+  sosEvents              SOSEvent[]
+  notifications          Notification[]
+  clinicalNotes          ClinicalNote[]
+  reports                Report[]
+
+  @@map("patients")
+}
+
+model Doctor {
+  id        String   @id @default(uuid())
+  userId    String?  @unique @map("user_id")
+  fullName  String   @map("full_name")
+  specialty String   @default("Pulmonology")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  patientAssignments DoctorPatientAssignment[]
+  carePlans          CarePlan[]
+  clinicalNotes      ClinicalNote[]
+
+  @@map("doctors")
+}
+
+model Caregiver {
+  id        String   @id @default(uuid())
+  userId    String?  @unique @map("user_id")
+  fullName  String   @map("full_name")
+  relation  String   @default("Family")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  patientAssignments CaregiverPatientAssignment[]
+
+  @@map("caregivers")
+}
+
+model DoctorPatientAssignment {
+  id        String   @id @default(uuid())
+  doctorId  String   @map("doctor_id")
+  patientId String   @map("patient_id")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  doctor  Doctor  @relation(fields: [doctorId], references: [id], onDelete: Cascade)
+  patient Patient @relation(fields: [patientId], references: [id], onDelete: Cascade)
+
+  @@unique([doctorId, patientId])
+  @@map("doctor_patient_assignments")
+}
+
+model CaregiverPatientAssignment {
+  id          String   @id @default(uuid())
+  caregiverId String   @map("caregiver_id")
+  patientId   String   @map("patient_id")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  caregiver Caregiver @relation(fields: [caregiverId], references: [id], onDelete: Cascade)
+  patient   Patient   @relation(fields: [patientId], references: [id], onDelete: Cascade)
+
+  @@unique([caregiverId, patientId])
+  @@map("caregiver_patient_assignments")
+}
+
+model Device {
+  id             String       @id @default(uuid())
+  deviceCode     String       @unique @map("device_code")
+  patientId      String?      @map("patient_id")
+  status         DeviceStatus @default(offline)
+  firmware       String       @default("1.0.0")
+  mqttConnected  Boolean      @default(false) @map("mqtt_connected")
+  cloudConnected Boolean      @default(false) @map("cloud_connected")
+  nebulizerState String       @default("OFF") @map("nebulizer_state")
+  fluidLevel     Float        @default(100) @map("fluid_level")
+  lastSeenAt     DateTime?    @map("last_seen_at")
+  registeredAt   DateTime     @default(now()) @map("registered_at")
+
+  patient Patient? @relation(fields: [patientId], references: [id], onDelete: SetNull)
+
+  healthTelemetry        HealthTelemetry[]
+  environmentalTelemetry EnvironmentalTelemetry[]
+  batteryTelemetry       BatteryTelemetry[]
+  nebulizationSessions   NebulizationSession[]
+  fluidRefills           FluidRefill[]
+  deviceCommands         DeviceCommand[]
+  alerts                 Alert[]
+
+  @@map("devices")
+}
+
+model HealthTelemetry {
+  id              BigInt   @id @default(autoincrement())
+  patientId       String   @map("patient_id")
+  deviceId        String?  @map("device_id")
+  bpm             Float?
+  spo2            Float?
+  bodyTemperature Float?   @map("body_temperature")
+  recordedAt      DateTime @default(now()) @map("recorded_at")
+
+  patient Patient @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  device  Device? @relation(fields: [deviceId], references: [id], onDelete: SetNull)
+
+  @@index([patientId, recordedAt(sort: Desc)])
+  @@map("health_telemetry")
+}
+
+model EnvironmentalTelemetry {
+  id                 BigInt   @id @default(autoincrement())
+  patientId          String   @map("patient_id")
+  deviceId           String?  @map("device_id")
+  ambientTemperature Float?   @map("ambient_temperature")
+  humidity           Float?
+  aqi                Float?
+  simulated          Boolean  @default(true)
+  recordedAt         DateTime @default(now()) @map("recorded_at")
+
+  patient Patient @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  device  Device? @relation(fields: [deviceId], references: [id], onDelete: SetNull)
+
+  @@index([patientId, recordedAt(sort: Desc)])
+  @@map("environmental_telemetry")
+}
+
+model BatteryTelemetry {
+  id              BigInt   @id @default(autoincrement())
+  patientId       String   @map("patient_id")
+  deviceId        String?  @map("device_id")
+  percentage      Float?
+  voltage         Float?
+  current         Float?
+  power           Float?
+  cellTemperature Float?   @map("cell_temperature")
+  charging        Boolean  @default(false)
+  fluidLevel      Float?   @map("fluid_level")
+  recordedAt      DateTime @default(now()) @map("recorded_at")
+
+  patient Patient @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  device  Device? @relation(fields: [deviceId], references: [id], onDelete: SetNull)
+
+  @@index([patientId, recordedAt(sort: Desc)])
+  @@map("battery_telemetry")
+}
+
+model CarePlan {
+  id              String         @id @default(uuid())
+  patientId       String         @map("patient_id")
+  doctorId        String?        @map("doctor_id")
+  medication      String
+  dosage          String
+  durationMinutes Int            @default(10) @map("duration_minutes")
+  frequencyPerDay Int            @default(2) @map("frequency_per_day")
+  instructions    String?        @db.Text
+  startDate       DateTime       @default(now()) @map("start_date") @db.Date
+  endDate         DateTime?      @map("end_date") @db.Date
+  status          CarePlanStatus @default(draft)
+  createdAt       DateTime       @default(now()) @map("created_at")
+  updatedAt       DateTime       @updatedAt @map("updated_at")
+
+  patient Patient @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  doctor  Doctor? @relation(fields: [doctorId], references: [id], onDelete: SetNull)
+
+  sessions         NebulizationSession[]
+  adherenceRecords AdherenceRecord[]
+
+  @@map("care_plans")
+}
+
+model NebulizationSession {
+  id                String        @id @default(uuid())
+  patientId         String        @map("patient_id")
+  deviceId          String?       @map("device_id")
+  carePlanId        String?       @map("care_plan_id")
+  medication        String?
+  dosage            String?
+  prescribedSeconds Int           @default(600) @map("prescribed_seconds")
+  elapsedSeconds    Int           @default(0) @map("elapsed_seconds")
+  status            SessionStatus @default(pending)
+  startedAt         DateTime      @default(now()) @map("started_at")
+  endedAt           DateTime?     @map("ended_at")
+  createdAt         DateTime      @default(now()) @map("created_at")
+  updatedAt         DateTime      @updatedAt @map("updated_at")
+
+  patient  Patient   @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  device   Device?   @relation(fields: [deviceId], references: [id], onDelete: SetNull)
+  carePlan CarePlan? @relation(fields: [carePlanId], references: [id], onDelete: SetNull)
+
+  adherenceRecords AdherenceRecord[]
+  deviceCommands   DeviceCommand[]
+
+  @@map("nebulization_sessions")
+}
+
+model AdherenceRecord {
+  id              String          @id @default(uuid())
+  patientId       String          @map("patient_id")
+  carePlanId      String?         @map("care_plan_id")
+  sessionId       String?         @map("session_id")
+  scheduledFor    DateTime        @default(now()) @map("scheduled_for") @db.Date
+  status          AdherenceStatus @default(scheduled)
+  completionRatio Float           @default(0) @map("completion_ratio")
+  createdAt       DateTime        @default(now()) @map("created_at")
+
+  patient  Patient              @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  carePlan CarePlan?            @relation(fields: [carePlanId], references: [id], onDelete: SetNull)
+  session  NebulizationSession? @relation(fields: [sessionId], references: [id], onDelete: SetNull)
+
+  @@map("adherence_records")
+}
+
+model FluidRefill {
+  id         String   @id @default(uuid())
+  patientId  String   @map("patient_id")
+  deviceId   String?  @map("device_id")
+  levelAfter Float    @default(100) @map("level_after")
+  note       String?
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  patient Patient @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  device  Device? @relation(fields: [deviceId], references: [id], onDelete: SetNull)
+
+  @@map("fluid_refills")
+}
+
+model DeviceCommand {
+  id        String       @id @default(uuid())
+  deviceId  String?      @map("device_id")
+  patientId String       @map("patient_id")
+  sessionId String?      @map("session_id")
+  command   String
+  state     CommandState @default(sent)
+  issuedBy  String?      @map("issued_by")
+  createdAt DateTime     @default(now()) @map("created_at")
+  ackedAt   DateTime?    @map("acked_at")
+
+  device  Device?              @relation(fields: [deviceId], references: [id], onDelete: Cascade)
+  patient Patient              @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  session NebulizationSession? @relation(fields: [sessionId], references: [id], onDelete: SetNull)
+
+  @@map("device_commands")
+}
+
+model Alert {
+  id             String        @id @default(uuid())
+  patientId      String        @map("patient_id")
+  deviceId       String?       @map("device_id")
+  type           String
+  severity       AlertSeverity @default(warning)
+  value          Float?
+  threshold      Float?
+  message        String
+  status         AlertStatus   @default(active)
+  createdAt      DateTime      @default(now()) @map("created_at")
+  acknowledgedAt DateTime?     @map("acknowledged_at")
+  acknowledgedBy String?       @map("acknowledged_by")
+  resolvedAt     DateTime?     @map("resolved_at")
+  resolvedBy     String?       @map("resolved_by")
+
+  patient Patient @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  device  Device? @relation(fields: [deviceId], references: [id], onDelete: SetNull)
+
+  @@map("alerts")
+}
+
+model SOSEvent {
+  id             String      @id @default(uuid())
+  patientId      String      @map("patient_id")
+  source         String      @default("manual")
+  vitals         Json?
+  status         AlertStatus @default(active)
+  createdAt      DateTime    @default(now()) @map("created_at")
+  acknowledgedAt DateTime?   @map("acknowledged_at")
+  acknowledgedBy String?     @map("acknowledged_by")
+  resolvedAt     DateTime?   @map("resolved_at")
+  resolvedBy     String?     @map("resolved_by")
+
+  patient Patient @relation(fields: [patientId], references: [id], onDelete: Cascade)
+
+  @@map("sos_events")
+}
+
+model Notification {
+  id        String    @id @default(uuid())
+  userId    String    @map("user_id")
+  patientId String?   @map("patient_id")
+  type      String
+  title     String
+  body      String?
+  readAt    DateTime? @map("read_at")
+  createdAt DateTime  @default(now()) @map("created_at")
+
+  user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  patient Patient? @relation(fields: [patientId], references: [id], onDelete: Cascade)
+
+  @@map("notifications")
+}
+
+model ClinicalNote {
+  id        String   @id @default(uuid())
+  patientId String   @map("patient_id")
+  doctorId  String?  @map("doctor_id")
+  note      String   @db.Text
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  patient Patient @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  doctor  Doctor? @relation(fields: [doctorId], references: [id], onDelete: SetNull)
+
+  @@map("clinical_notes")
+}
+
+model Report {
+  id          String    @id @default(uuid())
+  patientId   String    @map("patient_id")
+  requestedBy String?   @map("requested_by")
+  kind        String    @default("clinical")
+  format      String    @default("pdf")
+  rangeStart  DateTime? @map("range_start")
+  rangeEnd    DateTime? @map("range_end")
+  payload     Json?
+  createdAt   DateTime  @default(now()) @map("created_at")
+
+  patient Patient @relation(fields: [patientId], references: [id], onDelete: Cascade)
+
+  @@map("reports")
+}
+
+model AuditLog {
+  id         String   @id @default(uuid())
+  actorId    String?  @map("actor_id")
+  actorName  String?  @map("actor_name")
+  action     String
+  targetType String?  @map("target_type")
+  targetId   String?  @map("target_id")
+  meta       Json?
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  actor User? @relation(fields: [actorId], references: [id], onDelete: SetNull)
+
+  @@map("audit_logs")
+}
+
+model AIConversation {
+  id        String   @id @default(uuid())
+  userId    String   @map("user_id")
+  title     String   @default("New conversation")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  messages AIMessage[]
+
+  @@map("ai_conversations")
+}
+
+model AIMessage {
+  id             String   @id @default(uuid())
+  conversationId String   @map("conversation_id")
+  role           String
+  content        String   @db.Text
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  conversation AIConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+
+  @@map("ai_messages")
+}

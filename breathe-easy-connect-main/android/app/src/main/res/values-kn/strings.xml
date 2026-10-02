@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">ಸ್ಮಾರ್ಟ್ ನೆಬ್ (SmartNeb)</string>
+    
+    <!-- Auth & Identity -->
+    <string name="sign_in">ಸೈನ್ ಇನ್ ಮಾಡಿ</string>
+    <string name="sign_up">ಖಾತೆಯನ್ನು ರಚಿಸಿ</string>
+    <string name="email">ಇಮೇಲ್</string>
+    <string name="password">ಪಾಸ್ವರ್ಡ್</string>
+    <string name="full_name">ಪೂರ್ಣ ಹೆಸರು</string>
+    <string name="role_selector">ನಾನು ಒಬ್ಬ</string>
+    <string name="logout">ಸೈನ್ ಔಟ್ ಮಾಡಿ</string>
+    <string name="forgot_password">ಪಾಸ್ವರ್ಡ್ ಮರೆತಿರಾ?</string>
+    <string name="google_sign_in">ಗೂಗಲ್ ಮೂಲಕ ಮುಂದುವರಿಯಿರಿ</string>
+    
+    <!-- Navigation -->
+    <string name="nav_dashboard">ಡ್ಯಾಶ್‌ಬೋರ್ಡ್</string>
+    <string name="nav_nebulizer">ನನ್ನ ನೆಬುಲೈಜರ್</string>
+    <string name="nav_monitoring">ಮೇಲ್ವಿಚಾರಣೆ</string>
+    <string name="nav_history">ಇತಿಹಾಸ</string>
+    <string name="nav_assistant">ಸಹಾಯಕ</string>
+    <string name="nav_reports">ವರದಿಗಳು</string>
+    <string name="nav_settings">ಸೆಟ್ಟಿಂಗ್‌ಗಳು</string>
+    
+    <!-- Patient Dashboard -->
+    <string name="vitals_spo2">ಆಮ್ಲಜನಕದ ಸ್ಯಾಚುರೇಶನ್ (SpO₂)</string>
+    <string name="vitals_bpm">ಹೃದಯ ಬಡಿತದ ದರ (BPM)</string>
+    <string name="vitals_temp">ದೇಹದ ತಾಪಮಾನ</string>
+    <string name="vitals_ambient">ಪರಿಸರದ ತಾಪಮಾನ</string>
+    <string name="device_battery">ಬ್ಯಾಟರಿ</string>
+    <string name="device_status">ಸಾಧನದ ಸ್ಥಿತಿ</string>
+    <string name="adherence_score">ಅನುಸರಣೆಯ ಅಂಕಗಳು</string>
+    <string name="sos_alarm">ತುರ್ತು ಆಪತ್ತು (SOS)</string>
+    <string name="sos_confirm_title">ತುರ್ತು SOS ಪ್ರಚೋದಿಸಬೇಕೆ?</string>
+    <string name="sos_confirm_desc">ಇದು ನಿಮ್ಮ ಲೈವ್ ವೈಟಲ್ಸ್ ನೊಂದಿಗೆ ನಿಮ್ಮ ವೈದ್ಯರಿಗೆ ಮತ್ತು ಆರೈಕೆದಾರರಿಗೆ ತಕ್ಷಣದ ಎಚ್ಚರಿಕೆಯನ್ನು ಕಳುಹಿಸುತ್ತದೆ. ಖಚಿತವೇ?</string>
+    <string name="sos_cancel">ರದ್ದುಗೊಳಿಸಿ</string>
+    <string name="sos_trigger">ಹೌದು, SOS ಕಳುಹಿಸಿ</string>
+    
+    <!-- Nebulizer Control -->
+    <string name="nebulizer_state">ನೆಬುಲೈಜರ್ ಸ್ಥಿತಿ</string>
+    <string name="chamber_fluid">ದ್ರವದ ಮಟ್ಟ</string>
+    <string name="chamber_refill">ರೀಫಿಲ್ ದಾಖಲಿಸಿ</string>
+    <string name="start_session">ಚಿಕಿತ್ಸೆ ಪ್ರಾರಂಭಿಸಿ</string>
+    <string name="pause_session">ತಾತ್ಕಾಲಿಕ ನಿಲ್ಲಿಸು</string>
+    <string name="resume_session">ಮತ್ತೆ ಪ್ರಾರಂಭಿಸು</string>
+    <string name="stop_session">ನಿಲ್ಲಿಸು</string>
+    
+    <!-- Telemetry & Range -->
+    <string name="range_5m">೫ ನಿ</string>
+    <string name="range_15m">೧೫ ನಿ</string>
+    <string name="range_1h">೧ ಗಂ</string>
+    <string name="range_6h">೬ ಗಂ</string>
+    <string name="range_24h">೨೪ ಗಂ</string>
+    <string name="range_7d">೭ ದಿನ</string>
+    <string name="range_30d">೩೦ ದಿನ</string>
+    
+    <!-- AI Assistant -->
+    <string name="assistant_title">ಸ್ಮಾರ್ಟ್ ನೆಬ್ ಎಐ ಸಹಾಯಕ</string>
+    <string name="assistant_hint">ಚಿಕಿತ್ಸೆಯ ಬಗ್ಗೆ ಪ್ರಶ್ನೆಗಳನ್ನು ಕೇಳಿ…</string>
+    <string name="ai_disclaimer">ಸ್ಮಾರ್ಟ್ ನೆಬ್ ಸಹಾಯಕ ನಿಮ್ಮ ದಾಖಲಿತ ಡೇಟಾದಿಂದ ಸಾಮಾನ್ಯ ಮಾಹಿತಿಯನ್ನು ಮಾತ್ರ ಒದಗಿಸುತ್ತದೆ. ಇದು ವೈದ್ಯಕೀಯ ರೋಗನಿರ್ಣಯವಲ್ಲ. ನಿರ್ಧಾರಗಳಿಗಾಗಿ ನಿಮ್ಮ ವೈದ್ಯರನ್ನು ಸಂಪರ್ಕಿಸಿ ಮತ್ತು ತುರ್ತು ರೋಗಲಕ್ಷಣಗಳಿಗಾಗಿ ಆಂಬ್ಯುಲೆನ್ಸ್ ಕರೆ ಮಾಡಿ.</string>
+    
+    <!-- Doctor Views -->
+    <string name="doctor_patients_list">ನಿಗದಿಪಡಿಸಿದ ರೋಗಿಗಳು</string>
+    <string name="search_patient_hint">ರೋಗಿಯ ಹೆಸರು ಅಥವಾ MRN ಹುಡುಕಿ…</string>
+    <string name="care_plan_new">ಹೊಸ ಚಿಕಿತ್ಸಾ ಯೋಜನೆ</string>
+    <string name="clinical_note_add">ಟಿಪ್ಪಣಿ ಸೇರಿಸಿ</string>
+    
+    <!-- Caregiver Views -->
+    <string name="caregiver_assigned">ನಿಮ್ಮ ಮೇಲ್ವಿಚಾರಣೆಯಲ್ಲಿರುವವರು</string>
+    <string name="observations_log">ವೀಕ್ಷಣೆಯನ್ನು ಉಳಿಸಿ</string>
+    
+    <!-- Admin Controls -->
+    <string name="admin_overview">ವೇದಿಕೆಯ ಅವಲೋಕನ</string>
+    <string name="admin_device_register">ಸಾಧನ ನೋಂದಾಯಿಸಿ</string>
+    <string name="admin_assign_staff">ಸಿಬ್ಬಂದಿ ನಿಯೋಜಿಸಿ</string>
+    
+    <!-- State Descriptors -->
+    <string name="loading">ಲೋಡ್ ಆಗುತ್ತಿದೆ…</string>
+    <string name="empty_state">ಯಾವುದೇ ಡೇಟಾ ಲಭ್ಯವಿಲ್ಲ.</string>
+    <string name="error_state">ದೋಷ ಕಂಡುಬಂದಿದೆ. ಪ್ರಯತ್ನಿಸಲು ಟ್ಯಾಪ್ ಮಾಡಿ.</string>
+</resources>

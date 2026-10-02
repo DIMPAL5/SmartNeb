@@ -1,0 +1,69 @@
+export const kn_auth: Record<string, string> = {
+  "auth.heroTitle": "ಸಂಪರ್ಕಿತ ಉಸಿರಾಟ ಚಿಕಿತ್ಸೆ, ನೈಜ ಸಮಯದಲ್ಲಿ ಮೇಲ್ವಿಚಾರಣೆ.",
+  "auth.heroBody":
+    "ESP32 ಟೆಲಿಮೆಟ್ರಿ, ನೆಬ್ಯುಲೈಸರ್ ನಿಯಂತ್ರಣ, ಅನುಸರಣೆ ಟ್ರ್ಯಾಕಿಂಗ್, ಮಿತಿ ಎಚ್ಚರಿಕೆಗಳು ಮತ್ತು ತುರ್ತು ಎಸ್ಕಲೇಷನ್ — ರೋಗಿಗಳು, ವೈದ್ಯರು ಮತ್ತು ಆರೈಕೆದಾರರಿಗೆ ಒಂದೇ ವೈದ್ಯಕೀಯ ಮೂಲ.",
+  "auth.heroPoint1": "ಲೈವ್ SpO₂, ಹೃದಯ ಬಡಿತ ಮತ್ತು ತಾಪಮಾನ ಸ್ಟ್ರೀಮ್‌ಗಳು",
+  "auth.heroPoint2": "ಸರ್ವರ್‌ನಲ್ಲಿ ಜಾರಿಗೊಳಿಸಲಾದ ಪಾತ್ರ ಆಧಾರಿತ ಪ್ರವೇಶ",
+  "auth.tabSignIn": "ಸೈನ್ ಇನ್ ಮಾಡಿ",
+  "auth.tabSignUp": "ಖಾತೆ ರಚಿಸಿ",
+  "auth.email": "ಇಮೇಲ್",
+  "auth.password": "ಪಾಸ್‌ವರ್ಡ್",
+  "auth.forgotBody": "ಹೊಸ ಪಾಸ್‌ವರ್ಡ್ ಆಯ್ಕೆ ಮಾಡಲು ನಾವು ನಿಮಗೆ ಸುರಕ್ಷಿತ ಲಿಂಕ್ ಇಮೇಲ್ ಮಾಡುತ್ತೇವೆ.",
+  "auth.sendResetLink": "ರೀಸೆಟ್ ಲಿಂಕ್ ಕಳುಹಿಸಿ",
+  "auth.signIn": "ಸೈನ್ ಇನ್ ಮಾಡಿ",
+  "auth.backToSignIn": "ಸೈನ್ ಇನ್‌ಗೆ ಹಿಂತಿರುಗಿ",
+  "auth.forgotPassword": "ಪಾಸ್‌ವರ್ಡ್ ಮರೆತಿರಾ?",
+  "auth.fullName": "ಪೂರ್ಣ ಹೆಸರು",
+  "auth.iAmA": "ನಾನು ಒಬ್ಬ",
+  "auth.rolePatient": "ರೋಗಿ",
+  "auth.roleDoctor": "ವೈದ್ಯ",
+  "auth.roleCaregiver": "ಆರೈಕೆದಾರ",
+  "auth.createAccount": "ಖಾತೆ ರಚಿಸಿ",
+  "auth.or": "ಅಥವಾ",
+  "auth.continueWithGoogle": "Google ಜೊತೆ ಮುಂದುವರಿಸಿ",
+  "auth.demoAccountNote":
+    "ಹೊಸ ರೋಗಿ ಖಾತೆಗಳು ಸ್ವಯಂಚಾಲಿತವಾಗಿ ಡೆಮೊ ಸಾಧನ, ಆರೈಕೆ ಯೋಜನೆ ಮತ್ತು ಆರೈಕೆ ತಂಡಕ್ಕೆ ಲಿಂಕ್ ಆಗಿರುತ್ತವೆ, ಇದರಿಂದ ನೀವು ಪ್ಲಾಟ್‌ಫಾರ್ಮ್ ಅನ್ನು ಸಂಪೂರ್ಣವಾಗಿ ಅನ್ವೇಷಿಸಬಹುದು.",
+  "auth.welcomeBack": "ಮತ್ತೆ ಸ್ವಾಗತ",
+  "auth.enterEmailFirst": "ಮೊದಲು ನಿಮ್ಮ ಖಾತೆ ಇಮೇಲ್ ನಮೂದಿಸಿ",
+  "auth.resetLinkSent": "ಪಾಸ್‌ವರ್ಡ್ ರೀಸೆಟ್ ಲಿಂಕ್ ಕಳುಹಿಸಲಾಗಿದೆ — ನಿಮ್ಮ ಇನ್‌ಬಾಕ್ಸ್ ಪರಿಶೀಲಿಸಿ.",
+  "auth.passwordMinLength": "ಪಾಸ್‌ವರ್ಡ್ ಕನಿಷ್ಠ 8 ಅಕ್ಷರಗಳಿರಬೇಕು.",
+  "auth.passwordLettersNumbers": "ಪಾಸ್‌ವರ್ಡ್‌ನಲ್ಲಿ ಅಕ್ಷರಗಳು ಮತ್ತು ಸಂಖ್ಯೆಗಳೆರಡೂ ಇರಬೇಕು.",
+  "auth.accountCreated": "ಖಾತೆ ರಚಿಸಲಾಗಿದೆ",
+  "auth.confirmEmailPrompt": "ನಿಮ್ಮ ಇಮೇಲ್ ದೃಢೀಕರಿಸಲು ಇನ್‌ಬಾಕ್ಸ್ ಪರಿಶೀಲಿಸಿ, ನಂತರ ಸೈನ್ ಇನ್ ಮಾಡಿ.",
+  "auth.googleSignInFailed": "Google ಸೈನ್-ಇನ್ ವಿಫಲವಾಗಿದೆ",
+
+  "auth.resetTitle": "ಹೊಸ ಪಾಸ್‌ವರ್ಡ್ ಆಯ್ಕೆಮಾಡಿ",
+  "auth.newPassword": "ಹೊಸ ಪಾಸ್‌ವರ್ಡ್",
+  "auth.confirmPassword": "ಪಾಸ್‌ವರ್ಡ್ ದೃಢೀಕರಿಸಿ",
+  "auth.updatePassword": "ಪಾಸ್‌ವರ್ಡ್ ಅಪ್‌ಡೇಟ್ ಮಾಡಿ",
+  "auth.resetExpiredBody":
+    "ಈ ಪುಟವನ್ನು ನಿಮ್ಮ ಇಮೇಲ್‌ನಲ್ಲಿನ ಪಾಸ್‌ವರ್ಡ್ ರೀಸೆಟ್ ಲಿಂಕ್‌ನಿಂದ ತೆರೆಯಿರಿ. ಲಿಂಕ್ ಅವಧಿ ಮುಗಿದಿದ್ದರೆ, ಸೈನ್-ಇನ್ ಪುಟದಿಂದ ಹೊಸದನ್ನು ವಿನಂತಿಸಿ.",
+  "auth.passwordMismatch": "ಪಾಸ್‌ವರ್ಡ್‌ಗಳು ಹೊಂದಿಕೆಯಾಗುತ್ತಿಲ್ಲ.",
+  "auth.passwordUpdated": "ಪಾಸ್‌ವರ್ಡ್ ಅಪ್‌ಡೇಟ್ ಆಗಿದೆ — ದಯವಿಟ್ಟು ಸೈನ್ ಇನ್ ಮಾಡಿ.",
+
+  "landing.badge": "IoT ಉಸಿರಾಟ ಚಿಕಿತ್ಸೆ ಪ್ಲಾಟ್‌ಫಾರ್ಮ್",
+  "landing.heroTitle": "ಪ್ರತಿ ಉಸಿರು, ಮೇಲ್ವಿಚಾರಣೆ ಮತ್ತು ಲೆಕ್ಕಪತ್ರ",
+  "landing.heroBody":
+    "SmartNeb ನೆಬ್ಯುಲೈಸರ್ ಹಾರ್ಡ್‌ವೇರ್ ಅನ್ನು ರೋಗಿಗಳು ಮತ್ತು ಅವರ ಆರೈಕೆ ತಂಡಗಳಿಗೆ ಸಂಪರ್ಕಿಸುತ್ತದೆ — ಲೈವ್ ಟೆಲಿಮೆಟ್ರಿ, ಅನುಸರಣೆ ಟ್ರ್ಯಾಕಿಂಗ್, ಮಿತಿ ಎಚ್ಚರಿಕೆಗಳು ಮತ್ತು ತುರ್ತು ಎಸ್ಕಲೇಷನ್ ಸಹಿತ.",
+  "landing.openPlatform": "ಪ್ಲಾಟ್‌ಫಾರ್ಮ್ ತೆರೆಯಿರಿ",
+  "landing.signIn": "ಸೈನ್ ಇನ್ ಮಾಡಿ",
+  "landing.footer": "SmartNeb · ವೈದ್ಯಕೀಯ ನಿರ್ಧಾರಗಳು ಚಿಕಿತ್ಸೆ ನೀಡುವ ವೈದ್ಯರಲ್ಲೇ ಉಳಿಯುತ್ತವೆ.",
+  "landing.feature.vitals.title": "ಲೈವ್ ವೈಟಲ್ಸ್",
+  "landing.feature.vitals.body":
+    "ಪ್ರತಿ ಕೆಲವು ಸೆಕೆಂಡುಗಳಿಗೆ ಸಾಧನದಿಂದ ಹೃದಯ ಬಡಿತ, SpO₂ ಮತ್ತು ತಾಪಮಾನ ಸ್ಟ್ರೀಮ್ ಆಗುತ್ತದೆ.",
+  "landing.feature.nebulizer.title": "ನೆಬ್ಯುಲೈಸರ್ ನಿಯಂತ್ರಣ",
+  "landing.feature.nebulizer.body":
+    "ಸಾಧನ-ದೃಢೀಕೃತ ಸೆಷನ್ ಸ್ಥಿತಿಯೊಂದಿಗೆ ಚಿಕಿತ್ಸೆಯನ್ನು ಪ್ರಾರಂಭಿಸಿ, ವಿರಾಮಗೊಳಿಸಿ ಮತ್ತು ನಿಲ್ಲಿಸಿ.",
+  "landing.feature.sos.title": "SOS ಎಸ್ಕಲೇಷನ್",
+  "landing.feature.sos.body":
+    "ಒಂದು ಟ್ಯಾಪ್ ನಿಯೋಜಿತ ವೈದ್ಯ ಮತ್ತು ಆರೈಕೆದಾರರಿಗೆ ಇತ್ತೀಚಿನ ವೈಟಲ್ಸ್‌ನೊಂದಿಗೆ ತಿಳಿಸುತ್ತದೆ.",
+  "landing.feature.telemetry.title": "ಸಾಧನ ಟೆಲಿಮೆಟ್ರಿ",
+  "landing.feature.telemetry.body":
+    "ಬ್ಯಾಟರಿ, ಚೇಂಬರ್ ಮಟ್ಟ, MQTT ಮತ್ತು ಕ್ಲೌಡ್ ಸಂಪರ್ಕ ಒಂದೇ ನೋಟದಲ್ಲಿ.",
+  "landing.feature.assistant.title": "AI ಸಹಾಯಕ",
+  "landing.feature.assistant.body":
+    "ರೋಗಿಯ ಸ್ವಂತ ಡೇಟಾವನ್ನು ಆಧರಿಸಿ ಸರಳ ಭಾಷೆಯ ಉತ್ತರಗಳು.",
+  "landing.feature.access.title": "ಪಾತ್ರ ಆಧಾರಿತ ಪ್ರವೇಶ",
+  "landing.feature.access.body":
+    "ರೋಗಿಗಳು, ವೈದ್ಯರು, ಆರೈಕೆದಾರರು ಮತ್ತು ನಿರ್ವಾಹಕರು ಅವರು ನೋಡಬೇಕಾದದ್ದನ್ನು ಮಾತ್ರ ನೋಡುತ್ತಾರೆ.",
+};

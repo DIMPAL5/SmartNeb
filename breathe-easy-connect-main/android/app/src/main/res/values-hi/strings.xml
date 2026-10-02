@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">स्मार्टनेब (SmartNeb)</string>
+    
+    <!-- Auth & Identity -->
+    <string name="sign_in">साइन इन करें</string>
+    <string name="sign_up">खाता बनाएं</string>
+    <string name="email">ईमेल</string>
+    <string name="password">पासवर्ड</string>
+    <string name="full_name">पूरा नाम</string>
+    <string name="role_selector">मैं एक हूँ</string>
+    <string name="logout">साइन आउट करें</string>
+    <string name="forgot_password">पासवर्ड भूल गए?</string>
+    <string name="google_sign_in">गूगल के साथ जारी रखें</string>
+    
+    <!-- Navigation -->
+    <string name="nav_dashboard">डैशबोर्ड</string>
+    <string name="nav_nebulizer">मेरा नेबुलाइज़र</string>
+    <string name="nav_monitoring">निगरानी</string>
+    <string name="nav_history">इतिहास</string>
+    <string name="nav_assistant">सहायक</string>
+    <string name="nav_reports">रिपोर्ट</string>
+    <string name="nav_settings">सेटिंग्स</string>
+    
+    <!-- Patient Dashboard -->
+    <string name="vitals_spo2">ऑक्सीजन संतृप्ति (SpO₂)</string>
+    <string name="vitals_bpm">हृदय गति (BPM)</string>
+    <string name="vitals_temp">शरीर का तापमान</string>
+    <string name="vitals_ambient">आस-पास का तापमान</string>
+    <string name="device_battery">बैटरी</string>
+    <string name="device_status">डिवाइस की स्थिति</string>
+    <string name="adherence_score">अनुपालन स्कोर</string>
+    <string name="sos_alarm">आपातकालीन संकट (SOS)</string>
+    <string name="sos_confirm_title">आपातकालीन SOS सक्रिय करें?</string>
+    <string name="sos_confirm_desc">यह तुरंत आपके असाइन किए गए डॉक्टरों और देखभाल करने वालों को आपके लाइव वाइटल्स के साथ अलर्ट भेज देगा। क्या आप सुनिश्चित हैं?</string>
+    <string name="sos_cancel">रद्द करें</string>
+    <string name="sos_trigger">हाँ, SOS भेजें</string>
+    
+    <!-- Nebulizer Control -->
+    <string name="nebulizer_state">नेबुलाइज़र स्थिति</string>
+    <string name="chamber_fluid">द्रव स्तर</string>
+    <string name="chamber_refill">रिफिल दर्ज करें</string>
+    <string name="start_session">सत्र शुरू करें</string>
+    <string name="pause_session">रोकें</string>
+    <string name="resume_session">पुनः शुरू करें</string>
+    <string name="stop_session">समाप्त करें</string>
+    
+    <!-- Telemetry & Range -->
+    <string name="range_5m">5 मि</string>
+    <string name="range_15m">15 मि</string>
+    <string name="range_1h">1 घं</string>
+    <string name="range_6h">6 घं</string>
+    <string name="range_24h">24 घं</string>
+    <string name="range_7d">7 दिन</string>
+    <string name="range_30d">30 दिन</string>
+    
+    <!-- AI Assistant -->
+    <string name="assistant_title">स्मार्टनेब एआई सहायक</string>
+    <string name="assistant_hint">चिकित्सा डेटा के बारे में प्रश्न पूछें…</string>
+    <string name="ai_disclaimer">स्मार्टनेब सहायक आपके रिकॉर्ड किए गए डेटा से केवल सामान्य जानकारी प्रदान करता है। यह कोई चिकित्सा निदान नहीं है। नैदानिक निर्णयों के लिए अपनी देखभाल टीम से संपर्क करें, और तत्काल लक्षणों के लिए आपातकालीन सेवाओं को कॉल करें।</string>
+    
+    <!-- Doctor Views -->
+    <string name="doctor_patients_list">असाइन किए गए मरीज</string>
+    <string name="search_patient_hint">मरीज का नाम या एमआरएन खोजें…</string>
+    <string name="care_plan_new">नई देखभाल योजना</string>
+    <string name="clinical_note_add">क्लिनिकल नोट जोड़ें</string>
+    
+    <!-- Caregiver Views -->
+    <string name="caregiver_assigned">आपकी देखरेख में मरीज</string>
+    <string name="observations_log">निरीक्षण सहेजें</string>
+    
+    <!-- Admin Controls -->
+    <string name="admin_overview">प्लेटफ़ॉर्म अवलोकन</string>
+    <string name="admin_device_register">डिवाइस पंजीकृत करें</string>
+    <string name="admin_assign_staff">स्टाफ असाइन करें</string>
+    
+    <!-- State Descriptors -->
+    <string name="loading">लोड हो रहा है…</string>
+    <string name="empty_state">कोई डेटा उपलब्ध नहीं है।</string>
+    <string name="error_state">त्रुटि हुई। पुनः प्रयास करने के लिए टैप करें।</string>
+</resources>
