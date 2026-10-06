@@ -1,8 +1,12 @@
 import axios from "axios";
 import { storage } from "../utils/storage";
 
-// Base API URL pointing to Hosted Production Backend
-export const API_BASE_URL = "https://api.smartneb.health/api/v1";
+// Base API URL pointing to Hosted Production Backend or local dev environment
+export const API_BASE_URL =
+  process.env.EXPO_PUBLIC_API_URL ||
+  (typeof window !== "undefined" && window.location.hostname === "localhost"
+    ? "http://localhost:5000/api/v1"
+    : "http://localhost:5000/api/v1");
 
 export const apiClient = axios.create({
   baseURL: API_BASE_URL,

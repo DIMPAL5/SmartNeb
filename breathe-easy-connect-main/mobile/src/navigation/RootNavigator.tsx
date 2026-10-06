@@ -7,6 +7,7 @@ import { useAuth } from "../context/AuthContext";
 
 // Auth Screens
 import { LoginScreen } from "../screens/auth/LoginScreen";
+import { OtpLoginScreen } from "../screens/auth/OtpLoginScreen";
 
 // Patient Screens
 import { PatientDashboardScreen } from "../screens/patient/PatientDashboardScreen";
@@ -17,6 +18,16 @@ import { AlertsScreen } from "../screens/patient/AlertsScreen";
 import { AIAssistantScreen } from "../screens/patient/AIAssistantScreen";
 import { ReportsScreen } from "../screens/patient/ReportsScreen";
 import { ProfileScreen } from "../screens/patient/ProfileScreen";
+
+// Pediatric Healthcare Screens
+import { BreatheWithBunnyScreen } from "../screens/pediatric/BreatheWithBunnyScreen";
+import { AirQualityScreen } from "../screens/pediatric/AirQualityScreen";
+import { PEFTrackerScreen } from "../screens/pediatric/PEFTrackerScreen";
+import { MedicationScannerScreen } from "../screens/pediatric/MedicationScannerScreen";
+import { EmergencySosScreen } from "../screens/pediatric/EmergencySosScreen";
+import { EmergencySummaryScreen } from "../screens/pediatric/EmergencySummaryScreen";
+import { TelehealthScreen } from "../screens/pediatric/TelehealthScreen";
+import { AddSmartNebScreen } from "../screens/pediatric/AddSmartNebScreen";
 
 // Doctor Screens
 import { DoctorDashboardScreen } from "../screens/doctor/DoctorDashboardScreen";
@@ -55,6 +66,11 @@ function PatientTabs() {
         options={{ title: "Home", tabBarIcon: () => <Text>🏠</Text> }}
       />
       <Tab.Screen
+        name="Bunny"
+        component={BreatheWithBunnyScreen}
+        options={{ title: "Bunny", tabBarIcon: () => <Text>🐰</Text> }}
+      />
+      <Tab.Screen
         name="Nebulizer"
         component={NebulizerControlScreen}
         options={{ title: "Nebulizer", tabBarIcon: () => <Text>💨</Text> }}
@@ -65,24 +81,9 @@ function PatientTabs() {
         options={{ title: "Health", tabBarIcon: () => <Text>❤️</Text> }}
       />
       <Tab.Screen
-        name="Adherence"
-        component={AdherenceScreen}
-        options={{ title: "Adherence", tabBarIcon: () => <Text>📅</Text> }}
-      />
-      <Tab.Screen
         name="Alerts"
         component={AlertsScreen}
         options={{ title: "Alerts", tabBarIcon: () => <Text>🔔</Text> }}
-      />
-      <Tab.Screen
-        name="AI"
-        component={AIAssistantScreen}
-        options={{ title: "AI Assistant", tabBarIcon: () => <Text>🤖</Text> }}
-      />
-      <Tab.Screen
-        name="Reports"
-        component={ReportsScreen}
-        options={{ title: "Reports", tabBarIcon: () => <Text>📄</Text> }}
       />
       <Tab.Screen
         name="Profile"
@@ -90,6 +91,63 @@ function PatientTabs() {
         options={{ title: "Profile", tabBarIcon: () => <Text>👤</Text> }}
       />
     </Tab.Navigator>
+  );
+}
+
+function PatientStack() {
+  return (
+    <Stack.Navigator
+      screenOptions={{
+        headerStyle: { backgroundColor: "#1e293b" },
+        headerTintColor: "#f8fafc",
+      }}
+    >
+      <Stack.Screen
+        name="PatientTabs"
+        component={PatientTabs}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="BreatheWithBunny"
+        component={BreatheWithBunnyScreen}
+        options={{ title: "Breathe with Bunny" }}
+      />
+      <Stack.Screen
+        name="AirQuality"
+        component={AirQualityScreen}
+        options={{ title: "Air Quality & Weather" }}
+      />
+      <Stack.Screen
+        name="PEFTracker"
+        component={PEFTrackerScreen}
+        options={{ title: "Peak Flow (PEF)" }}
+      />
+      <Stack.Screen
+        name="MedicationScanner"
+        component={MedicationScannerScreen}
+        options={{ title: "Scan Medication" }}
+      />
+      <Stack.Screen
+        name="EmergencySos"
+        component={EmergencySosScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="EmergencySummary"
+        component={EmergencySummaryScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="Telehealth"
+        component={TelehealthScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="AddSmartNeb"
+        component={AddSmartNebScreen}
+        options={{ title: "Add SmartNeb" }}
+      />
+    </Stack.Navigator>
   );
 }
 
@@ -111,6 +169,16 @@ function DoctorStack() {
         name="PatientDetail"
         component={PatientDetailScreen}
         options={{ title: "Clinical Patient Snapshot" }}
+      />
+      <Stack.Screen
+        name="Telehealth"
+        component={TelehealthScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="EmergencySummary"
+        component={EmergencySummaryScreen}
+        options={{ headerShown: false }}
       />
     </Stack.Navigator>
   );
@@ -147,6 +215,63 @@ function CaregiverTabs() {
         options={{ title: "Profile", tabBarIcon: () => <Text>👤</Text> }}
       />
     </Tab.Navigator>
+  );
+}
+
+function CaregiverStack() {
+  return (
+    <Stack.Navigator
+      screenOptions={{
+        headerStyle: { backgroundColor: "#1e293b" },
+        headerTintColor: "#f8fafc",
+      }}
+    >
+      <Stack.Screen
+        name="CaregiverTabs"
+        component={CaregiverTabs}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="BreatheWithBunny"
+        component={BreatheWithBunnyScreen}
+        options={{ title: "Breathe with Bunny" }}
+      />
+      <Stack.Screen
+        name="EmergencySos"
+        component={EmergencySosScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="EmergencySummary"
+        component={EmergencySummaryScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="Telehealth"
+        component={TelehealthScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="AirQuality"
+        component={AirQualityScreen}
+        options={{ title: "Air Quality & Weather" }}
+      />
+      <Stack.Screen
+        name="PEFTracker"
+        component={PEFTrackerScreen}
+        options={{ title: "Peak Flow (PEF)" }}
+      />
+      <Stack.Screen
+        name="MedicationScanner"
+        component={MedicationScannerScreen}
+        options={{ title: "Scan Medication" }}
+      />
+      <Stack.Screen
+        name="AddSmartNeb"
+        component={AddSmartNebScreen}
+        options={{ title: "Add SmartNeb" }}
+      />
+    </Stack.Navigator>
   );
 }
 
@@ -228,17 +353,19 @@ export function RootNavigator() {
       {!user ? (
         <Stack.Navigator screenOptions={{ headerShown: false }}>
           <Stack.Screen name="Login" component={LoginScreen} />
+          <Stack.Screen name="OtpLogin" component={OtpLoginScreen} />
+          <Stack.Screen name="EmergencySummary" component={EmergencySummaryScreen} />
         </Stack.Navigator>
       ) : user.role === "doctor" ? (
         <DoctorStack />
       ) : user.role === "caregiver" ? (
-        <CaregiverTabs />
+        <CaregiverStack />
       ) : user.role === "admin" ? (
         <AdminTabs />
       ) : user.role === "super_admin" ? (
         <SuperAdminTabs />
       ) : (
-        <PatientTabs />
+        <PatientStack />
       )}
     </NavigationContainer>
   );

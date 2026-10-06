@@ -1409,6 +1409,13 @@ app.get(
 );
 
 /* -------------------------------------------------------------------------- */
+/*             PRODUCTION HEALTHCARE & MOBILE IOT ROUTES                      */
+/* -------------------------------------------------------------------------- */
+
+const createHealthcareRouter = require("./routes/healthcareRoutes");
+app.use("/api/v1", createHealthcareRouter(prisma, io, authenticateToken, verifyPatientAccess, generateTokens));
+
+/* -------------------------------------------------------------------------- */
 /*                             SOCKET.IO BROADCASTS                           */
 /* -------------------------------------------------------------------------- */
 
@@ -1477,6 +1484,19 @@ if (process.env.NODE_ENV !== "test") {
               patientId: device.patientId,
               telemetry: payload,
             });
+
+            // Automated SpO2 Clinical Threshold Alert Trigger
+            const spo2Val = payload.spo2 ? parseFloat(payload.spo2) : null;
+            if (spo2Val !== null && spo2Val < 90) {
+              const NotificationService = require("./services/NotificationService");
+              const notifService = new NotificationService(prisma);
+              notifService.sendAlertNotification({
+                patientId: device.patientId,
+                spo2: spo2Val,
+                severity: spo2Val < 88 ? "critical" : "warning",
+                deviceId: device.id,
+              }).catch((e) => console.error("Auto alert notification error:", e.message));
+            }
           }
         }
       } catch (err) {

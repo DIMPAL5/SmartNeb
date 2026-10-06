@@ -135,12 +135,73 @@ export const PatientDashboardScreen = ({ navigation }: any) => {
         </View>
 
         {/* Emergency SOS Button */}
-        <TouchableOpacity style={styles.sosButton} onPress={triggerSOS}>
+        <TouchableOpacity
+          style={styles.sosButton}
+          onPress={() => navigation.navigate("EmergencySos")}
+        >
           <Text style={styles.sosText}>🚨 EMERGENCY SOS</Text>
         </TouchableOpacity>
 
         {/* Voice Assistant Controller */}
         <VoiceController onCommandRecognized={handleVoiceCommand} />
+
+        {/* Pediatric Healthcare Suite */}
+        <Text style={styles.sectionTitle}>Pediatric Care Suite</Text>
+        <View style={styles.actionGrid}>
+          <TouchableOpacity
+            style={[styles.actionCard, { backgroundColor: "#0284c7" }]}
+            onPress={() => navigation.navigate("BreatheWithBunny")}
+          >
+            <Text style={styles.actionIcon}>🐰</Text>
+            <Text style={styles.actionTitle}>Breathe with Bunny</Text>
+            <Text style={styles.actionSub}>Pediatric Therapy Pacer</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[styles.actionCard, { backgroundColor: "#059669" }]}
+            onPress={() => navigation.navigate("AirQuality")}
+          >
+            <Text style={styles.actionIcon}>🍃</Text>
+            <Text style={styles.actionTitle}>Air Quality (AQI)</Text>
+            <Text style={styles.actionSub}>PM2.5 & Health Advisories</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[styles.actionCard, { backgroundColor: "#d97706" }]}
+            onPress={() => navigation.navigate("PEFTracker")}
+          >
+            <Text style={styles.actionIcon}>📊</Text>
+            <Text style={styles.actionTitle}>Peak Flow (PEF)</Text>
+            <Text style={styles.actionSub}>Asthma Action Zones</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[styles.actionCard, { backgroundColor: "#7c3aed" }]}
+            onPress={() => navigation.navigate("MedicationScanner")}
+          >
+            <Text style={styles.actionIcon}>🔍</Text>
+            <Text style={styles.actionTitle}>Verify Medication</Text>
+            <Text style={styles.actionSub}>Barcode & Ampoule Check</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[styles.actionCard, { backgroundColor: "#2563eb" }]}
+            onPress={() => navigation.navigate("Telehealth")}
+          >
+            <Text style={styles.actionIcon}>📹</Text>
+            <Text style={styles.actionTitle}>Doctor Video Call</Text>
+            <Text style={styles.actionSub}>WebRTC with Live Vitals</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[styles.actionCard, { backgroundColor: "#475569" }]}
+            onPress={() => navigation.navigate("AddSmartNeb")}
+          >
+            <Text style={styles.actionIcon}>📡</Text>
+            <Text style={styles.actionTitle}>Pair SmartNeb</Text>
+            <Text style={styles.actionSub}>BLE Device Setup</Text>
+          </TouchableOpacity>
+        </View>
 
         {/* Live Vitals Grid */}
         <Text style={styles.sectionTitle}>Real-time Vitals</Text>
@@ -306,5 +367,36 @@ const styles = StyleSheet.create({
     color: "#ffffff",
     fontWeight: "700",
     fontSize: 14,
+  },
+  actionGrid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "space-between",
+    marginVertical: 8,
+  },
+  actionCard: {
+    width: "48%",
+    borderRadius: 14,
+    padding: 14,
+    marginBottom: 10,
+    shadowColor: "#000",
+    shadowOpacity: 0.15,
+    shadowOffset: { width: 0, height: 2 },
+    elevation: 3,
+  },
+  actionIcon: {
+    fontSize: 24,
+    marginBottom: 4,
+  },
+  actionTitle: {
+    color: "#ffffff",
+    fontSize: 13,
+    fontWeight: "800",
+  },
+  actionSub: {
+    color: "rgba(255, 255, 255, 0.8)",
+    fontSize: 10,
+    fontWeight: "500",
+    marginTop: 2,
   },
 });

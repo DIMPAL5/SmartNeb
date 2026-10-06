@@ -79,6 +79,13 @@ export const LoginScreen = ({ navigation }: any) => {
               <Text style={styles.loginButtonText}>Sign In</Text>
             )}
           </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.otpButton}
+            onPress={() => navigation.navigate("OtpLogin")}
+          >
+            <Text style={styles.otpButtonText}>📱 Sign In with Phone OTP</Text>
+          </TouchableOpacity>
         </View>
       </ScrollView>
     </KeyboardAvoidingView>
@@ -150,6 +157,20 @@ const styles = StyleSheet.create({
     color: "#ffffff",
     fontSize: 16,
     fontWeight: "700",
+  },
+  otpButton: {
+    backgroundColor: "#1e293b",
+    borderWidth: 1,
+    borderColor: "#38bdf8",
+    padding: 14,
+    borderRadius: 12,
+    alignItems: "center",
+    marginTop: 12,
+  },
+  otpButtonText: {
+    color: "#38bdf8",
+    fontSize: 14,
+    fontWeight: "600",
   },
   errorText: {
     color: "#ef4444",
