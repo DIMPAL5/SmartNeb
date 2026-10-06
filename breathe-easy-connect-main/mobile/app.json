@@ -7,10 +7,41 @@
     "userInterfaceStyle": "automatic",
     "assetBundlePatterns": ["**/*"],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "health.smartneb.app",
+      "buildNumber": "1",
+      "infoPlist": {
+        "NSBluetoothAlwaysUsageDescription": "SmartNeb requires Bluetooth access to discover and pair your nebulizer device and stream live respiratory vitals.",
+        "NSBluetoothPeripheralUsageDescription": "SmartNeb requires Bluetooth to connect to your portable nebulizer.",
+        "NSCameraUsageDescription": "SmartNeb requires camera access to scan medication barcodes and ampoules for prescription verification.",
+        "NSMicrophoneUsageDescription": "SmartNeb requires microphone access for telehealth video consultations with your pediatrician."
+      }
     },
-    "android": {},
+    "android": {
+      "package": "health.smartneb.app",
+      "versionCode": 1,
+      "permissions": [
+        "BLUETOOTH",
+        "BLUETOOTH_ADMIN",
+        "BLUETOOTH_CONNECT",
+        "BLUETOOTH_SCAN",
+        "ACCESS_FINE_LOCATION",
+        "ACCESS_COARSE_LOCATION",
+        "CAMERA",
+        "RECORD_AUDIO",
+        "POST_NOTIFICATIONS"
+      ]
+    },
     "web": {},
-    "plugins": ["expo-asset"]
+    "plugins": [
+      "expo-asset",
+      "expo-secure-store",
+      [
+        "expo-notifications",
+        {
+          "color": "#0284C7"
+        }
+      ]
+    ]
   }
 }
