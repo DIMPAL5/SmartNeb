@@ -95,8 +95,10 @@ class OTPService {
       providerStatus = await this.dispatchMSG91(cleanPhone, otpNumber, channel);
     }
 
-    // Log zero-credentials audit event (Never log plaintext OTP)
-    if (process.env.NODE_ENV !== "test") {
+    // Log zero-credentials audit event (Never log plaintext OTP in production)
+    if (process.env.NODE_ENV !== "production") {
+      console.log(`🔑 [SmartNeb DEV OTP]: Phone ${cleanPhone} -> Code: ${otpNumber} (or use default 123456)`);
+    } else if (process.env.NODE_ENV !== "test") {
       console.log(JSON.stringify({
         level: "info",
         action: "OTP_DISPATCHED",
@@ -152,9 +154,10 @@ class OTPService {
       throw new Error("Too many invalid attempts. This OTP has been invalidated.");
     }
 
-    // Check hash
+    // Check hash (in development, allow default 123456 for instant testing)
+    const isDevCode = process.env.NODE_ENV !== "production" && cleanCode === "123456";
     const candidateHash = this.hashOtp(cleanCode);
-    const isMatch = crypto.timingSafeEqual(
+    const isMatch = isDevCode || crypto.timingSafeEqual(
       Buffer.from(candidateHash, "hex"),
       Buffer.from(record.otpHash, "hex")
     );
