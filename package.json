@@ -1,0 +1,10 @@
+{
+  "name": "smartneb",
+  "version": "2.0.0",
+  "private": true,
+  "description": "SmartNeb IoT Respiratory Healthcare Platform",
+  "scripts": {
+    "build": "cd backend && npm install && node scripts/prepare-db.js && npx prisma generate",
+    "start": "cd backend && node scripts/prepare-db.js && npx prisma db push --accept-data-loss && node scripts/seed-demo-users.js && node server.js"
+  }
+}

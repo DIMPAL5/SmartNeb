@@ -1,0 +1,39 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: smartneb-staging-backend
+    restart: always
+    ports:
+      - "5000:5000"
+    env_file:
+      - .env.staging
+    depends_on:
+      - mosquitto
+
+  mosquitto:
+    image: eclipse-mosquitto:2.0
+    container_name: smartneb-staging-mosquitto
+    restart: always
+    ports:
+      - "8883:8883"
+    volumes:
+      - ./mqtt/mosquitto.conf:/mosquitto/config/mosquitto.conf
+      - ./mqtt/acl.conf:/mosquitto/config/acl.conf
+      - /etc/letsencrypt:/etc/letsencrypt:ro
+
+  nginx:
+    image: nginx:alpine
+    container_name: smartneb-staging-nginx
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/smartneb.conf:/etc/nginx/conf.d/default.conf:ro
+      - /etc/letsencrypt:/etc/letsencrypt:ro
+    depends_on:
+      - backend

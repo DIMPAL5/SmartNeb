@@ -1,0 +1,17 @@
+# Environment Variables & Secrets
+.env
+.env.production
+.env.staging
+.env.development
+.env.local
+!.env*.example
+
+# Dependencies & Build Outputs
+node_modules/
+dist/
+coverage/
+
+# Logs & Temporary Files
+*.log
+scratch/
+certs/
