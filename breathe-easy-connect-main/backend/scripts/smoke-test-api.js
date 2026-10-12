@@ -1,7 +1,15 @@
 const http = require('http');
 const https = require('https');
 
-const BASE_URL = process.env.TEST_API_URL || 'http://127.0.0.1:5000';
+const targetArg = process.argv[2] && !process.argv[2].startsWith('--') ? process.argv[2] : null;
+const BASE_URL = targetArg || process.env.TEST_API_URL || 'http://127.0.0.1:5000';
+const isDeployedMode = process.argv.includes('--deployed') || process.env.DEPLOYED_MODE === 'true';
+
+if (isDeployedMode && (BASE_URL.includes('localhost') || BASE_URL.includes('127.0.0.1'))) {
+  console.error(`❌ SMOKE TEST FAILED: Deployed mode requires a live public HTTPS staging/production URL (received: ${BASE_URL})`);
+  process.exit(1);
+}
+
 console.log(`\n🔍 ==================================================`);
 console.log(`🚀 RUNNING DEPLOYED SMOKE TEST (GATE 5) AGAINST: ${BASE_URL}`);
 console.log(`==================================================\n`);
@@ -28,10 +36,10 @@ function request(method, path, body = null, headers = {}) {
         let rawData = '';
         res.on('data', (chunk) => (rawData += chunk));
         res.on('end', () => {
-          let parsed = null;
+          let parsed;
           try {
             parsed = JSON.parse(rawData);
-          } catch (e) {
+          } catch (_e) {
             parsed = rawData;
           }
           resolve({

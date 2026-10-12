@@ -1,0 +1,28 @@
+/*
+ * SmartNeb ESP32 Device Configuration Template (config.h.example)
+ * Copy to config.h and fill in device credentials provisioned from the backend.
+ * DO NOT COMMIT REAL WI-FI OR DEVICE PASSWORDS TO VERSION CONTROL.
+ */
+
+#ifndef CONFIG_H
+#define CONFIG_H
+
+// Wi-Fi Access Point Credentials
+#define WIFI_SSID     "REPLACE_WITH_HOSPITAL_WIFI_SSID"
+#define WIFI_PASSWORD "REPLACE_WITH_HOSPITAL_WIFI_PASSWORD"
+
+// Hosted TLS MQTT Broker Connection Settings
+#define MQTT_HOST     "api.example.com"
+#define MQTT_PORT     8883
+
+// Per-Device Provisioned Identifiers
+#define HOSPITAL_ID   "demo-hospital"
+#define DEVICE_CODE   "NEB-001"
+#define MQTT_USER     "dev_demo-hos_NEB-001"
+#define MQTT_PASS     "REPLACE_WITH_PROVISIONED_DEVICE_PASSWORD"
+
+// Hardware Safety Cutoff & Pin Assignments
+#define NEBULIZER_PIN 26
+#define MAX_SESSION_SEC 900 // 15-minute max continuous dosing safety limit
+
+#endif // CONFIG_H

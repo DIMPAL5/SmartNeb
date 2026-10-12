@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { io, Socket } from "socket.io-client";
 import { useAuth } from "./AuthContext";
-import { API_BASE_URL } from "../api/client";
+import { getActiveApiUrl } from "../api/client";
 
 interface SocketContextType {
   socket: Socket | null;
@@ -22,7 +22,7 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   const [nebulizerState, setNebulizerState] = useState<any>(null);
 
   useEffect(() => {
-    const socketHost = API_BASE_URL.replace(/\/api\/v1\/?$/, "");
+    const socketHost = getActiveApiUrl().replace(/\/api\/v1\/?$/, "");
     const newSocket = io(socketHost, {
       transports: ["websocket"],
       autoConnect: true,

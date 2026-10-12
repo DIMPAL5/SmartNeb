@@ -1,54 +1,59 @@
 {
   "expo": {
-    "name": "SmartNeb",
-    "slug": "smartneb",
-    "version": "1.0.0",
+    "name": "SmartNeb Health",
+    "slug": "smartneb-health",
+    "version": "2.0.6",
     "orientation": "portrait",
+    "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",
+    "splash": {
+      "image": "./assets/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
     "assetBundlePatterns": [
       "**/*"
     ],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "health.smartneb.app",
-      "buildNumber": "1",
+      "bundleIdentifier": "com.smartneb.health",
       "infoPlist": {
-        "NSBluetoothAlwaysUsageDescription": "SmartNeb requires Bluetooth access to discover and pair your nebulizer device and stream live respiratory vitals.",
-        "NSBluetoothPeripheralUsageDescription": "SmartNeb requires Bluetooth to connect to your portable nebulizer.",
-        "NSCameraUsageDescription": "SmartNeb requires camera access to scan medication barcodes and ampoules for prescription verification.",
-        "NSMicrophoneUsageDescription": "SmartNeb requires microphone access for telehealth video consultations with your pediatrician."
+        "NSCameraUsageDescription": "SmartNeb requires camera access to scan device QR codes and associate smart nebulizers.",
+        "NSBluetoothAlwaysUsageDescription": "SmartNeb requires Bluetooth to discover and communicate with smart nebulizers.",
+        "NSLocalNetworkUsageDescription": "SmartNeb requires local network access for development debugging and LAN sensor discovery."
       }
     },
     "android": {
-      "package": "health.smartneb.app",
-      "versionCode": 1,
+      "package": "com.smartneb.health",
+      "versionCode": 9,
+      "usesCleartextTraffic": true,
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#ffffff"
+      },
       "permissions": [
+        "CAMERA",
         "BLUETOOTH",
         "BLUETOOTH_ADMIN",
         "BLUETOOTH_CONNECT",
         "BLUETOOTH_SCAN",
         "ACCESS_FINE_LOCATION",
-        "ACCESS_COARSE_LOCATION",
-        "CAMERA",
-        "RECORD_AUDIO",
-        "POST_NOTIFICATIONS"
+        "INTERNET",
+        "VIBRATE"
       ]
     },
-    "web": {},
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
     "plugins": [
       "expo-asset",
-      "expo-secure-store",
-      [
-        "expo-notifications",
-        {
-          "color": "#0284C7"
-        }
-      ]
+      "expo-sharing"
     ],
     "extra": {
       "eas": {
-        "projectId": "dcbe281d-b16b-4ac8-a057-0fcd54c24501"
+        "projectId": "2bd91227-c802-42c0-9c74-8486c949583f"
       }
-    }
+    },
+    "owner": "smartneb"
   }
 }

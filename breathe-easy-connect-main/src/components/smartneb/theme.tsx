@@ -1,6 +1,7 @@
 import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from "react";
 import { Monitor, Moon, Sun } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 type Theme = "light" | "dark" | "system";
 
@@ -51,5 +52,55 @@ export function ThemeToggle() {
     >
       <Icon className="size-4" />
     </Button>
+  );
+}
+
+export function ThemeSegmentedToggle() {
+  const { theme, setTheme } = useTheme();
+  return (
+    <div className="flex items-center gap-1 rounded-lg border border-sidebar-border bg-sidebar-accent/50 p-1">
+      <button
+        type="button"
+        title="Light Mode"
+        aria-label="Light Mode"
+        onClick={() => setTheme("light")}
+        className={cn(
+          "flex size-7 items-center justify-center rounded-md transition-all",
+          theme === "light"
+            ? "bg-primary text-primary-foreground shadow-sm"
+            : "text-muted-foreground hover:bg-sidebar-accent hover:text-foreground",
+        )}
+      >
+        <Sun className="size-3.5" />
+      </button>
+      <button
+        type="button"
+        title="Dark Mode"
+        aria-label="Dark Mode"
+        onClick={() => setTheme("dark")}
+        className={cn(
+          "flex size-7 items-center justify-center rounded-md transition-all",
+          theme === "dark"
+            ? "bg-primary text-primary-foreground shadow-sm"
+            : "text-muted-foreground hover:bg-sidebar-accent hover:text-foreground",
+        )}
+      >
+        <Moon className="size-3.5" />
+      </button>
+      <button
+        type="button"
+        title="System Preference"
+        aria-label="System Preference"
+        onClick={() => setTheme("system")}
+        className={cn(
+          "flex size-7 items-center justify-center rounded-md transition-all",
+          theme === "system"
+            ? "bg-primary text-primary-foreground shadow-sm"
+            : "text-muted-foreground hover:bg-sidebar-accent hover:text-foreground",
+        )}
+      >
+        <Monitor className="size-3.5" />
+      </button>
+    </div>
   );
 }

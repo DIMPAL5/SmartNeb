@@ -4,6 +4,7 @@ import { useAuth } from "../../context/AuthContext";
 import { useSocket } from "../../context/SocketContext";
 import { apiClient } from "../../api/client";
 import { VitalsCard } from "../../components/VitalsCard";
+import { AppHaptics } from "../../utils/haptics";
 
 export const HealthMonitoringScreen = () => {
   const { user } = useAuth();
@@ -50,6 +51,7 @@ export const HealthMonitoringScreen = () => {
           refreshing={refreshing}
           onRefresh={() => {
             setRefreshing(true);
+            AppHaptics.triggerLightImpact();
             fetchHealthHistory();
           }}
           tintColor="#38bdf8"
@@ -72,7 +74,10 @@ export const HealthMonitoringScreen = () => {
           <TouchableOpacity
             key={range}
             style={[styles.chip, selectedRange === range ? styles.activeChip : null]}
-            onPress={() => setSelectedRange(range)}
+            onPress={() => {
+              AppHaptics.triggerSelection();
+              setSelectedRange(range);
+            }}
           >
             <Text style={[styles.chipText, selectedRange === range ? styles.activeChipText : null]}>
               {range}
@@ -84,26 +89,26 @@ export const HealthMonitoringScreen = () => {
       {/* Vitals Cards */}
       <VitalsCard
         label="Blood Oxygen (SpO2)"
-        value={latest.spo2 ? `${latest.spo2}%` : "98%"}
-        unit="SpO2"
-        status={latest.spo2 && latest.spo2 < 92 ? "critical" : "normal"}
-        subtext="Live continuous telemetry stream"
+        value={latest.spo2 || 98}
+        unit="%"
+        type="spo2"
+        subtext="Live continuous pulse oximetry stream"
       />
 
       <VitalsCard
         label="Heart Rate"
-        value={latest.bpm || "76"}
+        value={latest.bpm || 76}
         unit="BPM"
-        status="normal"
-        subtext="Live pulse stream"
+        type="bpm"
+        subtext="Live pulse & cardiac rhythm"
       />
 
       <VitalsCard
         label="Body Temperature"
-        value={latest.bodyTemperature ? `${latest.bodyTemperature}°C` : "36.8°C"}
+        value={latest.bodyTemperature || 36.8}
         unit="°C"
-        status="normal"
-        subtext="Normal thermal range"
+        type="temp"
+        subtext="Continuous biometric thermal reading"
       />
 
       {/* Telemetry Stream Log Table/List */}

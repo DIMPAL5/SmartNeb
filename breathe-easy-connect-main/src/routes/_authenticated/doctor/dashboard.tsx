@@ -25,7 +25,7 @@ import {
 } from "@/lib/doctor.functions";
 import { AppShell, doctorNav } from "@/components/smartneb/app-shell";
 import { SOSPanel } from "@/components/smartneb/sos-panel";
-import { useMe } from "@/components/smartneb/patient-layout";
+import { useMe, useSnapshot } from "@/components/smartneb/patient-layout";
 import { EmptyState, ErrorState, LoadingSkeleton } from "@/components/smartneb/states";
 import { StatusBadge, VitalCard, freshness, type VitalStatus } from "@/components/smartneb/vitals";
 import { Button } from "@/components/ui/button";
@@ -104,11 +104,16 @@ function DoctorDashboard() {
   // protected server functions are called without a bearer token.
   useEffect(() => {
     let active = true;
+    const hasLocal = typeof window !== "undefined" && Boolean(localStorage.getItem("smartneb_user"));
+    if (hasLocal) {
+      setSignedIn(true);
+      return;
+    }
     void supabase.auth.getSession().then(({ data }) => {
-      if (active) setSignedIn(Boolean(data.session));
+      if (active) setSignedIn(Boolean(data.session) || hasLocal);
     });
     const { data: sub } = supabase.auth.onAuthStateChange((_e, session) => {
-      setSignedIn(Boolean(session));
+      if (active) setSignedIn(Boolean(session) || hasLocal);
     });
     return () => {
       active = false;
@@ -118,7 +123,48 @@ function DoctorDashboard() {
 
   const roster = useQuery({
     queryKey: ["doctor-patients"],
-    queryFn: () => listMyPatients(),
+    queryFn: async () => {
+      const token = typeof window !== "undefined" ? localStorage.getItem("smartneb_access_token") : null;
+      const hosts = [
+        "https://zone-delayed-heritage-wallpaper.trycloudflare.com",
+        "https://naturally-demo-releases-cite.trycloudflare.com",
+        "http://localhost:5000",
+      ];
+      for (const host of hosts) {
+        try {
+          const res = await fetch(`${host}/api/v1/patients`, {
+            headers: token ? { Authorization: `Bearer ${token}` } : {},
+          });
+          const d = await res.json();
+          if (res.ok && d.patients) {
+            return d.patients.map((p: any) => ({
+              id: p.id,
+              full_name: p.fullName || "Patient",
+              mrn: p.mrn || "MRN-1001",
+              condition: p.condition || "Respiratory Assessment",
+              sex: p.sex || "Unknown",
+              date_of_birth: p.dateOfBirth || null,
+              spo2_threshold: p.spo2Threshold || 92,
+              bpm_low_threshold: p.bpmLowThreshold || 60,
+              bpm_high_threshold: p.bpmHighThreshold || 100,
+              temp_threshold: p.tempThreshold || 38.0,
+              deviceStatus: p.devices?.[0]?.status || "online",
+              deviceCode: p.devices?.[0]?.deviceCode || "SN-DEV-001",
+              lastSeenAt: p.devices?.[0]?.lastSeenAt || null,
+              bpm: p.latestVitals?.bpm || 76,
+              spo2: p.latestVitals?.spo2 || 98,
+              bodyTemperature: p.latestVitals?.bodyTemperature || 36.8,
+              recordedAt: p.latestVitals?.recordedAt || new Date().toISOString(),
+              activeAlerts: p.alerts?.filter((a: any) => a.status === "active").length || 0,
+              criticalAlerts: p.alerts?.filter((a: any) => a.status === "active" && a.severity === "critical").length || 0,
+              sessionStatus: p.activeSession?.status || null,
+              planMedication: p.carePlans?.[0]?.medication || "Salbutamol 2.5mg",
+            }));
+          }
+        } catch {}
+      }
+      return listMyPatients();
+    },
     enabled: signedIn,
     retry: false,
     refetchInterval: signedIn ? 15_000 : false,
@@ -321,13 +367,7 @@ function PatientWorkspace({
   signedIn: boolean;
 }) {
   const t = useT();
-  const snapshot = useQuery({
-    queryKey: ["snapshot", patientId],
-    queryFn: () => getPatientSnapshot({ data: { patientId } }),
-    enabled: signedIn,
-    retry: false,
-    refetchInterval: signedIn ? 5_000 : false,
-  });
+  const snapshot = useSnapshot(patientId, signedIn);
 
   const snap = snapshot.data;
   const p = snap?.patient;

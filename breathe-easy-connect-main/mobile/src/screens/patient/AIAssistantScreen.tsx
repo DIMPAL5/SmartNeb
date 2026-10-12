@@ -12,6 +12,7 @@ import {
 } from "react-native";
 import { useAuth } from "../../context/AuthContext";
 import { apiClient } from "../../api/client";
+import { AppHaptics } from "../../utils/haptics";
 
 interface Message {
   id: string;
@@ -35,6 +36,7 @@ export const AIAssistantScreen = () => {
     const query = textToSend || input;
     if (!query.trim()) return;
 
+    await AppHaptics.triggerLightImpact();
     const userMsg: Message = { id: Date.now().toString(), sender: "user", text: query };
     setMessages((prev) => [...prev, userMsg]);
     if (!textToSend) setInput("");
@@ -52,7 +54,9 @@ export const AIAssistantScreen = () => {
         text: res.data?.answer || "SmartNeb AI processed your request.",
       };
       setMessages((prev) => [...prev, aiMsg]);
+      await AppHaptics.triggerSuccess();
     } catch (err: any) {
+      await AppHaptics.triggerWarning();
       const errorMsg: Message = {
         id: (Date.now() + 1).toString(),
         sender: "ai",

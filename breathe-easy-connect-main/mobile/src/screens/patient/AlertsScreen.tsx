@@ -9,6 +9,7 @@ import {
   Alert as RNAlert,
 } from "react-native";
 import { apiClient } from "../../api/client";
+import { AppHaptics } from "../../utils/haptics";
 
 export const AlertsScreen = () => {
   const [alertsList, setAlertsList] = useState<any[]>([]);
@@ -32,8 +33,10 @@ export const AlertsScreen = () => {
   }, []);
 
   const acknowledgeAlert = async (id: string) => {
+    await AppHaptics.triggerHeavyImpact();
     try {
       await apiClient.put(`/alerts/${id}/acknowledge`);
+      await AppHaptics.triggerSuccess();
       fetchAlerts();
       RNAlert.alert("Acknowledged", "Alert marked as acknowledged.");
     } catch (e) {

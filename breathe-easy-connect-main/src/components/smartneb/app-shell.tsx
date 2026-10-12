@@ -36,7 +36,7 @@ import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { ThemeToggle } from "./theme";
+import { ThemeToggle, ThemeSegmentedToggle } from "./theme";
 import { LanguageSelect, useProfileLanguageSync } from "./language-select";
 import { useT } from "@/i18n";
 import { useSignedIn } from "./use-signed-in";
@@ -300,6 +300,10 @@ export function AppShell({
   async function signOut() {
     await queryClient.cancelQueries();
     queryClient.clear();
+    if (typeof window !== "undefined") {
+      localStorage.removeItem("smartneb_access_token");
+      localStorage.removeItem("smartneb_user");
+    }
     await supabase.auth.signOut();
     navigate({ to: "/auth", replace: true });
   }
@@ -329,6 +333,10 @@ export function AppShell({
           <div className="rounded-xl border border-sidebar-border bg-sidebar-accent/40 p-3">
             <p className="truncate text-sm font-medium">{me.fullName}</p>
             <p className="text-xs text-muted-foreground">{t(`role.${me.role}`)}</p>
+            <div className="mt-3 flex items-center justify-between gap-2 border-t border-sidebar-border/60 pt-2.5">
+              <span className="text-[11px] font-medium text-muted-foreground">Theme</span>
+              <ThemeSegmentedToggle />
+            </div>
             <Button variant="outline" size="sm" className="mt-3 w-full" onClick={signOut}>
               <LogOut className="mr-2 size-3.5" /> {t("action.signOut")}
             </Button>
@@ -349,15 +357,21 @@ export function AppShell({
                     <Menu className="size-5" />
                   </Button>
                 </SheetTrigger>
-                <SheetContent side="left" className="w-72 bg-sidebar p-4">
+                <SheetContent side="left" className="flex w-72 flex-col bg-sidebar p-4">
                   <SheetTitle className="sr-only">{t("nav.navigation")}</SheetTitle>
                   <Brand />
-                  <div className="mt-6">
+                  <div className="mt-6 flex-1 overflow-y-auto">
                     <NavList items={nav} onNavigate={() => setOpen(false)} />
                   </div>
-                  <Button variant="outline" size="sm" className="mt-6 w-full" onClick={signOut}>
-                    <LogOut className="mr-2 size-3.5" /> {t("action.signOut")}
-                  </Button>
+                  <div className="mt-4 rounded-xl border border-sidebar-border bg-sidebar-accent/40 p-3">
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="text-[11px] font-medium text-muted-foreground">Theme</span>
+                      <ThemeSegmentedToggle />
+                    </div>
+                    <Button variant="outline" size="sm" className="mt-3 w-full" onClick={signOut}>
+                      <LogOut className="mr-2 size-3.5" /> {t("action.signOut")}
+                    </Button>
+                  </div>
                 </SheetContent>
               </Sheet>
 

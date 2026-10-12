@@ -1,13 +1,16 @@
 import React from "react";
-import { View, ActivityIndicator, StyleSheet, Text } from "react-native";
-import { NavigationContainer } from "@react-navigation/native";
+import { View, ActivityIndicator, StyleSheet, Text, TouchableOpacity } from "react-native";
+import { NavigationContainer, createNavigationContainerRef } from "@react-navigation/native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { createStackNavigator } from "@react-navigation/stack";
 import { useAuth } from "../context/AuthContext";
+import { useTheme } from "../context/ThemeContext";
+import { useSidebar } from "../context/SidebarContext";
+import { AppSidebar } from "../components/AppSidebar";
+import { AppHaptics } from "../utils/haptics";
 
 // Auth Screens
 import { LoginScreen } from "../screens/auth/LoginScreen";
-import { OtpLoginScreen } from "../screens/auth/OtpLoginScreen";
 
 // Patient Screens
 import { PatientDashboardScreen } from "../screens/patient/PatientDashboardScreen";
@@ -18,20 +21,12 @@ import { AlertsScreen } from "../screens/patient/AlertsScreen";
 import { AIAssistantScreen } from "../screens/patient/AIAssistantScreen";
 import { ReportsScreen } from "../screens/patient/ReportsScreen";
 import { ProfileScreen } from "../screens/patient/ProfileScreen";
-
-// Pediatric Healthcare Screens
-import { BreatheWithBunnyScreen } from "../screens/pediatric/BreatheWithBunnyScreen";
-import { AirQualityScreen } from "../screens/pediatric/AirQualityScreen";
-import { PEFTrackerScreen } from "../screens/pediatric/PEFTrackerScreen";
-import { MedicationScannerScreen } from "../screens/pediatric/MedicationScannerScreen";
-import { EmergencySosScreen } from "../screens/pediatric/EmergencySosScreen";
-import { EmergencySummaryScreen } from "../screens/pediatric/EmergencySummaryScreen";
-import { TelehealthScreen } from "../screens/pediatric/TelehealthScreen";
-import { AddSmartNebScreen } from "../screens/pediatric/AddSmartNebScreen";
+import { TelehealthScreen } from "../screens/patient/TelehealthScreen";
 
 // Doctor Screens
 import { DoctorDashboardScreen } from "../screens/doctor/DoctorDashboardScreen";
 import { PatientDetailScreen } from "../screens/doctor/PatientDetailScreen";
+import { DoctorTelehealthScreen } from "../screens/doctor/DoctorTelehealthScreen";
 
 // Caregiver Screens
 import { CaregiverDashboardScreen } from "../screens/caregiver/CaregiverDashboardScreen";
@@ -42,33 +37,56 @@ import { AdminDashboardScreen } from "../screens/admin/AdminDashboardScreen";
 // Super Admin Screens
 import { SuperAdminDashboardScreen } from "../screens/superAdmin/SuperAdminDashboardScreen";
 
+export const navigationRef = createNavigationContainerRef<any>();
+
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
+
+/* -------------------------------------------------------------------------- */
+/*                               HEADER MENU ICON                             */
+/* -------------------------------------------------------------------------- */
+
+const MenuButton = () => {
+  const { openSidebar } = useSidebar();
+  const { colors } = useTheme();
+  return (
+    <TouchableOpacity
+      onPress={openSidebar}
+      style={styles.menuBtn}
+      hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+    >
+      <Text style={[styles.menuBtnText, { color: colors.headerText }]}>☰</Text>
+    </TouchableOpacity>
+  );
+};
 
 /* -------------------------------------------------------------------------- */
 /*                            PATIENT NAVIGATION                              */
 /* -------------------------------------------------------------------------- */
 
 function PatientTabs() {
+  const { colors } = useTheme();
+
   return (
     <Tab.Navigator
+      screenListeners={{
+        tabPress: () => {
+          AppHaptics.triggerSelection();
+        },
+      }}
       screenOptions={{
-        headerStyle: { backgroundColor: "#1e293b" },
-        headerTintColor: "#f8fafc",
-        tabBarStyle: { backgroundColor: "#1e293b", borderTopColor: "#334155" },
-        tabBarActiveTintColor: "#38bdf8",
-        tabBarInactiveTintColor: "#94a3b8",
+        headerLeft: () => <MenuButton />,
+        headerStyle: { backgroundColor: colors.headerBg },
+        headerTintColor: colors.headerText,
+        tabBarStyle: { backgroundColor: colors.tabBarBg, borderTopColor: colors.tabBarBorder },
+        tabBarActiveTintColor: colors.tabBarActive,
+        tabBarInactiveTintColor: colors.tabBarInactive,
       }}
     >
       <Tab.Screen
         name="Dashboard"
         component={PatientDashboardScreen}
         options={{ title: "Home", tabBarIcon: () => <Text>🏠</Text> }}
-      />
-      <Tab.Screen
-        name="Bunny"
-        component={BreatheWithBunnyScreen}
-        options={{ title: "Bunny", tabBarIcon: () => <Text>🐰</Text> }}
       />
       <Tab.Screen
         name="Nebulizer"
@@ -81,9 +99,29 @@ function PatientTabs() {
         options={{ title: "Health", tabBarIcon: () => <Text>❤️</Text> }}
       />
       <Tab.Screen
+        name="Adherence"
+        component={AdherenceScreen}
+        options={{ title: "Adherence", tabBarIcon: () => <Text>📅</Text> }}
+      />
+      <Tab.Screen
         name="Alerts"
         component={AlertsScreen}
         options={{ title: "Alerts", tabBarIcon: () => <Text>🔔</Text> }}
+      />
+      <Tab.Screen
+        name="AI"
+        component={AIAssistantScreen}
+        options={{ title: "AI Assistant", tabBarIcon: () => <Text>🤖</Text> }}
+      />
+      <Tab.Screen
+        name="Reports"
+        component={ReportsScreen}
+        options={{ title: "Reports", tabBarIcon: () => <Text>📄</Text> }}
+      />
+      <Tab.Screen
+        name="Telehealth"
+        component={TelehealthScreen}
+        options={{ title: "Telehealth", tabBarIcon: () => <Text>📹</Text> }}
       />
       <Tab.Screen
         name="Profile"
@@ -94,93 +132,100 @@ function PatientTabs() {
   );
 }
 
-function PatientStack() {
-  return (
-    <Stack.Navigator
-      screenOptions={{
-        headerStyle: { backgroundColor: "#1e293b" },
-        headerTintColor: "#f8fafc",
-      }}
-    >
-      <Stack.Screen
-        name="PatientTabs"
-        component={PatientTabs}
-        options={{ headerShown: false }}
-      />
-      <Stack.Screen
-        name="BreatheWithBunny"
-        component={BreatheWithBunnyScreen}
-        options={{ title: "Breathe with Bunny" }}
-      />
-      <Stack.Screen
-        name="AirQuality"
-        component={AirQualityScreen}
-        options={{ title: "Air Quality & Weather" }}
-      />
-      <Stack.Screen
-        name="PEFTracker"
-        component={PEFTrackerScreen}
-        options={{ title: "Peak Flow (PEF)" }}
-      />
-      <Stack.Screen
-        name="MedicationScanner"
-        component={MedicationScannerScreen}
-        options={{ title: "Scan Medication" }}
-      />
-      <Stack.Screen
-        name="EmergencySos"
-        component={EmergencySosScreen}
-        options={{ headerShown: false }}
-      />
-      <Stack.Screen
-        name="EmergencySummary"
-        component={EmergencySummaryScreen}
-        options={{ headerShown: false }}
-      />
-      <Stack.Screen
-        name="Telehealth"
-        component={TelehealthScreen}
-        options={{ headerShown: false }}
-      />
-      <Stack.Screen
-        name="AddSmartNeb"
-        component={AddSmartNebScreen}
-        options={{ title: "Add SmartNeb" }}
-      />
-    </Stack.Navigator>
-  );
-}
-
 /* -------------------------------------------------------------------------- */
 /*                             DOCTOR NAVIGATION                              */
 /* -------------------------------------------------------------------------- */
 
 function DoctorStack() {
+  const { colors } = useTheme();
   return (
     <Stack.Navigator
-      screenOptions={{ headerStyle: { backgroundColor: "#1e293b" }, headerTintColor: "#f8fafc" }}
+      screenOptions={{
+        headerStyle: { backgroundColor: colors.headerBg },
+        headerTintColor: colors.headerText,
+      }}
     >
       <Stack.Screen
         name="DoctorHome"
         component={DoctorDashboardScreen}
-        options={{ title: "Doctor Console" }}
+        options={{
+          title: "Doctor Console",
+          headerLeft: () => <MenuButton />,
+        }}
       />
       <Stack.Screen
         name="PatientDetail"
         component={PatientDetailScreen}
         options={{ title: "Clinical Patient Snapshot" }}
       />
-      <Stack.Screen
-        name="Telehealth"
-        component={TelehealthScreen}
-        options={{ headerShown: false }}
-      />
-      <Stack.Screen
-        name="EmergencySummary"
-        component={EmergencySummaryScreen}
-        options={{ headerShown: false }}
-      />
     </Stack.Navigator>
+  );
+}
+
+function DoctorTabs() {
+  const { colors } = useTheme();
+
+  return (
+    <Tab.Navigator
+      screenListeners={{
+        tabPress: () => {
+          AppHaptics.triggerSelection();
+        },
+      }}
+      screenOptions={{
+        headerStyle: { backgroundColor: colors.headerBg },
+        headerTintColor: colors.headerText,
+        tabBarStyle: { backgroundColor: colors.tabBarBg, borderTopColor: colors.tabBarBorder },
+        tabBarActiveTintColor: colors.tabBarActive,
+        tabBarInactiveTintColor: colors.tabBarInactive,
+      }}
+    >
+      <Tab.Screen
+        name="Dashboard"
+        component={DoctorStack}
+        options={{
+          headerShown: false,
+          title: "Patients",
+          tabBarIcon: () => <Text>👥</Text>,
+        }}
+      />
+      <Tab.Screen
+        name="Alerts"
+        component={AlertsScreen}
+        options={{
+          title: "Alerts",
+          headerLeft: () => <MenuButton />,
+          tabBarIcon: () => <Text>🔔</Text>,
+        }}
+      />
+      <Tab.Screen
+        name="Reports"
+        component={ReportsScreen}
+        options={{
+          title: "Reports",
+          headerLeft: () => <MenuButton />,
+          tabBarIcon: () => <Text>📄</Text>,
+        }}
+      />
+      <Tab.Screen
+        name="Telehealth"
+        component={DoctorTelehealthScreen}
+        options={{
+          title: "Telehealth",
+          headerLeft: () => <MenuButton />,
+          tabBarIcon: () => <Text>📹</Text>,
+        }}
+      />
+      <Tab.Screen
+        name="Profile"
+        component={ProfileScreen}
+        options={{
+          title: "Profile",
+          headerLeft: () => <MenuButton />,
+          tabBarIcon: () => <Text>👤</Text>,
+        }}
+      />
+    </Tab.Navigator>
   );
 }
 
@@ -189,14 +234,22 @@ function DoctorStack() {
 /* -------------------------------------------------------------------------- */
 
 function CaregiverTabs() {
+  const { colors } = useTheme();
+
   return (
     <Tab.Navigator
+      screenListeners={{
+        tabPress: () => {
+          AppHaptics.triggerSelection();
+        },
+      }}
       screenOptions={{
-        headerStyle: { backgroundColor: "#1e293b" },
-        headerTintColor: "#f8fafc",
-        tabBarStyle: { backgroundColor: "#1e293b", borderTopColor: "#334155" },
-        tabBarActiveTintColor: "#38bdf8",
-        tabBarInactiveTintColor: "#94a3b8",
+        headerLeft: () => <MenuButton />,
+        headerStyle: { backgroundColor: colors.headerBg },
+        headerTintColor: colors.headerText,
+        tabBarStyle: { backgroundColor: colors.tabBarBg, borderTopColor: colors.tabBarBorder },
+        tabBarActiveTintColor: colors.tabBarActive,
+        tabBarInactiveTintColor: colors.tabBarInactive,
       }}
     >
       <Tab.Screen
@@ -218,76 +271,27 @@ function CaregiverTabs() {
   );
 }
 
-function CaregiverStack() {
-  return (
-    <Stack.Navigator
-      screenOptions={{
-        headerStyle: { backgroundColor: "#1e293b" },
-        headerTintColor: "#f8fafc",
-      }}
-    >
-      <Stack.Screen
-        name="CaregiverTabs"
-        component={CaregiverTabs}
-        options={{ headerShown: false }}
-      />
-      <Stack.Screen
-        name="BreatheWithBunny"
-        component={BreatheWithBunnyScreen}
-        options={{ title: "Breathe with Bunny" }}
-      />
-      <Stack.Screen
-        name="EmergencySos"
-        component={EmergencySosScreen}
-        options={{ headerShown: false }}
-      />
-      <Stack.Screen
-        name="EmergencySummary"
-        component={EmergencySummaryScreen}
-        options={{ headerShown: false }}
-      />
-      <Stack.Screen
-        name="Telehealth"
-        component={TelehealthScreen}
-        options={{ headerShown: false }}
-      />
-      <Stack.Screen
-        name="AirQuality"
-        component={AirQualityScreen}
-        options={{ title: "Air Quality & Weather" }}
-      />
-      <Stack.Screen
-        name="PEFTracker"
-        component={PEFTrackerScreen}
-        options={{ title: "Peak Flow (PEF)" }}
-      />
-      <Stack.Screen
-        name="MedicationScanner"
-        component={MedicationScannerScreen}
-        options={{ title: "Scan Medication" }}
-      />
-      <Stack.Screen
-        name="AddSmartNeb"
-        component={AddSmartNebScreen}
-        options={{ title: "Add SmartNeb" }}
-      />
-    </Stack.Navigator>
-  );
-}
-
 /* -------------------------------------------------------------------------- */
 /*                             ADMIN NAVIGATION                               */
 /* -------------------------------------------------------------------------- */
 
 function AdminTabs() {
+  const { colors } = useTheme();
+
   return (
     <Tab.Navigator
+      screenListeners={{
+        tabPress: () => {
+          AppHaptics.triggerSelection();
+        },
+      }}
       screenOptions={{
-        headerStyle: { backgroundColor: "#1e293b" },
-        headerTintColor: "#f8fafc",
-        tabBarStyle: { backgroundColor: "#1e293b", borderTopColor: "#334155" },
-        tabBarActiveTintColor: "#38bdf8",
-        tabBarInactiveTintColor: "#94a3b8",
+        headerLeft: () => <MenuButton />,
+        headerStyle: { backgroundColor: colors.headerBg },
+        headerTintColor: colors.headerText,
+        tabBarStyle: { backgroundColor: colors.tabBarBg, borderTopColor: colors.tabBarBorder },
+        tabBarActiveTintColor: colors.tabBarActive,
+        tabBarInactiveTintColor: colors.tabBarInactive,
       }}
     >
       <Tab.Screen
@@ -309,14 +313,22 @@ function AdminTabs() {
 /* -------------------------------------------------------------------------- */
 
 function SuperAdminTabs() {
+  const { colors } = useTheme();
+
   return (
     <Tab.Navigator
+      screenListeners={{
+        tabPress: () => {
+          AppHaptics.triggerSelection();
+        },
+      }}
       screenOptions={{
-        headerStyle: { backgroundColor: "#1e293b" },
-        headerTintColor: "#f8fafc",
-        tabBarStyle: { backgroundColor: "#1e293b", borderTopColor: "#334155" },
-        tabBarActiveTintColor: "#38bdf8",
-        tabBarInactiveTintColor: "#94a3b8",
+        headerLeft: () => <MenuButton />,
+        headerStyle: { backgroundColor: colors.headerBg },
+        headerTintColor: colors.headerText,
+        tabBarStyle: { backgroundColor: colors.tabBarBg, borderTopColor: colors.tabBarBorder },
+        tabBarActiveTintColor: colors.tabBarActive,
+        tabBarInactiveTintColor: colors.tabBarInactive,
       }}
     >
       <Tab.Screen
@@ -339,43 +351,56 @@ function SuperAdminTabs() {
 
 export function RootNavigator() {
   const { user, isLoading } = useAuth();
+  const { colors } = useTheme();
 
   if (isLoading) {
     return (
-      <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#38bdf8" />
+      <View style={[styles.loadingContainer, { backgroundColor: colors.background }]}>
+        <ActivityIndicator size="large" color={colors.primary} />
       </View>
     );
   }
 
   return (
-    <NavigationContainer>
-      {!user ? (
-        <Stack.Navigator screenOptions={{ headerShown: false }}>
-          <Stack.Screen name="Login" component={LoginScreen} />
-          <Stack.Screen name="OtpLogin" component={OtpLoginScreen} />
-          <Stack.Screen name="EmergencySummary" component={EmergencySummaryScreen} />
-        </Stack.Navigator>
-      ) : user.role === "doctor" ? (
-        <DoctorStack />
-      ) : user.role === "caregiver" ? (
-        <CaregiverStack />
-      ) : user.role === "admin" ? (
-        <AdminTabs />
-      ) : user.role === "super_admin" ? (
-        <SuperAdminTabs />
-      ) : (
-        <PatientStack />
-      )}
-    </NavigationContainer>
+    <View style={{ flex: 1, backgroundColor: colors.background }}>
+      <NavigationContainer ref={navigationRef}>
+        {!user ? (
+          <Stack.Navigator screenOptions={{ headerShown: false }}>
+            <Stack.Screen name="Login" component={LoginScreen} />
+          </Stack.Navigator>
+        ) : user.role === "doctor" ? (
+          <DoctorTabs />
+        ) : user.role === "caregiver" ? (
+          <CaregiverTabs />
+        ) : user.role === "admin" ? (
+          <AdminTabs />
+        ) : user.role === "super_admin" ? (
+          <SuperAdminTabs />
+        ) : (
+          <PatientTabs />
+        )}
+      </NavigationContainer>
+      <AppSidebar navigationRef={navigationRef} />
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   loadingContainer: {
     flex: 1,
-    backgroundColor: "#0f172a",
     justifyContent: "center",
     alignItems: "center",
+  },
+  menuBtn: {
+    marginLeft: 16,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 8,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  menuBtnText: {
+    fontSize: 22,
+    fontWeight: "700",
   },
 });

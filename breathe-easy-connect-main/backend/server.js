@@ -3,13 +3,18 @@ const http = require("http");
 const { Server } = require("socket.io");
 const cors = require("cors");
 const helmet = require("helmet");
+const rateLimit = require("express-rate-limit");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 const crypto = require("crypto");
+const fs = require("fs");
+const path = require("path");
 const { PrismaClient } = require("@prisma/client");
 const { GoogleGenAI } = require("@google/genai");
 const mqtt = require("mqtt");
 require("dotenv").config();
+const { sendPushNotification } = require("./services/push-notification.service");
+const { requestSmsOtp, verifySmsOtp } = require("./services/sms-otp.service");
 
 const prisma = new PrismaClient();
 
@@ -19,6 +24,12 @@ BigInt.prototype.toJSON = function () {
 };
 
 const app = express();
+
+// Enable reverse proxy trust in cloud environments (ALB, Cloudflare, Render, etc.)
+if (process.env.NODE_ENV === "production" || process.env.TRUST_PROXY === "true") {
+  app.set("trust proxy", 1);
+}
+
 const server = http.createServer(app);
 
 // Socket.IO configuration with sticky session & WebSocket transport support
@@ -38,7 +49,43 @@ const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY || "AIzaSyDummy"
 
 // Express Security & Body Middleware
 app.use(helmet({ contentSecurityPolicy: false }));
-app.use(cors({ origin: "*" }));
+
+const allowedOrigins = process.env.ALLOWED_ORIGINS
+  ? process.env.ALLOWED_ORIGINS.split(",").map((o) => o.trim())
+  : [];
+
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      if (!origin) return callback(null, true);
+      if (process.env.NODE_ENV !== "production") return callback(null, true);
+      if (allowedOrigins.length === 0 || allowedOrigins.includes(origin)) return callback(null, true);
+      return callback(new Error("CORS policy violation: Origin not allowed."));
+    },
+    credentials: true,
+  }),
+);
+
+// General API Rate Limiter
+const generalLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 500,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: "Too many requests, please try again later." },
+});
+
+// Strict Login Rate Limiter
+const loginLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 20,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: "Too many login attempts. Please try again after 15 minutes." },
+});
+
+app.use("/api/", generalLimiter);
+app.use("/api/v1/auth/login", loginLimiter);
 app.use(express.json());
 
 /* -------------------------------------------------------------------------- */
@@ -208,32 +255,77 @@ async function verifyPatientAccess(reqUser, targetPatientId) {
 /*                          HEALTH & READINESS PROBES (GATE 1/5)             */
 /* -------------------------------------------------------------------------- */
 
-app.get("/health", (req, res) => {
+// Health probe supporting both root /health and API namespace /api/v1/health
+app.get(["/health", "/api/v1/health"], (req, res) => {
   res.status(200).json({
     status: "healthy",
+    service: "smartneb-backend",
+    version: "2.0.0",
+    environment: process.env.NODE_ENV || "development",
     uptimeSeconds: Math.floor(process.uptime()),
     timestamp: new Date().toISOString(),
   });
 });
 
-app.get("/ready", async (req, res) => {
+// Deep readiness probe verifying database connectivity & MQTT client status
+app.get(["/ready", "/api/v1/ready"], async (req, res) => {
+  let dbStatus = "unknown";
+  let dbError = null;
+
   try {
     await prisma.$queryRaw`SELECT 1`;
-    res.status(200).json({
-      status: "ready",
-      database: "connected",
-      mqtt: mqttClient?.connected ? "connected" : "idle_or_reconnecting",
-      timestamp: new Date().toISOString(),
-    });
+    dbStatus = "connected";
   } catch (err) {
-    res.status(503).json({
-      status: "not_ready",
-      database: "disconnected",
-      error: err.message,
-      timestamp: new Date().toISOString(),
-    });
+    dbStatus = "disconnected";
+    dbError = err.message;
   }
+
+  const mqttStatus = mqttClient?.connected
+    ? "connected"
+    : process.env.MQTT_BROKER_URL
+      ? "reconnecting_or_idle"
+      : "not_configured";
+
+  const isReady = dbStatus === "connected";
+
+  res.status(isReady ? 200 : 503).json({
+    status: isReady ? "ready" : "not_ready",
+    service: "smartneb-backend",
+    version: "2.0.0",
+    environment: process.env.NODE_ENV || "development",
+    database: dbStatus,
+    mqtt: mqttStatus,
+    ...(dbError ? { error: dbError } : {}),
+    timestamp: new Date().toISOString(),
+  });
 });
+
+// Downloadable Engineering & Production Readiness Audit Report
+function getReportFilePath() {
+  const candidates = [
+    path.resolve(__dirname, "../../../SMARTNEB_PRODUCTION_READINESS_REPORT.html"),
+    path.resolve(__dirname, "../../SMARTNEB_PRODUCTION_READINESS_REPORT.html"),
+    path.resolve(__dirname, "../public/report.html"),
+  ];
+  return candidates.find((p) => fs.existsSync(p)) || null;
+}
+
+app.get(["/report", "/api/v1/report"], (req, res) => {
+  const reportPath = getReportFilePath();
+  if (reportPath) {
+    return res.sendFile(reportPath);
+  }
+  res.status(404).json({ error: "Report file not found." });
+});
+
+app.get(["/download-report", "/api/v1/download-report"], (req, res) => {
+  const reportPath = getReportFilePath();
+  if (reportPath) {
+    return res.download(reportPath, "SmartNeb_Production_Readiness_Report.html");
+  }
+  res.status(404).json({ error: "Report file not found." });
+});
+
 
 /* -------------------------------------------------------------------------- */
 /*                                AUTH ROUTES                                 */
@@ -451,6 +543,56 @@ app.get("/api/v1/auth/me", authenticateToken, async (req, res) => {
   res.status(200).json({ status: "success", user: req.user });
 });
 
+app.get("/api/v1/users/profile", authenticateToken, async (req, res) => {
+  try {
+    const user = await prisma.user.findUnique({
+      where: { id: req.user.userId },
+      select: { id: true, email: true, fullName: true, phone: true },
+    });
+    if (!user) return res.status(404).json({ error: "User profile not found" });
+    res.status(200).json({
+      id: user.id,
+      email: user.email,
+      full_name: user.fullName,
+      phone: user.phone || "",
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.put("/api/v1/users/profile", authenticateToken, async (req, res) => {
+  try {
+    const { full_name, phone } = req.body;
+    const patch = {};
+    if (full_name !== undefined) patch.fullName = full_name;
+    if (phone !== undefined) patch.phone = phone;
+
+    const updatedUser = await prisma.user.update({
+      where: { id: req.user.userId },
+      data: patch,
+      select: { id: true, email: true, fullName: true, phone: true },
+    });
+
+    if (patch.fullName) {
+      await Promise.all([
+        prisma.patient.updateMany({ where: { userId: req.user.userId }, data: { fullName: patch.fullName } }),
+        prisma.doctor.updateMany({ where: { userId: req.user.userId }, data: { fullName: patch.fullName } }),
+        prisma.caregiver.updateMany({ where: { userId: req.user.userId }, data: { fullName: patch.fullName } }),
+      ]);
+    }
+
+    res.status(200).json({
+      status: "success",
+      id: updatedUser.id,
+      full_name: updatedUser.fullName,
+      phone: updatedUser.phone || "",
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 app.post("/api/v1/auth/refresh", async (req, res) => {
   const { refreshToken } = req.body;
   if (!refreshToken) return res.status(400).json({ error: "Refresh token required" });
@@ -540,6 +682,48 @@ app.delete("/api/v1/auth/delete-account", authenticateToken, async (req, res) =>
       });
   } catch (err) {
     res.status(500).json({ error: "Account deletion failed: " + err.message });
+  }
+});
+
+// Register Expo Push Token Endpoint
+app.post("/api/v1/notifications/push-token", authenticateToken, async (req, res) => {
+  try {
+    const { pushToken } = req.body;
+    if (!pushToken) return res.status(400).json({ error: "Push token is required" });
+
+    await prisma.user.update({
+      where: { id: req.user.userId },
+      data: { pushToken },
+    });
+
+    res.status(200).json({ status: "success", message: "Push token registered successfully." });
+  } catch (err) {
+    res.status(500).json({ error: "Push token registration failed: " + err.message });
+  }
+});
+
+// Request SMS OTP Endpoint
+app.post("/api/v1/auth/otp/send", async (req, res) => {
+  try {
+    const { phone, provider } = req.body;
+    const result = await requestSmsOtp(phone, provider || "msg91");
+    res.status(200).json(result);
+  } catch (err) {
+    res.status(400).json({ status: "error", error: err.message });
+  }
+});
+
+// Verify SMS OTP Endpoint
+app.post("/api/v1/auth/otp/verify", async (req, res) => {
+  try {
+    const { phone, otp } = req.body;
+    const result = await verifySmsOtp(phone, otp);
+    if (!result.success) {
+      return res.status(400).json(result);
+    }
+    res.status(200).json(result);
+  } catch (err) {
+    res.status(500).json({ error: "OTP verification failed: " + err.message });
   }
 });
 
@@ -699,6 +883,65 @@ app.get("/api/v1/devices", authenticateToken, async (req, res) => {
   }
 });
 
+// Device MQTT Credential Provisioning Flow
+app.post(
+  "/api/v1/devices/:id/provision-credentials",
+  authenticateToken,
+  requireRole("admin", "super_admin", "doctor"),
+  async (req, res) => {
+    try {
+      const deviceId = req.params.id;
+      const device = await prisma.device.findUnique({ where: { id: deviceId } });
+      if (!device) return res.status(404).json({ error: "Device not found" });
+
+      if (
+        req.user.role !== "super_admin" &&
+        device.hospitalId &&
+        req.user.hospitalId !== device.hospitalId
+      ) {
+        return res.status(403).json({ error: "Unauthorized device tenant access" });
+      }
+
+      const mqttUsername = `dev_${device.hospitalId ? device.hospitalId.substring(0, 8) : "gen"}_${device.deviceCode}`;
+      const plainPassword = crypto.randomBytes(16).toString("hex");
+
+      const updatedDevice = await prisma.device.update({
+        where: { id: deviceId },
+        data: {
+          mqttUsername,
+          mqttPassword: plainPassword,
+        },
+      });
+
+      await prisma.auditLog.create({
+        data: {
+          actorId: req.user.userId,
+          actorName: req.user.fullName,
+          action: "DEVICE_MQTT_CREDENTIALS_PROVISIONED",
+          targetType: "Device",
+          targetId: deviceId,
+          meta: { mqttUsername, timestamp: new Date() },
+        },
+      });
+
+      res.status(200).json({
+        status: "success",
+        message: "Per-device MQTT credentials provisioned successfully.",
+        credentials: {
+          deviceId: updatedDevice.id,
+          deviceCode: updatedDevice.deviceCode,
+          mqttUsername,
+          mqttPassword: plainPassword,
+          brokerHost: process.env.MQTT_BROKER_HOST || "api.example.com",
+          mqttPort: parseInt(process.env.MQTT_TLS_PORT || "8883"),
+        },
+      });
+    } catch (err) {
+      res.status(500).json({ error: "Credential provisioning failed: " + err.message });
+    }
+  },
+);
+
 app.post("/api/v1/devices/:id/command", authenticateToken, async (req, res) => {
   const deviceId = req.params.id;
   const { command, idempotencyKey } = req.body; // START, PAUSE, RESUME, STOP
@@ -783,35 +1026,35 @@ app.post("/api/v1/devices/:id/command", authenticateToken, async (req, res) => {
       const topic = `hospitals/${device.hospitalId || "default"}/devices/${device.deviceCode}/commands`;
       mqttClient.publish(
         topic,
-        JSON.stringify({ command, cmdId: cmdRecord.id, timestamp: Date.now() }),
+        JSON.stringify({ command, cmdId: cmdRecord.id, idempotencyKey: cmdRecord.idempotencyKey, timestamp: Date.now() }),
       );
+    } else {
+      // Fallback mock acknowledgment for offline local dev mode without MQTT broker
+      setTimeout(async () => {
+        try {
+          let finalState = newState;
+          if (command === "START") finalState = "RUNNING";
+
+          await prisma.device.update({
+            where: { id: device.id },
+            data: { nebulizerState: finalState },
+          });
+          await prisma.deviceCommand.update({
+            where: { id: cmdRecord.id },
+            data: { state: "acked", ackedAt: new Date() },
+          });
+
+          io.emit("nebulizer_state_update", {
+            deviceId: device.id,
+            patientId: device.patientId,
+            state: finalState,
+            command,
+          });
+        } catch (e) {
+          // Ignored if test tore down
+        }
+      }, 400);
     }
-
-    // Simulate hardware acknowledgment
-    setTimeout(async () => {
-      try {
-        let finalState = newState;
-        if (command === "START") finalState = "RUNNING";
-
-        await prisma.device.update({
-          where: { id: device.id },
-          data: { nebulizerState: finalState },
-        });
-        await prisma.deviceCommand.update({
-          where: { id: cmdRecord.id },
-          data: { state: "acked", ackedAt: new Date() },
-        });
-
-        io.emit("nebulizer_state_update", {
-          deviceId: device.id,
-          patientId: device.patientId,
-          state: finalState,
-          command,
-        });
-      } catch (e) {
-        // Ignored if test tore down
-      }
-    }, 400);
 
     res.status(200).json({ status: "COMMAND_SENT", command, state: newState, cmdId: cmdRecord.id });
   } catch (err) {
@@ -1409,13 +1652,6 @@ app.get(
 );
 
 /* -------------------------------------------------------------------------- */
-/*             PRODUCTION HEALTHCARE & MOBILE IOT ROUTES                      */
-/* -------------------------------------------------------------------------- */
-
-const createHealthcareRouter = require("./routes/healthcareRoutes");
-app.use("/api/v1", createHealthcareRouter(prisma, io, authenticateToken, verifyPatientAccess, generateTokens));
-
-/* -------------------------------------------------------------------------- */
 /*                             SOCKET.IO BROADCASTS                           */
 /* -------------------------------------------------------------------------- */
 
@@ -1427,33 +1663,107 @@ io.on("connection", (socket) => {
   socket.on("join_hospital_room", (hospitalId) => {
     socket.join(`hospital_${hospitalId}`);
   });
+
+  // WebRTC Telehealth Signaling
+  socket.on("telehealth_signal", ({ room, signal, sender }) => {
+    socket.to(room).emit("telehealth_signal", { signal, sender });
+  });
+
+  // Telehealth Real-Time Consultation Chat
+  socket.on("telehealth_message", ({ room, message }) => {
+    io.to(room).emit("telehealth_message", message);
+  });
+});
+
+/* -------------------------------------------------------------------------- */
+/*                         TELEHEALTH CONSULTATION REST API                   */
+/* -------------------------------------------------------------------------- */
+
+const telehealthMessages = new Map();
+
+app.get("/api/v1/telehealth/messages/:patientId", authenticateToken, async (req, res) => {
+  try {
+    const { patientId } = req.params;
+    const hasAccess = await verifyPatientAccess(req.user, patientId);
+    if (!hasAccess) {
+      return res.status(403).json({ error: "Unauthorized access to patient consultation channel." });
+    }
+    const msgs = telehealthMessages.get(patientId) || [];
+    res.status(200).json({ status: "success", messages: msgs });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.post("/api/v1/telehealth/messages", authenticateToken, async (req, res) => {
+  try {
+    const { patientId, text, vitalsSnippet } = req.body;
+    const hasAccess = await verifyPatientAccess(req.user, patientId);
+    if (!hasAccess) {
+      return res.status(403).json({ error: "Unauthorized access to patient consultation channel." });
+    }
+
+    const message = {
+      id: crypto.randomUUID(),
+      senderId: req.user.userId,
+      role: req.user.role,
+      name: req.user.fullName || "User",
+      text,
+      vitalsSnippet: vitalsSnippet || null,
+      timestamp: new Date().toISOString(),
+    };
+
+    if (!telehealthMessages.has(patientId)) {
+      telehealthMessages.set(patientId, []);
+    }
+    telehealthMessages.get(patientId).push(message);
+    io.to(`patient_${patientId}`).emit("telehealth_message", message);
+
+    res.status(201).json({ status: "success", message });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 /* -------------------------------------------------------------------------- */
 /*                            HOSTED MQTT BROKER CLIENT                       */
 /* -------------------------------------------------------------------------- */
 
-const MQTT_BROKER_URL = process.env.MQTT_BROKER_URL || "mqtt://127.0.0.1:1883";
+const isProdEnv = process.env.NODE_ENV === "production";
+const MQTT_BROKER_URL =
+  process.env.MQTT_BROKER_URL || (isProdEnv ? null : "mqtt://127.0.0.1:1883");
 let mqttClient = null;
 
 if (process.env.NODE_ENV !== "test") {
-  try {
-    mqttClient = mqtt.connect(MQTT_BROKER_URL, {
-      clientId: `smartneb_backend_${crypto.randomBytes(4).toString("hex")}`,
-      username: process.env.MQTT_USERNAME || undefined,
-      password: process.env.MQTT_PASSWORD || undefined,
-      rejectUnauthorized: true,
-      reconnectPeriod: 5000,
-    });
+  if (!MQTT_BROKER_URL) {
+    console.log(
+      "ℹ️ [MQTT] Running in production without configured MQTT_BROKER_URL. MQTT background client paused until broker URL is provisioned via environment variables.",
+    );
+  } else {
+    try {
+      const mqttOptions = {
+        clientId: `smartneb_backend_${crypto.randomBytes(4).toString("hex")}`,
+        username: process.env.MQTT_USERNAME || undefined,
+        password: process.env.MQTT_PASSWORD || undefined,
+        rejectUnauthorized: process.env.MQTT_REJECT_UNAUTHORIZED !== "false",
+        reconnectPeriod: 5000,
+        connectTimeout: 10000,
+      };
+
+      if (process.env.MQTT_CA_CERT) {
+        mqttOptions.ca = [Buffer.from(process.env.MQTT_CA_CERT, "utf-8")];
+      }
+
+      mqttClient = mqtt.connect(MQTT_BROKER_URL, mqttOptions);
 
     mqttClient.on("connect", () => {
       console.log(
         "✓ Connected to Hosted MQTT Broker at",
         MQTT_BROKER_URL.replace(/:\/\/.*@/, "://***@"),
       );
-      // Subscribe to all hospital telemetry topics
-      mqttClient.subscribe("hospitals/+/devices/+/telemetry/#", (err) => {
-        if (err) console.error("Error subscribing to MQTT telemetry:", err);
+      // Subscribe to all hospital topics (telemetry, status, commands/ack)
+      mqttClient.subscribe("hospitals/#", (err) => {
+        if (err) console.error("Error subscribing to MQTT topics:", err);
       });
     });
 
@@ -1461,41 +1771,136 @@ if (process.env.NODE_ENV !== "test") {
       try {
         const payload = JSON.parse(message.toString());
         const topicParts = topic.split("/");
-        // Format: hospitals/{hospitalId}/devices/{deviceCode}/telemetry/{type}
+        // Format: hospitals/{hospitalId}/devices/{deviceCode}/...
         const hospitalId = topicParts[1];
         const deviceCode = topicParts[3];
-        const telemetryType = topicParts[5] || "health";
+        const subTopic = topicParts.slice(4).join("/");
 
-        const device = await prisma.device.findUnique({ where: { deviceCode } });
-        if (device && device.patientId) {
-          if (telemetryType === "health") {
-            await prisma.healthTelemetry.create({
-              data: {
-                patientId: device.patientId,
-                deviceId: device.id,
-                bpm: payload.bpm ? parseFloat(payload.bpm) : null,
-                spo2: payload.spo2 ? parseFloat(payload.spo2) : null,
-                bodyTemperature: payload.bodyTemperature
-                  ? parseFloat(payload.bodyTemperature)
-                  : null,
-              },
-            });
-            io.to(`patient_${device.patientId}`).emit("vitals_update", {
-              patientId: device.patientId,
-              telemetry: payload,
-            });
+        let device = await prisma.device.findUnique({ where: { deviceCode } });
 
-            // Automated SpO2 Clinical Threshold Alert Trigger
-            const spo2Val = payload.spo2 ? parseFloat(payload.spo2) : null;
-            if (spo2Val !== null && spo2Val < 90) {
-              const NotificationService = require("./services/NotificationService");
-              const notifService = new NotificationService(prisma);
-              notifService.sendAlertNotification({
+        // Auto-provision demo device if it doesn't exist yet
+        if (!device && deviceCode) {
+          device = await prisma.device.create({
+            data: {
+              deviceCode,
+              hospitalId: hospitalId !== "default" ? hospitalId : null,
+              status: "online",
+              mqttConnected: true,
+            },
+          });
+        }
+
+        if (subTopic === "status") {
+          const isOffline = payload.status === "OFFLINE";
+          await prisma.device.update({
+            where: { deviceCode },
+            data: {
+              status: isOffline ? "offline" : "online",
+              mqttConnected: !isOffline,
+              lastSeenAt: new Date(),
+            },
+          });
+          io.emit("device_status_update", { deviceCode, status: payload.status, reason: payload.reason });
+        } else if (subTopic === "commands/ack") {
+          const cmdId = payload.commandId || payload.id;
+          if (cmdId) {
+            await prisma.deviceCommand.updateMany({
+              where: { OR: [{ id: cmdId }, { idempotencyKey: payload.idempotencyKey }] },
+              data: { state: "acked", ackedAt: new Date(), response: payload },
+            });
+            io.emit("command_ack_received", { commandId: cmdId, deviceCode, payload });
+          }
+        } else if (subTopic.startsWith("telemetry/")) {
+          const telemetryType = topicParts[5] || "health";
+
+          if (device && device.patientId) {
+            if (telemetryType === "health") {
+              const spo2 = payload.spo2 ? parseFloat(payload.spo2) : null;
+              const bpm = payload.bpm ? parseFloat(payload.bpm) : null;
+              const bodyTemp = payload.bodyTemperature ? parseFloat(payload.bodyTemperature) : null;
+
+              // Plausibility Check: Filter out impossible sensor noise / artifacts
+              if (spo2 !== null && (spo2 > 100 || spo2 < 50)) {
+                console.warn(`⚠️ [Telemetry Filter] Ignoring impossible SpO2 reading (${spo2}%) for device ${deviceCode}`);
+                return;
+              }
+              if (bpm !== null && (bpm < 30 || bpm > 240)) {
+                console.warn(`⚠️ [Telemetry Filter] Ignoring impossible pulse rate (${bpm} BPM) for device ${deviceCode}`);
+                return;
+              }
+
+              await prisma.healthTelemetry.create({
+                data: {
+                  patientId: device.patientId,
+                  deviceId: device.id,
+                  bpm,
+                  spo2,
+                  bodyTemperature: bodyTemp,
+                },
+              });
+
+              // Require N=2 consecutive low readings before triggering SOS to prevent false alarms
+              const recentTelemetries = await prisma.healthTelemetry.findMany({
+                where: { deviceId: device.id },
+                take: 2,
+                orderBy: { recordedAt: "desc" },
+              });
+
+              const isConsecutiveLowSpo2 = spo2 !== null && spo2 < 90 &&
+                (recentTelemetries.length <= 1 || (recentTelemetries[1]?.spo2 !== null && recentTelemetries[1].spo2 < 90));
+
+              if (isConsecutiveLowSpo2) {
+                console.warn(`🚨 [ALERT] Confirmed Low SpO2 (${spo2}%) for device ${deviceCode}! Triggering SOS escalation.`);
+                await prisma.alert.create({
+                  data: {
+                    patientId: device.patientId,
+                    deviceId: device.id,
+                    type: "LOW_SPO2",
+                    severity: "critical",
+                    value: spo2,
+                    threshold: 90.0,
+                    message: `CRITICAL: Low SpO2 level of ${spo2}% detected!`,
+                    status: "active",
+                  },
+                });
+
+                await prisma.sOSEvent.create({
+                  data: {
+                    patientId: device.patientId,
+                    source: "automated_spo2",
+                    vitals: { spo2, bpm, deviceCode },
+                    status: "active",
+                  },
+                });
+
+                io.emit("sos_alert_triggered", {
+                  patientId: device.patientId,
+                  deviceCode,
+                  spo2,
+                  message: `CRITICAL: Low SpO2 (${spo2}%) detected!`,
+                });
+              }
+
+              io.to(`patient_${device.patientId}`).emit("vitals_update", {
                 patientId: device.patientId,
-                spo2: spo2Val,
-                severity: spo2Val < 88 ? "critical" : "warning",
-                deviceId: device.id,
-              }).catch((e) => console.error("Auto alert notification error:", e.message));
+                telemetry: payload,
+              });
+            } else if (telemetryType === "battery") {
+              if (payload.fluidLevel !== undefined) {
+                await prisma.device.update({
+                  where: { id: device.id },
+                  data: { fluidLevel: parseFloat(payload.fluidLevel), lastSeenAt: new Date() },
+                });
+              }
+              await prisma.batteryTelemetry.create({
+                data: {
+                  patientId: device.patientId,
+                  deviceId: device.id,
+                  percentage: payload.percentage ? parseFloat(payload.percentage) : null,
+                  charging: Boolean(payload.charging),
+                  fluidLevel: payload.fluidLevel ? parseFloat(payload.fluidLevel) : null,
+                },
+              });
             }
           }
         }
@@ -1510,6 +1915,7 @@ if (process.env.NODE_ENV !== "test") {
   } catch (err) {
     console.warn("Could not initialize MQTT client:", err.message);
   }
+}
 }
 
 /* -------------------------------------------------------------------------- */
@@ -1550,11 +1956,12 @@ process.on("SIGINT", () => gracefulShutdown("SIGINT"));
 const PORT = process.env.PORT || 5000;
 
 if (require.main === module) {
-  server.listen(PORT, () => {
+  const HOST = process.env.HOST || "0.0.0.0";
+  server.listen(PORT, HOST, () => {
     console.log(`\n==================================================`);
-    console.log(`✓ SmartNeb Production Backend HTTP API running on port ${PORT}`);
+    console.log(`✓ SmartNeb Backend HTTP API listening on ${HOST}:${PORT}`);
     console.log(`✓ WebSocket & Socket.IO bridge active`);
-    console.log(`✓ Health endpoints: http://localhost:${PORT}/health & /ready`);
+    console.log(`✓ Health endpoints: http://${HOST}:${PORT}/health & /ready`);
     console.log(`==================================================\n`);
   });
 }

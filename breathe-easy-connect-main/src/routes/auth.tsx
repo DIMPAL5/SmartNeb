@@ -57,23 +57,95 @@ function AuthPage() {
   }
 
   useEffect(() => {
+    if (typeof window !== "undefined") {
+      const stored = localStorage.getItem("smartneb_user");
+      if (stored) {
+        try {
+          const user = JSON.parse(stored);
+          if (user && user.role) {
+            const target =
+              roleHome[(user.role as keyof typeof roleHome) || "patient"] ||
+              "/patient/dashboard";
+            window.location.href = target;
+            return;
+          }
+        } catch {}
+      }
+    }
     supabase.auth.getSession().then(({ data }) => {
       if (data.session) void routeByRole();
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  function getApiBaseUrls(): string[] {
+    const urls: string[] = [];
+    const envBase = (import.meta.env["VITE_API_BASE_URL"] as string) || (import.meta.env["VITE_API_URL"] as string);
+    if (envBase) {
+      urls.push(envBase.replace(/\/api\/v1\/?$/, ""));
+    }
+    urls.push("http://localhost:5000");
+    urls.push("http://127.0.0.1:5000");
+    if (typeof window !== "undefined") {
+      urls.push(window.location.origin);
+    }
+    return urls;
+  }
+
   async function signIn(e: React.FormEvent) {
     e.preventDefault();
     setBusy(true);
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
-    setBusy(false);
-    if (error) {
-      toast.error(error.message);
+
+    const cleanEmail = email.trim().toLowerCase();
+    const cleanPassword = password.trim();
+
+    if (!cleanEmail || !cleanPassword) {
+      setBusy(false);
+      toast.error("Please enter email and password");
       return;
     }
-    toast.success(t("auth.welcomeBack"));
-    await routeByRole();
+
+    const hosts = getApiBaseUrls();
+    let loginHandled = false;
+
+    for (const host of hosts) {
+      try {
+        const res = await fetch(`${host}/api/v1/auth/login`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email: cleanEmail, password: cleanPassword }),
+        });
+        const data = await res.json();
+        if (res.ok && data.status === "success" && data.user) {
+          if (typeof window !== "undefined") {
+            localStorage.setItem("smartneb_access_token", data.accessToken);
+            localStorage.setItem("smartneb_user", JSON.stringify(data.user));
+            sessionStorage.setItem("smartneb_access_token", data.accessToken);
+            sessionStorage.setItem("smartneb_user", JSON.stringify(data.user));
+          }
+          setBusy(false);
+          toast.success(t("auth.welcomeBack"));
+          const target =
+            roleHome[(data.user?.role as keyof typeof roleHome) || "patient"] ||
+            "/patient/dashboard";
+          window.location.href = target;
+          loginHandled = true;
+          return;
+        } else if (res.status === 401 || res.status === 400) {
+          setBusy(false);
+          toast.error(data.error || "Invalid email or password");
+          loginHandled = true;
+          return;
+        }
+      } catch (err) {
+        // Continue to fallback host
+      }
+    }
+
+    if (!loginHandled) {
+      setBusy(false);
+      toast.error("Could not reach backend API server. Please verify connection.");
+    }
   }
 
   async function sendReset(e: React.FormEvent) {
@@ -83,16 +155,22 @@ function AuthPage() {
       return;
     }
     setBusy(true);
-    const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}/reset-password`,
-    });
-    setBusy(false);
-    if (error) {
-      toast.error(error.message);
-      return;
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
+        redirectTo: `${window.location.origin}/reset-password`,
+      });
+      setBusy(false);
+      if (error) {
+        toast.error(error.message);
+        return;
+      }
+      toast.success(t("auth.resetLinkSent"));
+      setMode("signin");
+    } catch {
+      setBusy(false);
+      toast.info(t("auth.resetLinkSent"));
+      setMode("signin");
     }
-    toast.success(t("auth.resetLinkSent"));
-    setMode("signin");
   }
 
   function passwordProblem(value: string) {
@@ -109,36 +187,59 @@ function AuthPage() {
       return;
     }
     setBusy(true);
-    const { error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        emailRedirectTo: window.location.origin,
-        data: { full_name: fullName, role },
-      },
-    });
-    setBusy(false);
-    if (error) {
-      toast.error(error.message);
-      return;
+
+    const cleanEmail = email.trim().toLowerCase();
+    const cleanPassword = password.trim();
+    const cleanName = fullName.trim();
+
+    const hosts = getApiBaseUrls();
+    let signupHandled = false;
+
+    for (const host of hosts) {
+      try {
+        const res = await fetch(`${host}/api/v1/auth/signup`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            email: cleanEmail,
+            password: cleanPassword,
+            fullName: cleanName,
+            role,
+          }),
+        });
+        const data = await res.json();
+        if (res.ok && data.status === "success" && data.user) {
+          if (typeof window !== "undefined") {
+            localStorage.setItem("smartneb_access_token", data.accessToken);
+            localStorage.setItem("smartneb_user", JSON.stringify(data.user));
+            sessionStorage.setItem("smartneb_access_token", data.accessToken);
+            sessionStorage.setItem("smartneb_user", JSON.stringify(data.user));
+          }
+          setBusy(false);
+          toast.success(t("auth.accountCreated"));
+          const target =
+            roleHome[(data.user?.role as keyof typeof roleHome) || "patient"] ||
+            "/patient/dashboard";
+          window.location.href = target;
+          signupHandled = true;
+          return;
+        } else if (res.status === 400 || res.status === 409) {
+          setBusy(false);
+          toast.error(data.error || "Account creation failed");
+          signupHandled = true;
+          return;
+        }
+      } catch (err) {
+        // Continue to fallback host
+      }
     }
-    toast.success(t("auth.accountCreated"));
-    const { data } = await supabase.auth.getSession();
-    if (data.session) await routeByRole();
-    else toast.info(t("auth.confirmEmailPrompt"));
+
+    if (!signupHandled) {
+      setBusy(false);
+      toast.error("Failed to create account. Please verify connection.");
+    }
   }
 
-  async function google() {
-    const result = await lovable.auth.signInWithOAuth("google", {
-      redirect_uri: window.location.origin,
-    });
-    if (result.error) {
-      toast.error(t("auth.googleSignInFailed"));
-      return;
-    }
-    if (result.redirected) return;
-    await routeByRole();
-  }
 
   return (
     <div className="grid-mesh flex min-h-screen items-center justify-center bg-background px-4 py-10">
@@ -271,14 +372,6 @@ function AuthPage() {
             </TabsContent>
           </Tabs>
 
-          <div className="my-6 flex items-center gap-3 text-xs text-muted-foreground">
-            <span className="h-px flex-1 bg-border" />
-            {t("auth.or")}
-            <span className="h-px flex-1 bg-border" />
-          </div>
-          <Button variant="outline" className="w-full" onClick={google}>
-            {t("auth.continueWithGoogle")}
-          </Button>
           <p className="mt-6 text-xs text-muted-foreground">{t("auth.demoAccountNote")}</p>
         </div>
       </div>

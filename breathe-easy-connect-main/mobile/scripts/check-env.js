@@ -3,17 +3,27 @@ const path = require("path");
 
 console.log("🔒 Verifying Mobile App Production Build Environment Configuration...");
 
+let apiUrl = null;
+const configFilePath = path.join(__dirname, "../src/config/api.config.ts");
 const clientFilePath = path.join(__dirname, "../src/api/client.ts");
-const clientContent = fs.readFileSync(clientFilePath, "utf8");
 
-const apiMatch = clientContent.match(/export const API_BASE_URL = ['"]([^'"]+)['"]/);
+if (fs.existsSync(configFilePath)) {
+  const configContent = fs.readFileSync(configFilePath, "utf8");
+  const match = configContent.match(/export const PRODUCTION_API_URL = ['"]([^'"]+)['"]/);
+  if (match) apiUrl = match[1];
+}
 
-if (!apiMatch) {
-  console.error("❌ FAIL: Could not locate API_BASE_URL declaration in mobile/src/api/client.ts");
+if (!apiUrl && fs.existsSync(clientFilePath)) {
+  const clientContent = fs.readFileSync(clientFilePath, "utf8");
+  const match = clientContent.match(/export const (?:API_BASE_URL|DEFAULT_API_URL|PRODUCTION_API_URL) = ['"]([^'"]+)['"]/);
+  if (match) apiUrl = match[1];
+}
+
+if (!apiUrl) {
+  console.error("❌ FAIL: Could not locate API endpoint declaration in mobile configuration");
   process.exit(1);
 }
 
-const apiUrl = apiMatch[1];
 console.log(`📌 Detected Mobile API_BASE_URL: "${apiUrl}"`);
 
 const isProductionBuild =

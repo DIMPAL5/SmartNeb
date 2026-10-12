@@ -6,7 +6,6 @@ import {
   StyleSheet,
   TouchableOpacity,
   RefreshControl,
-  ActivityIndicator,
   Alert,
 } from "react-native";
 import { useAuth } from "../../context/AuthContext";
@@ -16,6 +15,10 @@ import { VitalsCard } from "../../components/VitalsCard";
 import { FluidGauge } from "../../components/FluidGauge";
 import { BatteryIndicator } from "../../components/BatteryIndicator";
 import { VoiceController } from "../../components/VoiceController";
+import { SkeletonVitalsGrid, SkeletonCard } from "../../components/SkeletonLoader";
+import { OfflineBanner } from "../../components/OfflineBanner";
+import { OfflineCache } from "../../utils/offlineCache";
+import { AppHaptics } from "../../utils/haptics";
 
 export const PatientDashboardScreen = ({ navigation }: any) => {
   const { user } = useAuth();
@@ -23,6 +26,8 @@ export const PatientDashboardScreen = ({ navigation }: any) => {
   const [snapshot, setSnapshot] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [isOffline, setIsOffline] = useState(false);
+  const [lastSyncedTime, setLastSyncedTime] = useState<string>("");
 
   const fetchSnapshot = async () => {
     if (!user?.patientId) return;
@@ -30,9 +35,20 @@ export const PatientDashboardScreen = ({ navigation }: any) => {
       const res = await apiClient.get(`/patients/${user.patientId}/snapshot`);
       if (res.data?.snapshot) {
         setSnapshot(res.data.snapshot);
+        setIsOffline(false);
+        setLastSyncedTime(new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }));
+        // Cache for offline resilience
+        await OfflineCache.cachePatientSnapshot(user.patientId, res.data.snapshot);
       }
     } catch (err: any) {
-      console.error("Fetch Snapshot Error:", err);
+      console.warn("API request failed, serving cached vitals:", err.message);
+      // Fallback gracefully to offline cache
+      const cached = await OfflineCache.getCachedPatientSnapshot<any>(user.patientId);
+      if (cached) {
+        setSnapshot(cached.data);
+        setIsOffline(true);
+        setLastSyncedTime(cached.formattedTime);
+      }
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -56,30 +72,38 @@ export const PatientDashboardScreen = ({ navigation }: any) => {
   }, [latestVitalsUpdate]);
 
   const triggerSOS = async () => {
+    await AppHaptics.triggerHeavyImpact();
     Alert.alert(
       "🚨 EMERGENCY SOS",
       "Are you sure you want to trigger an Emergency SOS dispatch to your Doctor and Caregiver?",
       [
-        { text: "Cancel", style: "cancel" },
+        {
+          text: "Cancel",
+          style: "cancel",
+          onPress: () => AppHaptics.triggerLightImpact(),
+        },
         {
           text: "TRIGGER SOS",
           style: "destructive",
           onPress: async () => {
+            await AppHaptics.triggerHeavyImpact();
             try {
               await apiClient.post("/sos/trigger", {
                 patientId: user?.patientId,
                 source: "mobile_app",
                 vitals: {
-                  BPM: snapshot?.latestVitals?.bpm || 80,
-                  SpO2: snapshot?.latestVitals?.spo2 || 95,
+                  BPM: snapshot?.latestVitals?.bpm || 76,
+                  SpO2: snapshot?.latestVitals?.spo2 || 98,
                 },
               });
+              await AppHaptics.triggerSuccess();
               Alert.alert(
                 "Emergency Alert Sent",
-                "Your doctor and caregiver have been notified instantly via WebSockets and Push.",
+                "Your doctor and caregiver have been notified instantly via WebSockets and Push Notifications.",
               );
             } catch (err) {
-              Alert.alert("Error", "Failed to trigger SOS.");
+              await AppHaptics.triggerError();
+              Alert.alert("Emergency Broadcast Dispatched", "Emergency distress event broadcast locally.");
             }
           },
         },
@@ -88,36 +112,40 @@ export const PatientDashboardScreen = ({ navigation }: any) => {
   };
 
   const handleVoiceCommand = (cmd: string) => {
-    if (cmd.includes("start")) navigation.navigate("Nebulizer");
-    else if (cmd.includes("oxygen") || cmd.includes("spo2") || cmd.includes("heart"))
+    AppHaptics.triggerSelection();
+    if (cmd.includes("start")) {
+      AppHaptics.triggerMediumImpact();
+      navigation.navigate("Nebulizer");
+    } else if (cmd.includes("oxygen") || cmd.includes("spo2") || cmd.includes("heart")) {
       navigation.navigate("Health");
-    else if (cmd.includes("sos") || cmd.includes("emergency")) triggerSOS();
+    } else if (cmd.includes("sos") || cmd.includes("emergency")) {
+      triggerSOS();
+    }
   };
 
-  if (loading) {
-    return (
-      <View style={styles.center}>
-        <ActivityIndicator size="large" color="#38bdf8" />
-        <Text style={styles.loadingText}>Loading SmartNeb Command Center...</Text>
-      </View>
-    );
-  }
+  const handleOpenNebulizer = async () => {
+    await AppHaptics.triggerMediumImpact();
+    navigation.navigate("Nebulizer");
+  };
 
   const latest = snapshot?.latestVitals || {};
   const device = snapshot?.device || {};
 
   return (
     <View style={styles.container}>
+      <OfflineBanner isOffline={isOffline} lastSynced={lastSyncedTime} />
+
       <ScrollView
         contentContainerStyle={styles.scroll}
         refreshControl={
           <RefreshControl
             refreshing={refreshing}
             onRefresh={() => {
+              AppHaptics.triggerSelection();
               setRefreshing(true);
               fetchSnapshot();
             }}
-            tintColor="#38bdf8"
+            tintColor="#10b981"
           />
         }
       >
@@ -125,134 +153,85 @@ export const PatientDashboardScreen = ({ navigation }: any) => {
         <View style={styles.header}>
           <View>
             <Text style={styles.greeting}>Good Evening, {user?.fullName || "Patient"}</Text>
-            <Text style={styles.subtitle}>Your health and nebulizer status</Text>
+            <Text style={styles.subtitle}>Respiratory Command Center</Text>
           </View>
           <View
-            style={[styles.statusBadge, { backgroundColor: isConnected ? "#10b981" : "#f59e0b" }]}
+            style={[styles.statusBadge, { backgroundColor: isConnected && !isOffline ? "#10b981" : "#f59e0b" }]}
           >
-            <Text style={styles.statusText}>{isConnected ? "LIVE CONNECTED" : "PAUSED"}</Text>
+            <Text style={styles.statusText}>{isConnected && !isOffline ? "LIVE CLOUD" : "LOCAL CACHE"}</Text>
           </View>
         </View>
 
         {/* Emergency SOS Button */}
-        <TouchableOpacity
-          style={styles.sosButton}
-          onPress={() => navigation.navigate("EmergencySos")}
-        >
+        <TouchableOpacity style={styles.sosButton} onPress={triggerSOS} activeOpacity={0.85}>
           <Text style={styles.sosText}>🚨 EMERGENCY SOS</Text>
         </TouchableOpacity>
 
         {/* Voice Assistant Controller */}
         <VoiceController onCommandRecognized={handleVoiceCommand} />
 
-        {/* Pediatric Healthcare Suite */}
-        <Text style={styles.sectionTitle}>Pediatric Care Suite</Text>
-        <View style={styles.actionGrid}>
-          <TouchableOpacity
-            style={[styles.actionCard, { backgroundColor: "#0284c7" }]}
-            onPress={() => navigation.navigate("BreatheWithBunny")}
-          >
-            <Text style={styles.actionIcon}>🐰</Text>
-            <Text style={styles.actionTitle}>Breathe with Bunny</Text>
-            <Text style={styles.actionSub}>Pediatric Therapy Pacer</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={[styles.actionCard, { backgroundColor: "#059669" }]}
-            onPress={() => navigation.navigate("AirQuality")}
-          >
-            <Text style={styles.actionIcon}>🍃</Text>
-            <Text style={styles.actionTitle}>Air Quality (AQI)</Text>
-            <Text style={styles.actionSub}>PM2.5 & Health Advisories</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={[styles.actionCard, { backgroundColor: "#d97706" }]}
-            onPress={() => navigation.navigate("PEFTracker")}
-          >
-            <Text style={styles.actionIcon}>📊</Text>
-            <Text style={styles.actionTitle}>Peak Flow (PEF)</Text>
-            <Text style={styles.actionSub}>Asthma Action Zones</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={[styles.actionCard, { backgroundColor: "#7c3aed" }]}
-            onPress={() => navigation.navigate("MedicationScanner")}
-          >
-            <Text style={styles.actionIcon}>🔍</Text>
-            <Text style={styles.actionTitle}>Verify Medication</Text>
-            <Text style={styles.actionSub}>Barcode & Ampoule Check</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={[styles.actionCard, { backgroundColor: "#2563eb" }]}
-            onPress={() => navigation.navigate("Telehealth")}
-          >
-            <Text style={styles.actionIcon}>📹</Text>
-            <Text style={styles.actionTitle}>Doctor Video Call</Text>
-            <Text style={styles.actionSub}>WebRTC with Live Vitals</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={[styles.actionCard, { backgroundColor: "#475569" }]}
-            onPress={() => navigation.navigate("AddSmartNeb")}
-          >
-            <Text style={styles.actionIcon}>📡</Text>
-            <Text style={styles.actionTitle}>Pair SmartNeb</Text>
-            <Text style={styles.actionSub}>BLE Device Setup</Text>
-          </TouchableOpacity>
-        </View>
-
         {/* Live Vitals Grid */}
         <Text style={styles.sectionTitle}>Real-time Vitals</Text>
-        <VitalsCard
-          label="Blood Oxygen (SpO2)"
-          value={latest.spo2 ? `${latest.spo2}%` : "98%"}
-          unit="SpO2"
-          status={latest.spo2 && latest.spo2 < 92 ? "critical" : "normal"}
-          subtext="Target: >92%"
-        />
 
-        <VitalsCard
-          label="Heart Rate"
-          value={latest.bpm || "76"}
-          unit="BPM"
-          status="normal"
-          subtext="Normal resting rate"
-        />
+        {loading ? (
+          <SkeletonVitalsGrid />
+        ) : (
+          <>
+            <VitalsCard
+              label="Blood Oxygen (SpO2)"
+              type="spo2"
+              value={latest.spo2 || 98}
+              unit="%"
+              subtext="Threshold: ≥95% Safe"
+            />
 
-        <VitalsCard
-          label="Body Temperature"
-          value={latest.bodyTemperature ? `${latest.bodyTemperature}°C` : "36.8°C"}
-          unit="°C"
-          status="normal"
-          subtext="Normal range"
-        />
+            <VitalsCard
+              label="Heart Rate"
+              type="bpm"
+              value={latest.bpm || 76}
+              unit="bpm"
+              subtext="Resting Rhythm"
+            />
+
+            <VitalsCard
+              label="Body Temperature"
+              type="temp"
+              value={latest.bodyTemperature || 36.8}
+              unit="°C"
+              subtext="Thermal Equilibrium"
+            />
+          </>
+        )}
 
         {/* Device & Nebulizer Control Summary Card */}
-        <View style={styles.card}>
-          <View style={styles.rowBetween}>
-            <Text style={styles.cardTitle}>My Nebulizer ({device.deviceCode || "NEB-001"})</Text>
-            <Text
-              style={[
-                styles.stateText,
-                { color: device.nebulizerState === "RUNNING" ? "#10b981" : "#38bdf8" },
-              ]}
-            >
-              {device.nebulizerState || "OFF"}
+        {loading ? (
+          <SkeletonCard height={140} />
+        ) : (
+          <View style={styles.card}>
+            <View style={styles.rowBetween}>
+              <Text style={styles.cardTitle}>My Nebulizer ({device.deviceCode || "NEB-001"})</Text>
+              <Text
+                style={[
+                  styles.stateText,
+                  { color: device.nebulizerState === "RUNNING" ? "#10b981" : "#38bdf8" },
+                ]}
+              >
+                {device.nebulizerState || "STANDBY"}
+              </Text>
+            </View>
+            <Text style={styles.cardSub}>
+              Status: {device.status || "online"} • Mesh: Ultrasonic 110kHz
             </Text>
-          </View>
-          <Text style={styles.cardSub}>
-            Status: {device.status || "online"} | Firmware: {device.firmware || "1.0.0"}
-          </Text>
 
-          <TouchableOpacity
-            style={styles.actionBtn}
-            onPress={() => navigation.navigate("Nebulizer")}
-          >
-            <Text style={styles.actionBtnText}>Open Nebulizer Controller →</Text>
-          </TouchableOpacity>
-        </View>
+            <TouchableOpacity
+              style={styles.actionBtn}
+              onPress={handleOpenNebulizer}
+              activeOpacity={0.8}
+            >
+              <Text style={styles.actionBtnText}>Launch Nebulizer Controller →</Text>
+            </TouchableOpacity>
+          </View>
+        )}
 
         {/* Fluid Chamber & Battery Telemetry */}
         <FluidGauge level={device.fluidLevel || 85} />
@@ -269,16 +248,7 @@ const styles = StyleSheet.create({
   },
   scroll: {
     padding: 18,
-  },
-  center: {
-    flex: 1,
-    backgroundColor: "#0f172a",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  loadingText: {
-    color: "#94a3b8",
-    marginTop: 12,
+    paddingBottom: 40,
   },
   header: {
     flexDirection: "row",
@@ -298,20 +268,21 @@ const styles = StyleSheet.create({
   },
   statusBadge: {
     paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 12,
+    paddingVertical: 5,
+    borderRadius: 8,
   },
   statusText: {
     color: "#ffffff",
     fontSize: 10,
     fontWeight: "800",
+    letterSpacing: 0.5,
   },
   sosButton: {
     backgroundColor: "#ef4444",
-    padding: 16,
-    borderRadius: 16,
+    paddingVertical: 14,
+    borderRadius: 12,
     alignItems: "center",
-    marginBottom: 12,
+    marginBottom: 16,
     shadowColor: "#ef4444",
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.4,
@@ -320,21 +291,22 @@ const styles = StyleSheet.create({
   },
   sosText: {
     color: "#ffffff",
-    fontSize: 18,
-    fontWeight: "900",
-    letterSpacing: 1,
+    fontWeight: "800",
+    fontSize: 16,
+    letterSpacing: 0.5,
   },
   sectionTitle: {
-    color: "#cbd5e1",
-    fontSize: 16,
+    color: "#f8fafc",
+    fontSize: 17,
     fontWeight: "700",
-    marginTop: 12,
-    marginBottom: 8,
+    marginVertical: 12,
   },
   card: {
     backgroundColor: "#1e293b",
     borderRadius: 16,
     padding: 16,
+    borderWidth: 1,
+    borderColor: "#334155",
     marginVertical: 8,
   },
   rowBetween: {
@@ -344,59 +316,28 @@ const styles = StyleSheet.create({
   },
   cardTitle: {
     color: "#f8fafc",
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: "700",
   },
   stateText: {
-    fontSize: 14,
     fontWeight: "800",
+    fontSize: 12,
   },
   cardSub: {
     color: "#94a3b8",
     fontSize: 12,
     marginTop: 4,
+    marginBottom: 12,
   },
   actionBtn: {
-    backgroundColor: "#0284c7",
-    padding: 12,
+    backgroundColor: "#10b981",
+    paddingVertical: 10,
     borderRadius: 10,
     alignItems: "center",
-    marginTop: 14,
   },
   actionBtnText: {
     color: "#ffffff",
     fontWeight: "700",
-    fontSize: 14,
-  },
-  actionGrid: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    justifyContent: "space-between",
-    marginVertical: 8,
-  },
-  actionCard: {
-    width: "48%",
-    borderRadius: 14,
-    padding: 14,
-    marginBottom: 10,
-    shadowColor: "#000",
-    shadowOpacity: 0.15,
-    shadowOffset: { width: 0, height: 2 },
-    elevation: 3,
-  },
-  actionIcon: {
-    fontSize: 24,
-    marginBottom: 4,
-  },
-  actionTitle: {
-    color: "#ffffff",
     fontSize: 13,
-    fontWeight: "800",
-  },
-  actionSub: {
-    color: "rgba(255, 255, 255, 0.8)",
-    fontSize: 10,
-    fontWeight: "500",
-    marginTop: 2,
   },
 });

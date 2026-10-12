@@ -29,6 +29,7 @@ COPY --from=builder --chown=smartneb:smartneb /usr/src/app/node_modules ./node_m
 COPY --from=builder --chown=smartneb:smartneb /usr/src/app/prisma ./prisma
 COPY --chown=smartneb:smartneb server.js ./
 COPY --chown=smartneb:smartneb scripts ./scripts/
+COPY --chown=smartneb:smartneb services ./services/
 
 USER smartneb
 

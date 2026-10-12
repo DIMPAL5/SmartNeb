@@ -4,6 +4,7 @@ import { useAuth } from "../../context/AuthContext";
 import { useSocket } from "../../context/SocketContext";
 import { apiClient } from "../../api/client";
 import { FluidGauge } from "../../components/FluidGauge";
+import { AppHaptics } from "../../utils/haptics";
 
 export const NebulizerControlScreen = () => {
   const { user } = useAuth();
@@ -64,13 +65,24 @@ export const NebulizerControlScreen = () => {
       Alert.alert("Error", "No assigned nebulizer device found");
       return;
     }
+
+    if (command === "START" || command === "RESUME") {
+      await AppHaptics.triggerMediumImpact();
+    } else if (command === "STOP") {
+      await AppHaptics.triggerHeavyImpact();
+    } else {
+      await AppHaptics.triggerLightImpact();
+    }
+
     setLoadingCmd(true);
     try {
       const res = await apiClient.post(`/devices/${device.id}/command`, { command });
       if (res.data?.state) {
         setCurrentState(res.data.state as any);
+        await AppHaptics.triggerSuccess();
       }
     } catch (err: any) {
+      await AppHaptics.triggerError();
       Alert.alert(
         "Command Failed",
         err.response?.data?.error || "Failed to communicate with device",

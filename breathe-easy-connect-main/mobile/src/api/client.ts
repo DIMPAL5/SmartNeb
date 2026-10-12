@@ -1,30 +1,38 @@
 import axios from "axios";
-import { Platform } from "react-native";
 import { storage } from "../utils/storage";
 
-// Base API URL pointing to Hosted Production Backend or local dev environment
-const getBaseApiUrl = (): string => {
-  if (process.env.EXPO_PUBLIC_API_URL) {
-    return process.env.EXPO_PUBLIC_API_URL;
-  }
-  if (Platform.OS === "web" && typeof window !== "undefined" && window.location?.hostname === "localhost") {
-    return "http://localhost:5000/api/v1";
-  }
-  return "http://192.168.1.9:5000/api/v1";
-};
+import {
+  getActiveApiUrl,
+  setCustomApiUrl,
+  resetCustomApiUrl,
+  PRODUCTION_API_URL,
+  API_BASE_URL,
+  getHealthEndpoint,
+} from "../config";
 
-export const API_BASE_URL = getBaseApiUrl();
+// Backward-compatible exports
+export {
+  getActiveApiUrl,
+  setCustomApiUrl,
+  resetCustomApiUrl,
+  PRODUCTION_API_URL,
+  API_BASE_URL,
+  getHealthEndpoint,
+};
+export const DEFAULT_API_URL = PRODUCTION_API_URL;
+
 
 export const apiClient = axios.create({
-  baseURL: API_BASE_URL,
+  baseURL: getActiveApiUrl(),
   headers: {
     "Content-Type": "application/json",
   },
-  timeout: 10000,
+  timeout: 12000,
 });
 
 apiClient.interceptors.request.use(
   async (config) => {
+    config.baseURL = getActiveApiUrl();
     const token = await storage.getItem("accessToken");
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
@@ -43,7 +51,7 @@ apiClient.interceptors.response.use(
       try {
         const refreshToken = await storage.getItem("refreshToken");
         if (refreshToken) {
-          const res = await axios.post(`${API_BASE_URL}/auth/refresh`, { refreshToken });
+          const res = await axios.post(`${getActiveApiUrl()}/auth/refresh`, { refreshToken });
           if (res.data.accessToken) {
             await storage.setItem("accessToken", res.data.accessToken);
             apiClient.defaults.headers.common.Authorization = `Bearer ${res.data.accessToken}`;
@@ -51,7 +59,7 @@ apiClient.interceptors.response.use(
             return apiClient(originalRequest);
           }
         }
-      } catch (err) {
+      } catch (_err) {
         await storage.removeItem("accessToken");
         await storage.removeItem("refreshToken");
       }
@@ -59,3 +67,23 @@ apiClient.interceptors.response.use(
     return Promise.reject(error);
   },
 );
+
+/**
+ * Executes an API call with exponential backoff retry for network errors or 5xx server failures.
+ */
+export async function fetchWithBackoffRetry<T>(
+  apiFn: () => Promise<T>,
+  retries = 2,
+  delayMs = 1000,
+): Promise<T> {
+  try {
+    return await apiFn();
+  } catch (err: any) {
+    const isNetworkOrServerError = !err.response || (err.response.status >= 500 && err.response.status < 600);
+    if (retries > 0 && isNetworkOrServerError) {
+      await new Promise((resolve) => setTimeout(resolve, delayMs));
+      return fetchWithBackoffRetry(apiFn, retries - 1, delayMs * 2);
+    }
+    throw err;
+  }
+}

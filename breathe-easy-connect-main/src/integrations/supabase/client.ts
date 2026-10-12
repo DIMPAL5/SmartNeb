@@ -8,7 +8,20 @@ function isNewSupabaseApiKey(value: string): boolean {
 }
 
 function createSupabaseFetch(supabaseKey: string): typeof fetch {
-  return (input, init) => {
+  return async (input, init) => {
+    const urlStr = typeof input === "string" ? input : (input as any)?.url || "";
+    if (urlStr.includes("placeholder-supabase.supabase.co")) {
+      const headers = new Headers(init?.headers);
+      const isSingle = headers.get("accept")?.includes("vnd.pgrst.object");
+      return new Response(JSON.stringify(isSingle ? null : []), {
+        status: 200,
+        headers: {
+          "Content-Type": "application/json",
+          "content-range": "0-0/0",
+        },
+      });
+    }
+
     const headers = new Headers(
       typeof Request !== "undefined" && input instanceof Request ? input.headers : undefined,
     );
@@ -33,18 +46,22 @@ function createSupabaseFetch(supabaseKey: string): typeof fetch {
 function createSupabaseClient() {
   // Use import.meta.env for client-side (Vite build-time replacement)
   // Fall back to process.env for SSR (server-side rendering)
-  const SUPABASE_URL =
-    import.meta.env["VITE_SUPABASE_URL"] ||
-    process.env["SUPABASE_URL"] ||
-    "https://xaotsjwxodtnobilpmah.supabase.co";
+  const SUPABASE_URL = import.meta.env["VITE_SUPABASE_URL"] || process.env["SUPABASE_URL"];
   const SUPABASE_PUBLISHABLE_KEY =
-    import.meta.env["VITE_SUPABASE_PUBLISHABLE_KEY"] ||
-    process.env["SUPABASE_PUBLISHABLE_KEY"] ||
-    "sb_publishable_fzvjEt_A-0boIMjH_DGV-w_DrFTiB6v";
+    import.meta.env["VITE_SUPABASE_PUBLISHABLE_KEY"] || process.env["SUPABASE_PUBLISHABLE_KEY"];
 
-  return createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
+  const url = SUPABASE_URL || "https://placeholder-supabase.supabase.co";
+  const key =
+    SUPABASE_PUBLISHABLE_KEY ||
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBsYWNlaG9sZGVyIiwicm9sZSI6ImFub24iLCJpYXQiOjE2MDAwMDAwMDAsImV4cCI6MjAwMDAwMDAwMH0.dummy_signature";
+
+  if (!SUPABASE_URL || !SUPABASE_PUBLISHABLE_KEY) {
+    console.warn("[Supabase] Environment variables missing. Using fallback dummy client for local development.");
+  }
+
+  return createClient<Database>(url, key, {
     global: {
-      fetch: createSupabaseFetch(SUPABASE_PUBLISHABLE_KEY),
+      fetch: createSupabaseFetch(key),
     },
     auth: {
       storage: brokeredPreviewStorage(),

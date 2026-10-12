@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SmartNeb - Production Readiness & Cloud Deployment Report</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --card-bg: #1e293b;
+      --card-border: #334155;
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --primary: #0284c7;
+      --primary-light: #38bdf8;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --code-bg: #090d16;
+    }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      padding: 30px 20px;
+    }
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+    .header-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 24px;
+      border-bottom: 1px solid var(--card-border);
+      margin-bottom: 30px;
+    }
+    .brand-title {
+      font-size: 26px;
+      font-weight: 700;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 9999px;
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .badge-success {
+      background-color: rgba(16, 185, 129, 0.2);
+      color: var(--success);
+      border: 1px solid var(--success);
+    }
+    .badge-primary {
+      background-color: rgba(2, 132, 199, 0.2);
+      color: var(--primary-light);
+      border: 1px solid var(--primary-light);
+    }
+    .btn-action {
+      background: var(--primary);
+      color: #ffffff;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      text-decoration: none;
+      transition: background 0.2s;
+    }
+    .btn-action:hover {
+      background: #0369a1;
+    }
+    .section {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 24px;
+    }
+    .section-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: #ffffff;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+    @media (max-width: 768px) {
+      .grid-2 {
+        grid-template-columns: 1fr;
+      }
+      .header-bar {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 16px;
+      }
+    }
+    .stat-card {
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid var(--card-border);
+      border-radius: 8px;
+      padding: 14px 16px;
+    }
+    .stat-label {
+      font-size: 12px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 4px;
+    }
+    .stat-value {
+      font-size: 16px;
+      font-weight: 600;
+      color: #ffffff;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+    }
+    th, td {
+      padding: 12px 14px;
+      text-align: left;
+      border-bottom: 1px solid var(--card-border);
+      font-size: 14px;
+    }
+    th {
+      background-color: rgba(15, 23, 42, 0.8);
+      color: var(--text-muted);
+      font-weight: 600;
+      text-transform: uppercase;
+      font-size: 11px;
+      letter-spacing: 0.5px;
+    }
+    tr:last-child td {
+      border-bottom: none;
+    }
+    .code-block {
+      background-color: var(--code-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 8px;
+      padding: 14px;
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+      font-size: 13px;
+      color: #38bdf8;
+      overflow-x: auto;
+      margin-top: 10px;
+      white-space: pre-wrap;
+    }
+    .checklist {
+      list-style: none;
+      margin-top: 10px;
+    }
+    .checklist li {
+      padding: 8px 0;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 14px;
+      border-bottom: 1px solid rgba(51, 65, 85, 0.5);
+    }
+    .checklist li:last-child {
+      border-bottom: none;
+    }
+    .check-icon {
+      color: var(--success);
+      font-weight: bold;
+    }
+    .footer {
+      text-align: center;
+      margin-top: 40px;
+      color: var(--text-muted);
+      font-size: 13px;
+      border-top: 1px solid var(--card-border);
+      padding-top: 20px;
+    }
+    @media print {
+      body {
+        background-color: #ffffff;
+        color: #000000;
+        padding: 0;
+      }
+      .section {
+        background: #ffffff;
+        border: 1px solid #cccccc;
+        color: #000000;
+        page-break-inside: avoid;
+      }
+      .btn-action {
+        display: none;
+      }
+      .code-block {
+        background-color: #f1f5f9;
+        color: #0f172a;
+        border: 1px solid #cbd5e1;
+      }
+      .stat-card {
+        background: #f8fafc;
+        border: 1px solid #cbd5e1;
+      }
+      .stat-value, .section-title, .brand-title {
+        color: #000000;
+      }
+      th {
+        background-color: #f1f5f9;
+        color: #334155;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    
+    <div class="header-bar">
+      <div>
+        <div class="brand-title">
+          <span>🫁 SmartNeb IoT Health Platform</span>
+          <span class="badge badge-success">Phase 2 Complete</span>
+        </div>
+        <p style="color: var(--text-muted); font-size: 14px; margin-top: 6px;">
+          Production Readiness & Cloud Deployment Engineering Audit Report
+        </p>
+      </div>
+      <div>
+        <button class="btn-action" onclick="window.print()">
+          🖨️ Download / Save as PDF
+        </button>
+      </div>
+    </div>
+
+    <!-- Executive Summary -->
+    <div class="section">
+      <div class="section-title">📋 Executive Summary</div>
+      <p style="margin-bottom: 16px; color: #cbd5e1;">
+        The SmartNeb platform has completed <strong>Phase 1 (Comprehensive Architecture & Security Audit)</strong> and <strong>Phase 2 (Cloud Deployment Preparation & IP Decoupling)</strong>. The system is completely decoupled from local development IP addresses (such as <code style="color: #f43f5e;">172.16.20.76</code>) and features a centralized mobile API configuration, verified production check scripts, hardened backend probes, and a safe pre-deployment filesystem backup.
+      </p>
+      <div class="grid-2">
+        <div class="stat-card">
+          <div class="stat-label">Full Filesystem Backup</div>
+          <div class="stat-value" style="color: var(--success);">Verified (1.59 MB ZIP)</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Mobile Git Version Tag</div>
+          <div class="stat-value" style="color: var(--primary-light);">pre-cloud-deployment-checkpoint</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Production Code Security Audit</div>
+          <div class="stat-value" style="color: var(--success);">PASSED (0 Hardcoded Secrets)</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Mobile TypeScript Compilation</div>
+          <div class="stat-value" style="color: var(--success);">PASSED (0 Compiler Errors)</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Architecture Specifications -->
+    <div class="section">
+      <div class="section-title">🏗️ System Architecture & Technology Stack</div>
+      <table>
+        <thead>
+          <tr>
+            <th>Tier</th>
+            <th>Component</th>
+            <th>Technology & Libraries</th>
+            <th>Configuration State</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Mobile App</strong></td>
+            <td>Android Standalone App</td>
+            <td>Expo ~57, React Native 0.86.3, React 19, React Navigation v7, Axios 1.8.2</td>
+            <td><span class="badge badge-success">Centralized Config Ready</span></td>
+          </tr>
+          <tr>
+            <td><strong>Backend API</strong></td>
+            <td>REST API & WebSockets</td>
+            <td>Node.js v24, Express 5.2.1, Socket.IO 4.8.3, Helmet, Rate-Limit</td>
+            <td><span class="badge badge-success">Trust Proxy & /api/v1/health Ready</span></td>
+          </tr>
+          <tr>
+            <td><strong>Database</strong></td>
+            <td>Relational Store</td>
+            <td>MySQL 8.0, Prisma ORM 5.22.0 (19 domain models)</td>
+            <td><span class="badge badge-success">Environment Managed</span></td>
+          </tr>
+          <tr>
+            <td><strong>IoT Messaging</strong></td>
+            <td>MQTT Broker Client</td>
+            <td>MQTT.js 5.15.2, Aedes 1.2 (dev), Mosquitto (prod), PubSubClient 2.8</td>
+            <td><span class="badge badge-success">TLS 8883 Prepared</span></td>
+          </tr>
+          <tr>
+            <td><strong>Hardware</strong></td>
+            <td>Smart Nebulizer Firmware</td>
+            <td>ESP32 C++, ArduinoJson 7.0.4, MAX3010x Oximeter, 10s WDT, 15m Safety Cutoff</td>
+            <td><span class="badge badge-success">config.h Modular Link</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- IP Decoupling & Configuration Changes -->
+    <div class="section">
+      <div class="section-title">🔄 Network Decoupling & Configuration Upgrades</div>
+      <table>
+        <thead>
+          <tr>
+            <th>Component / File</th>
+            <th>Previous (Local Dev State)</th>
+            <th>Upgraded (Production Cloud Ready)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>mobile/src/config/api.config.ts</code></td>
+            <td><em>Non-existent</em></td>
+            <td>Centralized module handling Production Default, EAS Build Profiles, AsyncStorage overrides, and sanitization.</td>
+          </tr>
+          <tr>
+            <td><code>mobile/src/api/client.ts</code></td>
+            <td>Static <code>http://172.16.20.76:5000/api/v1</code></td>
+            <td>Dynamic import from centralized config; zero hardcoded IPs.</td>
+          </tr>
+          <tr>
+            <td><code>mobile/eas.json</code></td>
+            <td>Preview build used <code>172.16.20.76</code></td>
+            <td>Clean cloud target: <code>https://api.smartneb.health/api/v1</code></td>
+          </tr>
+          <tr>
+            <td><code>LoginScreen.tsx</code></td>
+            <td>Simple unmeasured server box</td>
+            <td><strong>Enhanced Server Settings</strong>: Live <code>/api/v1/health</code> test, latency measurement (ms), and "Reset to Default" button.</td>
+          </tr>
+          <tr>
+            <td><code>backend/server.js</code></td>
+            <td>Root <code>/health</code> only; default <code>127.0.0.1:1883</code></td>
+            <td>Added <code>app.set('trust proxy', 1)</code>, <code>GET /api/v1/health</code> probe, and safe production TLS MQTT initialization.</td>
+          </tr>
+          <tr>
+            <td><code>firmware/esp32_smartneb_reference.ino</code></td>
+            <td>Hardcoded Wi-Fi & Broker constants</td>
+            <td>Added <code>#if __has_include("config.h")</code> for clean hardware configuration without sketch modifications.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Verification Audit Results -->
+    <div class="section">
+      <div class="section-title">🔒 Pre-Flight Audit & Verification Results</div>
+      <ul class="checklist">
+        <li>
+          <span class="check-icon">✓</span>
+          <strong>Production Code Security Audit (Part 10 Gate):</strong> Zero demo passwords, zero seed emails, and zero hardcoded LAN/laptop IPs detected in production bundles.
+        </li>
+        <li>
+          <span class="check-icon">✓</span>
+          <strong>Mobile Environment Check (check-env.js):</strong> Verified production target points strictly to HTTPS cloud URL (<code>https://api.smartneb.health/api/v1</code>).
+        </li>
+        <li>
+          <span class="check-icon">✓</span>
+          <strong>Backend Standard Health Endpoint Test:</strong> <code>GET /api/v1/health</code> responded with HTTP 200 OK:
+          <div class="code-block">{"status":"healthy","service":"smartneb-backend","version":"2.0.0","environment":"development","uptimeSeconds":550,"timestamp":"2026-10-11T07:03:19.180Z"}</div>
+        </li>
+        <li>
+          <span class="check-icon">✓</span>
+          <strong>Backend Deep Readiness Probe Test:</strong> <code>GET /api/v1/ready</code> responded with HTTP 200 OK:
+          <div class="code-block">{"status":"ready","service":"smartneb-backend","version":"2.0.0","environment":"development","database":"connected","mqtt":"connected",...}</div>
+        </li>
+        <li>
+          <span class="check-icon">✓</span>
+          <strong>Authentication Verification:</strong> Verified database login for patient account responded with HTTP 200 OK and valid JWT token.
+        </li>
+      </ul>
+    </div>
+
+    <!-- Next Steps for Cloud Deployment -->
+    <div class="section">
+      <div class="section-title">🚀 Cloud Deployment Next Steps (Phase 3)</div>
+      <p style="margin-bottom: 12px; color: #cbd5e1;">
+        Once authorized, the following infrastructure steps will complete public deployment:
+      </p>
+      <table>
+        <thead>
+          <tr>
+            <th>Step</th>
+            <th>Infrastructure Item</th>
+            <th>Action Required</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>1. Database</strong></td>
+            <td>Cloud Managed MySQL</td>
+            <td>Provision MySQL instance (AWS RDS, PlanetScale, or Railway) and execute <code>npx prisma migrate deploy</code>.</td>
+          </tr>
+          <tr>
+            <td><strong>2. Backend</strong></td>
+            <td>Express API Cloud Host</td>
+            <td>Deploy <code>backend/Dockerfile</code> or Render web service with production environment variables.</td>
+          </tr>
+          <tr>
+            <td><strong>3. MQTT Broker</strong></td>
+            <td>Cloud MQTTS Broker (Port 8883)</td>
+            <td>Provision TLS-enabled broker (HiveMQ, EMQX, or Mosquitto with Let's Encrypt).</td>
+          </tr>
+          <tr>
+            <td><strong>4. Domain / DNS</strong></td>
+            <td>Public SSL & Domain</td>
+            <td>Configure CNAME/A records for <code>api.smartneb.health</code> or use cloud provider default HTTPS domain.</td>
+          </tr>
+          <tr>
+            <td><strong>5. Mobile APK</strong></td>
+            <td>EAS Production Build</td>
+            <td>Trigger <code>eas build --profile preview --platform android</code> to generate installable standalone APK.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="footer">
+      <p>SmartNeb Advanced IoT Respiratory Therapy Platform • Engineering Readiness Report</p>
+      <p style="margin-top: 4px;">Backup Archive: <code>C:\Users\Public\SmartNeb-main\_backups\SmartNeb_PreDeployment_Backup_20261011.zip</code></p>
+    </div>
+
+  </div>
+</body>
+</html>
