@@ -13,19 +13,19 @@ import { storage } from "../utils/storage";
 
 export const STORAGE_KEY_CUSTOM_API_URL = "customApiUrl";
 
-// Live active backend HTTPS endpoint (Works immediately out-of-the-box on every phone)
-export const LIVE_BACKEND_API_URL = "https://fitted-countries-calculate-travesti.trycloudflare.com/api/v1";
-
-// Permanent Render Cloud Blueprint endpoint
+// Permanent Render Cloud Production Backend endpoint
 export const RENDER_PRODUCTION_API_URL = "https://smartneb-backend-api.onrender.com/api/v1";
+
+// Live active backend HTTPS endpoint (Points directly to Render production backend)
+export const LIVE_BACKEND_API_URL = RENDER_PRODUCTION_API_URL;
 
 // Permanent Railway Cloud deployment endpoint
 export const RAILWAY_PRODUCTION_API_URL = "https://smartneb-backend-api.up.railway.app/api/v1";
 
 // Default Production Target
-export const PRODUCTION_API_URL = LIVE_BACKEND_API_URL;
-export const DEVELOPMENT_DEFAULT_API_URL = LIVE_BACKEND_API_URL;
-export const API_BASE_URL = LIVE_BACKEND_API_URL;
+export const PRODUCTION_API_URL = RENDER_PRODUCTION_API_URL;
+export const DEVELOPMENT_DEFAULT_API_URL = RENDER_PRODUCTION_API_URL;
+export const API_BASE_URL = RENDER_PRODUCTION_API_URL;
 
 /**
  * Detects whether the current bundle is a production release build.
