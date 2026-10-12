@@ -5,7 +5,8 @@ services:
     env: node
     region: oregon
     plan: free
-    buildCommand: npm ci --omit=dev && npx prisma generate && npx prisma db push
+    rootDir: breathe-easy-connect-main/backend
+    buildCommand: npm ci --omit=dev && node scripts/prepare-db.js && npx prisma generate && npx prisma db push && node scripts/seed-demo-users.js
     startCommand: node server.js
     healthCheckPath: /api/v1/health
     autoDeploy: true
