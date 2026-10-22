@@ -2,7 +2,7 @@
   "expo": {
     "name": "SmartNeb Health",
     "slug": "smartneb-health",
-    "version": "2.0.6",
+    "version": "2.0.7",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",
@@ -25,7 +25,7 @@
     },
     "android": {
       "package": "com.smartneb.health",
-      "versionCode": 10,
+      "versionCode": 11,
       "usesCleartextTraffic": true,
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
@@ -38,6 +38,8 @@
         "BLUETOOTH_CONNECT",
         "BLUETOOTH_SCAN",
         "ACCESS_FINE_LOCATION",
+        "ACCESS_NETWORK_STATE",
+        "ACCESS_WIFI_STATE",
         "INTERNET",
         "VIBRATE"
       ]
