@@ -34,7 +34,12 @@ export const HealthMonitoringScreen = () => {
   }, [user?.patientId]);
 
   useEffect(() => {
-    if (latestVitalsUpdate && latestVitalsUpdate.patientId === user?.patientId) {
+    if (
+      latestVitalsUpdate &&
+      (!latestVitalsUpdate.patientId ||
+        latestVitalsUpdate.patientId === user?.patientId ||
+        latestVitalsUpdate.source === "firebase_rtdb")
+    ) {
       setHistory((prev) => [latestVitalsUpdate.telemetry, ...prev.slice(0, 49)]);
       setLastUpdated(new Date().toLocaleTimeString());
     }

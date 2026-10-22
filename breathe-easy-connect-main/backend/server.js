@@ -15,6 +15,7 @@ const mqtt = require("mqtt");
 require("dotenv").config();
 const { sendPushNotification } = require("./services/push-notification.service");
 const { requestSmsOtp, verifySmsOtp } = require("./services/sms-otp.service");
+const { firebaseSyncService } = require("./services/firebaseSyncService");
 
 const prisma = new PrismaClient();
 
@@ -1022,6 +1023,10 @@ app.post("/api/v1/devices/:id/command", authenticateToken, async (req, res) => {
       cmdId: cmdRecord.id,
     });
 
+    // Actuate physical Firebase Realtime Database Relay (ESP32)
+    const relayState = newState === "STARTING" || newState === "RUNNING";
+    firebaseSyncService.setRelay(device.deviceCode || "Patient1", relayState).catch(() => null);
+
     if (mqttClient && mqttClient.connected) {
       const topic = `hospitals/${device.hospitalId || "default"}/devices/${device.deviceCode}/commands`;
       mqttClient.publish(
@@ -1931,6 +1936,7 @@ const gracefulShutdown = async (signal) => {
         await new Promise((resolve) => mqttClient.end(false, resolve));
         console.log("✓ MQTT client connection closed.");
       }
+      firebaseSyncService.stopSync();
       await prisma.$disconnect();
       console.log("✓ Database connection closed.");
       process.exit(0);
@@ -1963,6 +1969,9 @@ if (require.main === module) {
     console.log(`✓ WebSocket & Socket.IO bridge active`);
     console.log(`✓ Health endpoints: http://${HOST}:${PORT}/health & /ready`);
     console.log(`==================================================\n`);
+
+    // Start background Firebase Realtime Database telemetry bridge
+    firebaseSyncService.startSync({ prisma, io });
   });
 }
 

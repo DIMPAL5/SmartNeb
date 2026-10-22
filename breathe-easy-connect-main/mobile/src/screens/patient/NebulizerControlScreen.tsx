@@ -8,7 +8,7 @@ import { AppHaptics } from "../../utils/haptics";
 
 export const NebulizerControlScreen = () => {
   const { user } = useAuth();
-  const { nebulizerState } = useSocket();
+  const { nebulizerState, setNebulizerRelay } = useSocket();
   const [device, setDevice] = useState<any>(null);
   const [currentState, setCurrentState] = useState<
     "OFF" | "READY" | "STARTING" | "RUNNING" | "PAUSED" | "COMPLETED" | "ERROR"
@@ -73,6 +73,9 @@ export const NebulizerControlScreen = () => {
     } else {
       await AppHaptics.triggerLightImpact();
     }
+
+    const relayTarget = command === "START" || command === "RESUME";
+    setNebulizerRelay(relayTarget).catch(() => null);
 
     setLoadingCmd(true);
     try {

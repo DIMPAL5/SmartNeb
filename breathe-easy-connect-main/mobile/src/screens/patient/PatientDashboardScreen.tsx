@@ -60,12 +60,20 @@ export const PatientDashboardScreen = ({ navigation }: any) => {
   }, [user?.patientId]);
 
   useEffect(() => {
-    if (latestVitalsUpdate && latestVitalsUpdate.patientId === user?.patientId) {
+    if (
+      latestVitalsUpdate &&
+      (!latestVitalsUpdate.patientId ||
+        latestVitalsUpdate.patientId === user?.patientId ||
+        latestVitalsUpdate.source === "firebase_rtdb")
+    ) {
       setSnapshot((prev: any) => {
         if (!prev) return prev;
         return {
           ...prev,
-          latestVitals: latestVitalsUpdate.telemetry || prev.latestVitals,
+          latestVitals: {
+            ...prev.latestVitals,
+            ...latestVitalsUpdate.telemetry,
+          },
         };
       });
     }
