@@ -18,7 +18,7 @@ interface VitalsCardProps {
  * Determine medical zone based on clinical thresholds
  */
 export function calculateVitalStatus(type: VitalType, val: number | null | undefined): VitalHealthStatus {
-  if (val == null || isNaN(val)) return "normal";
+  if (val == null || isNaN(val) || val <= 0 || val === 85 || val === -127 || val <= -990) return "normal";
 
   if (type === "spo2") {
     if (val >= 95) return "normal";
@@ -35,7 +35,8 @@ export function calculateVitalStatus(type: VitalType, val: number | null | undef
   if (type === "temp") {
     if (val >= 36.1 && val <= 37.5) return "normal";
     if (val > 37.5 && val <= 38.3) return "warning";
-    return "critical";
+    if (val > 38.3 || (val > 0 && val < 35.0)) return "critical";
+    return "normal";
   }
 
   return "normal";
@@ -51,8 +52,16 @@ export const VitalsCard: React.FC<VitalsCardProps> = ({
   trend,
 }) => {
   const numericVal = typeof value === "number" ? value : Number(value);
-  const status: VitalHealthStatus =
-    explicitStatus || calculateVitalStatus(type, isNaN(numericVal) ? null : numericVal);
+  const isInvalidReading =
+    value == null ||
+    value === "" ||
+    value === "--" ||
+    isNaN(numericVal) ||
+    (type === "temp" && (numericVal <= 0 || numericVal === 85 || numericVal === -127 || numericVal <= -990 || numericVal > 65));
+
+  const status: VitalHealthStatus = isInvalidReading
+    ? "normal"
+    : explicitStatus || calculateVitalStatus(type, numericVal);
 
   // Pulsing animation for Critical / Red alert state
   const pulseAnim = useRef(new Animated.Value(1)).current;
@@ -97,6 +106,16 @@ export const VitalsCard: React.FC<VitalsCardProps> = ({
   }, [status]);
 
   const getColorConfig = () => {
+    if (isInvalidReading) {
+      return {
+        primary: "#64748b",
+        badgeBg: "rgba(100, 116, 139, 0.15)",
+        cardBorder: "#334155",
+        label: "NO SENSOR",
+        hint: type === "temp" ? "Sensor not detected / check probe wiring" : "No active sensor reading",
+      };
+    }
+
     switch (status) {
       case "critical":
         return {
@@ -127,6 +146,7 @@ export const VitalsCard: React.FC<VitalsCardProps> = ({
   };
 
   const colors = getColorConfig();
+  const displayVal = isInvalidReading ? "--" : typeof value === "number" ? value.toFixed(1) : value;
 
   return (
     <View style={[styles.card, { borderColor: colors.cardBorder }]}>
@@ -158,9 +178,9 @@ export const VitalsCard: React.FC<VitalsCardProps> = ({
 
       <View style={styles.valueRow}>
         <Text style={[styles.value, status === "critical" && { color: "#f87171" }]}>
-          {value != null && value !== "" ? value : "--"}
+          {displayVal}
         </Text>
-        <Text style={styles.unit}>{unit}</Text>
+        <Text style={styles.unit}>{isInvalidReading ? "" : unit}</Text>
       </View>
 
       <View style={styles.footerRow}>
@@ -175,12 +195,13 @@ export const VitalsCard: React.FC<VitalsCardProps> = ({
             styles.thresholdFill,
             {
               backgroundColor: colors.primary,
-              width:
-                status === "critical"
-                  ? "100%"
-                  : status === "warning"
-                  ? "70%"
-                  : "40%",
+              width: isInvalidReading
+                ? "0%"
+                : status === "critical"
+                ? "100%"
+                : status === "warning"
+                ? "70%"
+                : "40%",
             },
           ]}
         />
@@ -198,9 +219,9 @@ const styles = StyleSheet.create({
     marginVertical: 6,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.25,
-    shadowRadius: 6,
-    elevation: 4,
+    shadowOpacity: 0.15,
+    shadowRadius: 8,
+    elevation: 3,
   },
   header: {
     flexDirection: "row",
@@ -215,13 +236,15 @@ const styles = StyleSheet.create({
   },
   label: {
     color: "#94a3b8",
-    fontSize: 14,
+    fontSize: 13,
     fontWeight: "700",
-    letterSpacing: 0.3,
+    textTransform: "uppercase",
+    letterSpacing: 0.8,
   },
   trendText: {
-    color: "#64748b",
-    fontSize: 12,
+    fontSize: 11,
+    color: "#38bdf8",
+    fontWeight: "600",
   },
   badgeWrapper: {
     position: "relative",
@@ -231,7 +254,7 @@ const styles = StyleSheet.create({
   pulseRing: {
     position: "absolute",
     width: "115%",
-    height: "140%",
+    height: "125%",
     borderRadius: 14,
     borderWidth: 2,
   },
@@ -256,38 +279,36 @@ const styles = StyleSheet.create({
   valueRow: {
     flexDirection: "row",
     alignItems: "baseline",
-    marginTop: 2,
+    marginVertical: 4,
+    gap: 6,
   },
   value: {
     color: "#f8fafc",
     fontSize: 34,
-    fontWeight: "800",
-    letterSpacing: -0.5,
+    fontWeight: "900",
+    letterSpacing: -1,
   },
   unit: {
-    color: "#94a3b8",
-    fontSize: 16,
-    fontWeight: "600",
-    marginLeft: 6,
+    color: "#64748b",
+    fontSize: 14,
+    fontWeight: "700",
   },
   footerRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
     marginTop: 6,
+    gap: 2,
   },
   hintText: {
-    color: "#64748b",
-    fontSize: 11,
-    fontWeight: "500",
+    color: "#cbd5e1",
+    fontSize: 12,
+    fontWeight: "600",
   },
   subtext: {
     color: "#64748b",
     fontSize: 11,
   },
   thresholdTrack: {
-    height: 3,
-    backgroundColor: "rgba(255, 255, 255, 0.08)",
+    height: 4,
+    backgroundColor: "#334155",
     borderRadius: 2,
     marginTop: 10,
     overflow: "hidden",

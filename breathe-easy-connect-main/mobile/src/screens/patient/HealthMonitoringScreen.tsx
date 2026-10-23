@@ -46,6 +46,7 @@ export const HealthMonitoringScreen = () => {
   }, [latestVitalsUpdate]);
 
   const latest = history[0] || {};
+  const currentTemp = latest.bodyTemperature ?? latest.temperature ?? null;
 
   return (
     <ScrollView
@@ -110,10 +111,14 @@ export const HealthMonitoringScreen = () => {
 
       <VitalsCard
         label="Body Temperature"
-        value={latest.bodyTemperature || 36.8}
+        value={currentTemp}
         unit="°C"
         type="temp"
-        subtext="Continuous biometric thermal reading"
+        subtext={
+          currentTemp != null
+            ? "Continuous biometric thermal reading"
+            : "Sensor not detected (DS18B20 / MLX90614)"
+        }
       />
 
       {/* Telemetry Stream Log Table/List */}
@@ -125,18 +130,23 @@ export const HealthMonitoringScreen = () => {
           <Text style={[styles.th, { flex: 1 }]}>BPM</Text>
           <Text style={[styles.th, { flex: 1 }]}>Temp</Text>
         </View>
-        {history.slice(0, 10).map((row: any, idx: number) => (
-          <View key={row.id || idx} style={styles.tr}>
-            <Text style={[styles.td, { flex: 2 }]}>
-              {new Date(row.recordedAt || Date.now()).toLocaleTimeString()}
-            </Text>
-            <Text style={[styles.td, { flex: 1, color: row.spo2 < 92 ? "#ef4444" : "#38bdf8" }]}>
-              {row.spo2 || 98}%
-            </Text>
-            <Text style={[styles.td, { flex: 1 }]}>{row.bpm || 76}</Text>
-            <Text style={[styles.td, { flex: 1 }]}>{row.bodyTemperature || 36.8}°C</Text>
-          </View>
-        ))}
+        {history.slice(0, 10).map((row: any, idx: number) => {
+          const rowTemp = row.bodyTemperature ?? row.temperature ?? null;
+          return (
+            <View key={row.id || idx} style={styles.tr}>
+              <Text style={[styles.td, { flex: 2 }]}>
+                {new Date(row.recordedAt || Date.now()).toLocaleTimeString()}
+              </Text>
+              <Text style={[styles.td, { flex: 1, color: row.spo2 < 92 ? "#ef4444" : "#38bdf8" }]}>
+                {row.spo2 ? `${row.spo2}%` : "--"}
+              </Text>
+              <Text style={[styles.td, { flex: 1 }]}>{row.bpm || "--"}</Text>
+              <Text style={[styles.td, { flex: 1 }]}>
+                {rowTemp != null ? `${Number(rowTemp).toFixed(1)}°C` : "--"}
+              </Text>
+            </View>
+          );
+        })}
       </View>
     </ScrollView>
   );
@@ -148,7 +158,8 @@ const styles = StyleSheet.create({
     backgroundColor: "#0f172a",
   },
   scroll: {
-    padding: 18,
+    padding: 20,
+    paddingBottom: 40,
   },
   title: {
     color: "#f8fafc",
@@ -158,14 +169,14 @@ const styles = StyleSheet.create({
   freshnessRow: {
     flexDirection: "row",
     alignItems: "center",
+    gap: 8,
     marginTop: 6,
-    marginBottom: 16,
+    marginBottom: 20,
   },
   dot: {
     width: 8,
     height: 8,
     borderRadius: 4,
-    marginRight: 6,
   },
   freshnessText: {
     color: "#94a3b8",
@@ -180,13 +191,10 @@ const styles = StyleSheet.create({
     backgroundColor: "#1e293b",
     paddingHorizontal: 12,
     paddingVertical: 6,
-    borderRadius: 16,
-    borderWidth: 1,
-    borderColor: "#334155",
+    borderRadius: 12,
   },
   activeChip: {
-    backgroundColor: "#0284c7",
-    borderColor: "#38bdf8",
+    backgroundColor: "#38bdf8",
   },
   chipText: {
     color: "#94a3b8",
@@ -194,20 +202,24 @@ const styles = StyleSheet.create({
     fontWeight: "600",
   },
   activeChipText: {
-    color: "#ffffff",
+    color: "#0f172a",
     fontWeight: "800",
   },
   sectionHeader: {
-    color: "#cbd5e1",
-    fontSize: 16,
-    fontWeight: "700",
-    marginTop: 16,
+    color: "#94a3b8",
+    fontSize: 13,
+    fontWeight: "800",
+    textTransform: "uppercase",
+    letterSpacing: 0.8,
+    marginTop: 24,
     marginBottom: 10,
   },
   tableCard: {
     backgroundColor: "#1e293b",
     borderRadius: 16,
     padding: 12,
+    borderWidth: 1,
+    borderColor: "#334155",
   },
   tableHeader: {
     flexDirection: "row",
@@ -223,12 +235,13 @@ const styles = StyleSheet.create({
   },
   tr: {
     flexDirection: "row",
-    paddingVertical: 6,
-    borderBottomWidth: 0.5,
-    borderBottomColor: "#334155",
+    paddingVertical: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: "#1e293b",
   },
   td: {
     color: "#f8fafc",
-    fontSize: 13,
+    fontSize: 12,
+    fontWeight: "600",
   },
 });

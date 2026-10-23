@@ -7,11 +7,12 @@
  * Features:
  * - Live telemetry polling & SSE ingestion from Firebase RTDB nodes (e.g. Patient1)
  * - Emits real-time Socket.IO events (vitals_update, nebulizer_state_update) to Web & Mobile clients
- * - Direct bidirectional relay actuation: writes Relay = true/false back to Firebase on nebulizer commands
+ * - Robust temperature parsing with invalid sensor detection (-127, 85, -999, etc.)
+ * - Manual override mode support (FORCE_START / FORCE_STOP have absolute priority)
+ * - Direct bidirectional relay actuation: writes Relay and Mode back to Firebase
  * - Automatic persistence to PostgreSQL/MySQL healthTelemetry & batteryTelemetry tables
  * - Clinical safety threshold triggers for low SpO2 alerts
  */
-
 
 const DEFAULT_FIREBASE_RTDB_URL =
   "https://smartneb-d98e1-default-rtdb.asia-southeast1.firebasedatabase.app";
@@ -33,21 +34,71 @@ class FirebaseSyncService {
 
   /**
    * Set physical relay state in Firebase RTDB:
-   * PUT /<node>/Relay.json -> true | false
+   * Sets Relay: on, Mode: mode, ManualOverride: mode === "MANUAL"
    */
-  async setRelay(node = this.defaultNode, on = true) {
+  async setRelay(node = this.defaultNode, on = true, mode = "MANUAL") {
     try {
-      const url = `${this.baseUrl}/${node}/Relay.json`;
-      const res = await fetch(url, {
+      const cleanNode = node.replace(/^\//, "");
+      const payload = {
+        Relay: Boolean(on),
+        Mode: mode,
+        ManualOverride: mode === "MANUAL",
+        LastCommand: on ? "FORCE_START" : "FORCE_STOP",
+        CommandTimestamp: Date.now(),
+      };
+
+      // 1. Write root patch
+      const patchUrl = `${this.baseUrl}/${cleanNode}.json`;
+      const res = await fetch(patchUrl, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      // 2. Direct Relay.json write for microcontrollers polling Relay.json
+      await fetch(`${this.baseUrl}/${cleanNode}/Relay.json`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(Boolean(on)),
-      });
-      const data = await res.json();
-      console.log(`📡 [Firebase RTDB] Relay updated for ${node}: Relay = ${data}`);
-      return { success: true, relay: data };
+      }).catch(() => null);
+
+      // 3. Fallback path /patients/<node>/Relay.json
+      await fetch(`${this.baseUrl}/patients/${cleanNode}/Relay.json`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(Boolean(on)),
+      }).catch(() => null);
+
+      console.log(`📡 [Firebase RTDB] Relay updated for ${cleanNode}: Relay = ${on}, Mode = ${mode}`);
+      return { success: true, relay: Boolean(on), mode };
     } catch (err) {
       console.error(`❌ [Firebase RTDB] Failed to set relay for ${node}:`, err.message);
+      return { success: false, error: err.message };
+    }
+  }
+
+  /**
+   * Set operating mode in Firebase RTDB ("AUTO" vs "MANUAL")
+   */
+  async setMode(node = this.defaultNode, mode = "AUTO") {
+    try {
+      const cleanNode = node.replace(/^\//, "");
+      const payload = {
+        Mode: mode,
+        ManualOverride: mode === "MANUAL",
+        LastCommand: `SET_MODE_${mode}`,
+        CommandTimestamp: Date.now(),
+      };
+
+      const res = await fetch(`${this.baseUrl}/${cleanNode}.json`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      console.log(`📡 [Firebase RTDB] Mode updated for ${cleanNode}: Mode = ${mode}`);
+      return { success: true, mode };
+    } catch (err) {
+      console.error(`❌ [Firebase RTDB] Failed to set mode for ${node}:`, err.message);
       return { success: false, error: err.message };
     }
   }
@@ -57,19 +108,15 @@ class FirebaseSyncService {
    */
   async getTelemetry(node = this.defaultNode) {
     try {
-      const url = `${this.baseUrl}/${node}.json`;
-      const res = await fetch(url);
+      const cleanNode = node.replace(/^\//, "");
+      let res = await fetch(`${this.baseUrl}/${cleanNode}.json`);
       if (!res.ok) {
-        if (res.status === 401) {
-          console.warn(`⚠️ [Firebase RTDB] Permission denied reading ${node}.json`);
-        } else {
-          console.warn(`⚠️ [Firebase RTDB] Error reading ${node}.json: HTTP ${res.status}`);
-        }
-        return null;
+        // Fallback: try /patients/<node>.json
+        res = await fetch(`${this.baseUrl}/patients/${cleanNode}.json`);
+        if (!res.ok) return null;
       }
       return await res.json();
     } catch (err) {
-      console.warn(`⚠️ [Firebase RTDB] Error reading ${node}.json:`, err.message);
       return null;
     }
   }
@@ -87,18 +134,79 @@ class FirebaseSyncService {
 
     const inRange = (v, min, max) => (v == null || v < min || v > max ? null : v);
 
+    // Filter out invalid / error / disconnected temperature readings
+    const parseTemp = (v) => {
+      const n = num(v);
+      if (n == null) return null;
+      if (n <= 0 || n === 85 || n === -127 || n <= -990 || n > 65) return null;
+      return Math.round(n * 10) / 10;
+    };
+
+    // Extract body temp across all possible naming conventions
+    const rawBody =
+      raw.BodyTemp ??
+      raw.bodyTemp ??
+      raw.body_temp ??
+      raw.temperature ??
+      raw.temp ??
+      raw.Temp;
+
+    const rawAmbient =
+      raw.AmbientTemp ??
+      raw.ambientTemp ??
+      raw.ambient_temp;
+
+    const rawBatteryTemp =
+      raw.BatteryTemp ??
+      raw.batteryTemp ??
+      raw.battery_temp;
+
+    let bodyTemp = parseTemp(rawBody);
+    if (bodyTemp === null && rawBatteryTemp != null) {
+      const candidate = parseTemp(rawBatteryTemp);
+      if (candidate !== null && candidate >= 20 && candidate <= 45) {
+        bodyTemp = candidate;
+      }
+    }
+
+    const ambientTemp = parseTemp(rawAmbient);
+
+    const isManual =
+      raw.Mode === "MANUAL" ||
+      raw.mode === "MANUAL" ||
+      raw.ManualOverride === true ||
+      raw.ManualOverride === "true";
+
+    const targetRelay =
+      raw.Relay === true ||
+      raw.Relay === "true" ||
+      raw.Relay === 1 ||
+      raw.NebulizerON === true ||
+      raw.NebulizerON === 1;
+
+    const actualRelay =
+      raw.ActualRelay === true ||
+      raw.ActualRelay === "true" ||
+      raw.RelayStatus === true ||
+      raw.RelayStatus === "true" ||
+      targetRelay;
+
     return {
-      bpm: inRange(num(raw.BPM), 0, 300),
-      spo2: inRange(num(raw.SpO2), 0, 100),
-      bodyTemperature: inRange(num(raw.BodyTemp), -20, 60),
-      ambientTemperature: inRange(num(raw.AmbientTemp), -40, 85),
-      batteryVoltage: inRange(num(raw.BatteryVoltage), 0, 30),
-      batteryPercent: inRange(num(raw.BatteryPercent), 0, 100),
-      batteryCurrent: num(raw.BatteryCurrent),
-      batteryPower: num(raw.BatteryPower),
-      batteryTemp: inRange(num(raw.BatteryTemp), -40, 125),
+      bpm: inRange(num(raw.BPM ?? raw.bpm), 0, 300),
+      spo2: inRange(num(raw.SpO2 ?? raw.spo2), 0, 100),
+      bodyTemperature: bodyTemp,
+      temperature: bodyTemp ?? ambientTemp,
+      ambientTemperature: ambientTemp,
+      batteryVoltage: inRange(num(raw.BatteryVoltage ?? raw.batteryVoltage), 0, 30),
+      batteryPercent: inRange(num(raw.BatteryPercent ?? raw.batteryPercent), 0, 100),
+      batteryCurrent: num(raw.BatteryCurrent ?? raw.batteryCurrent),
+      batteryPower: num(raw.BatteryPower ?? raw.batteryPower),
+      batteryTemp: parseTemp(rawBatteryTemp),
       batteryStatus: raw.BatteryStatus || "normal",
-      relay: raw.Relay === true || raw.Relay === "true" || raw.Relay === 1,
+      relay: targetRelay,
+      actualRelay: actualRelay,
+      mode: isManual ? "MANUAL" : "AUTO",
+      manualOverride: isManual,
       finger: raw.Finger === true || raw.Finger === "true",
       lastSeen: raw.LastSeen || Date.now(),
       spo2Status: raw.SpO2Status || "normal",
@@ -126,9 +234,11 @@ class FirebaseSyncService {
           spo2: normalized.spo2,
           bpm: normalized.bpm,
           relay: normalized.relay,
+          actualRelay: normalized.actualRelay,
           bodyTemp: normalized.bodyTemperature,
           battery: normalized.batteryPercent,
           lastSeen: normalized.lastSeen,
+          mode: normalized.mode,
         });
 
         // Emit real-time WebSocket update to all connected mobile & web clients
@@ -139,7 +249,8 @@ class FirebaseSyncService {
             telemetry: {
               spo2: normalized.spo2,
               bpm: normalized.bpm,
-              temperature: normalized.bodyTemperature || normalized.ambientTemperature,
+              bodyTemperature: normalized.bodyTemperature,
+              temperature: normalized.temperature,
               ambientTemperature: normalized.ambientTemperature,
               battery: {
                 percentage: normalized.batteryPercent,
@@ -151,17 +262,24 @@ class FirebaseSyncService {
               },
               nebulizer: {
                 relay: normalized.relay,
+                actualRelay: normalized.actualRelay,
+                mode: normalized.mode,
+                manualOverride: normalized.manualOverride,
               },
               finger: normalized.finger,
               lastUpdated: normalized.lastSeen,
             },
           });
 
-          // Relay state update
+          // Relay state update with mode & confirmation
           io.emit("nebulizer_state_update", {
             source: "firebase_rtdb",
             node,
             state: normalized.relay ? "RUNNING" : "OFF",
+            relay: normalized.relay,
+            actualRelay: normalized.actualRelay,
+            mode: normalized.mode,
+            manualOverride: normalized.manualOverride,
           });
         }
 

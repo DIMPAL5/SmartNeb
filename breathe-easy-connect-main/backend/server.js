@@ -1067,6 +1067,64 @@ app.post("/api/v1/devices/:id/command", authenticateToken, async (req, res) => {
   }
 });
 
+// Manual Override: Force Start Nebulizer
+app.post("/api/v1/nebulizer/force-start", async (req, res) => {
+  const node = req.body?.node || "Patient1";
+  try {
+    const result = await firebaseSyncService.setRelay(node, true, "MANUAL");
+    io.emit("nebulizer_state_update", {
+      source: "manual_override",
+      node,
+      state: "RUNNING",
+      relay: true,
+      actualRelay: true,
+      mode: "MANUAL",
+      manualOverride: true,
+    });
+    res.status(200).json({ status: "success", command: "FORCE_START", ...result });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Manual Override: Force Stop Nebulizer (Emergency Cutoff)
+app.post("/api/v1/nebulizer/force-stop", async (req, res) => {
+  const node = req.body?.node || "Patient1";
+  try {
+    const result = await firebaseSyncService.setRelay(node, false, "MANUAL");
+    io.emit("nebulizer_state_update", {
+      source: "manual_override",
+      node,
+      state: "OFF",
+      relay: false,
+      actualRelay: false,
+      mode: "MANUAL",
+      manualOverride: true,
+    });
+    res.status(200).json({ status: "success", command: "FORCE_STOP", ...result });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Toggle Nebulizer Mode (AUTO vs MANUAL)
+app.post("/api/v1/nebulizer/mode", async (req, res) => {
+  const node = req.body?.node || "Patient1";
+  const mode = req.body?.mode === "MANUAL" ? "MANUAL" : "AUTO";
+  try {
+    const result = await firebaseSyncService.setMode(node, mode);
+    io.emit("nebulizer_state_update", {
+      source: "mode_change",
+      node,
+      mode,
+      manualOverride: mode === "MANUAL",
+    });
+    res.status(200).json({ status: "success", mode, ...result });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 /* -------------------------------------------------------------------------- */
 /*                                 TELEMETRY                                  */
 /* -------------------------------------------------------------------------- */

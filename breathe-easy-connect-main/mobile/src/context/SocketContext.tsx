@@ -5,16 +5,28 @@ import { getActiveApiUrl } from "../api/client";
 import {
   subscribeFirebaseTelemetry,
   setFirebaseRelay,
+  setFirebaseMode,
   FirebaseTelemetryData,
 } from "../utils/firebaseTelemetry";
+
+export interface NebulizerControlState {
+  source: string;
+  state: "OFF" | "RUNNING" | "STARTING" | "PAUSED" | "COMPLETED";
+  relay: boolean;
+  actualRelay: boolean;
+  mode: "AUTO" | "MANUAL";
+  manualOverride: boolean;
+  deviceId?: string;
+}
 
 interface SocketContextType {
   socket: Socket | null;
   isConnected: boolean;
   latestVitalsUpdate: any;
   emergencyAlert: any;
-  nebulizerState: any;
-  setNebulizerRelay: (on: boolean) => Promise<boolean>;
+  nebulizerState: NebulizerControlState | null;
+  setNebulizerRelay: (on: boolean, mode?: "AUTO" | "MANUAL") => Promise<boolean>;
+  setNebulizerMode: (mode: "AUTO" | "MANUAL") => Promise<boolean>;
 }
 
 const SocketContext = createContext<SocketContextType>({} as SocketContextType);
@@ -25,7 +37,7 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   const [isConnected, setIsConnected] = useState(false);
   const [latestVitalsUpdate, setLatestVitalsUpdate] = useState<any>(null);
   const [emergencyAlert, setEmergencyAlert] = useState<any>(null);
-  const [nebulizerState, setNebulizerState] = useState<any>(null);
+  const [nebulizerState, setNebulizerState] = useState<NebulizerControlState | null>(null);
 
   // 1. Direct Firebase Realtime Database live stream for ESP32 hardware
   useEffect(() => {
@@ -35,22 +47,27 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         telemetry: {
           spo2: telemetry.spo2 !== null ? telemetry.spo2 : prev?.telemetry?.spo2,
           bpm: telemetry.bpm !== null ? telemetry.bpm : prev?.telemetry?.bpm,
-          temperature:
-            telemetry.bodyTemperature || telemetry.ambientTemperature || prev?.telemetry?.temperature,
+          bodyTemperature: telemetry.bodyTemperature,
+          temperature: telemetry.temperature,
           ambientTemperature: telemetry.ambientTemperature,
           battery: telemetry.battery,
           nebulizer: telemetry.nebulizer,
           finger: telemetry.finger,
           lastUpdated: telemetry.lastUpdated,
+          online: telemetry.online,
         },
       }));
 
-      setNebulizerState({
+      setNebulizerState((prev) => ({
         source: "firebase_rtdb",
         state: telemetry.nebulizer.relay ? "RUNNING" : "OFF",
         relay: telemetry.nebulizer.relay,
-      });
-    }, "Patient1", 3000);
+        actualRelay: telemetry.nebulizer.actualRelay,
+        mode: telemetry.nebulizer.mode,
+        manualOverride: telemetry.nebulizer.manualOverride,
+        deviceId: prev?.deviceId,
+      }));
+    }, "Patient1", 2500);
 
     return () => unsubscribeFirebase();
   }, []);
@@ -85,7 +102,12 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     });
 
     newSocket.on("nebulizer_state_update", (data) => {
-      setNebulizerState(data);
+      setNebulizerState((prev) => ({
+        ...prev,
+        ...data,
+        state: data.state || (data.relay ? "RUNNING" : "OFF"),
+        relay: data.relay !== undefined ? data.relay : data.state === "RUNNING",
+      }));
     });
 
     setSocket(newSocket);
@@ -95,8 +117,32 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     };
   }, [user?.patientId]);
 
-  const handleSetRelay = async (on: boolean): Promise<boolean> => {
-    return await setFirebaseRelay(on, "Patient1");
+  const handleSetRelay = async (on: boolean, mode: "AUTO" | "MANUAL" = "MANUAL"): Promise<boolean> => {
+    const success = await setFirebaseRelay(on, "Patient1", mode);
+    if (success) {
+      setNebulizerState((prev) => ({
+        source: "manual_override",
+        state: on ? "RUNNING" : "OFF",
+        relay: on,
+        actualRelay: on,
+        mode: mode,
+        manualOverride: mode === "MANUAL",
+        deviceId: prev?.deviceId,
+      }));
+    }
+    return success;
+  };
+
+  const handleSetMode = async (mode: "AUTO" | "MANUAL"): Promise<boolean> => {
+    const success = await setFirebaseMode(mode, "Patient1");
+    if (success) {
+      setNebulizerState((prev: any) => ({
+        ...prev,
+        mode,
+        manualOverride: mode === "MANUAL",
+      }));
+    }
+    return success;
   };
 
   return (
@@ -108,6 +154,7 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         emergencyAlert,
         nebulizerState,
         setNebulizerRelay: handleSetRelay,
+        setNebulizerMode: handleSetMode,
       }}
     >
       {children}

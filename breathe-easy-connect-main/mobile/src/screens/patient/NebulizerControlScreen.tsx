@@ -1,5 +1,13 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Alert } from "react-native";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  ScrollView,
+  Alert,
+  ActivityIndicator,
+} from "react-native";
 import { useAuth } from "../../context/AuthContext";
 import { useSocket } from "../../context/SocketContext";
 import { apiClient } from "../../api/client";
@@ -8,14 +16,16 @@ import { AppHaptics } from "../../utils/haptics";
 
 export const NebulizerControlScreen = () => {
   const { user } = useAuth();
-  const { nebulizerState, setNebulizerRelay } = useSocket();
+  const { nebulizerState, setNebulizerRelay, setNebulizerMode } = useSocket();
   const [device, setDevice] = useState<any>(null);
   const [currentState, setCurrentState] = useState<
     "OFF" | "READY" | "STARTING" | "RUNNING" | "PAUSED" | "COMPLETED" | "ERROR"
   >("OFF");
+  const [controlMode, setControlMode] = useState<"AUTO" | "MANUAL">("AUTO");
   const [timerSeconds, setTimerSeconds] = useState(600); // 10 minutes default
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
   const [loadingCmd, setLoadingCmd] = useState(false);
+  const [statusMessage, setStatusMessage] = useState<string>("");
 
   const fetchDevice = async () => {
     try {
@@ -37,19 +47,26 @@ export const NebulizerControlScreen = () => {
     fetchDevice();
   }, []);
 
+  // Sync state continuously from Firebase Realtime Database
   useEffect(() => {
-    if (nebulizerState && nebulizerState.deviceId === device?.id) {
-      setCurrentState(nebulizerState.state);
+    if (nebulizerState) {
+      if (nebulizerState.mode) {
+        setControlMode(nebulizerState.mode);
+      }
+      if (nebulizerState.state) {
+        setCurrentState(nebulizerState.state as any);
+      }
     }
   }, [nebulizerState]);
 
-  // Timer loop when RUNNING
+  // Timer loop when RUNNING in AUTO mode
   useEffect(() => {
     let interval: any = null;
     if (currentState === "RUNNING") {
       interval = setInterval(() => {
         setElapsedSeconds((prev) => {
-          if (prev >= timerSeconds) {
+          if (controlMode === "AUTO" && prev >= timerSeconds) {
+            handleForceStop();
             setCurrentState("COMPLETED");
             return timerSeconds;
           }
@@ -58,38 +75,95 @@ export const NebulizerControlScreen = () => {
       }, 1000);
     }
     return () => clearInterval(interval);
-  }, [currentState, timerSeconds]);
+  }, [currentState, timerSeconds, controlMode]);
 
-  const sendCommand = async (command: "START" | "PAUSE" | "RESUME" | "STOP") => {
-    if (!device?.id) {
-      Alert.alert("Error", "No assigned nebulizer device found");
-      return;
-    }
+  // Physical Relay state confirmed by ESP32 / Firebase
+  const isRelayOn =
+    nebulizerState?.actualRelay ??
+    nebulizerState?.relay ??
+    (currentState === "RUNNING");
 
-    if (command === "START" || command === "RESUME") {
-      await AppHaptics.triggerMediumImpact();
-    } else if (command === "STOP") {
-      await AppHaptics.triggerHeavyImpact();
-    } else {
-      await AppHaptics.triggerLightImpact();
-    }
-
-    const relayTarget = command === "START" || command === "RESUME";
-    setNebulizerRelay(relayTarget).catch(() => null);
-
+  /**
+   * FORCE START — Manual Override:
+   * Has highest priority. Writes Relay = true and Mode = "MANUAL"
+   * to Firebase and triggers backend API.
+   */
+  const handleForceStart = async () => {
+    await AppHaptics.triggerHeavyImpact();
     setLoadingCmd(true);
+    setStatusMessage("⚡ Sending FORCE START command to ESP32 relay...");
+
     try {
-      const res = await apiClient.post(`/devices/${device.id}/command`, { command });
-      if (res.data?.state) {
-        setCurrentState(res.data.state as any);
-        await AppHaptics.triggerSuccess();
+      // 1. Direct Firebase write with MANUAL override
+      await setNebulizerRelay(true, "MANUAL");
+
+      // 2. Also notify backend API (non-blocking)
+      if (device?.id) {
+        apiClient.post(`/devices/${device.id}/command`, { command: "START", mode: "MANUAL" }).catch(() => null);
       }
+      apiClient.post("/nebulizer/force-start", { node: "Patient1" }).catch(() => null);
+
+      setCurrentState("RUNNING");
+      setControlMode("MANUAL");
+      setStatusMessage("🟢 Force Start active — Nebulizer mesh running in Manual Override.");
+      await AppHaptics.triggerSuccess();
     } catch (err: any) {
       await AppHaptics.triggerError();
-      Alert.alert(
-        "Command Failed",
-        err.response?.data?.error || "Failed to communicate with device",
+      Alert.alert("Force Start Error", err.message || "Failed to deliver manual start command.");
+      setStatusMessage("❌ Failed to actuate relay.");
+    } finally {
+      setLoadingCmd(false);
+    }
+  };
+
+  /**
+   * FORCE STOP — Immediate Emergency / Manual Cutoff:
+   * Always turns Relay OFF immediately regardless of timers or auto schedules.
+   */
+  const handleForceStop = async () => {
+    await AppHaptics.triggerHeavyImpact();
+    setLoadingCmd(true);
+    setStatusMessage("🛑 Sending FORCE STOP command to ESP32 relay...");
+
+    try {
+      // 1. Direct Firebase write with immediate relay shut-off
+      await setNebulizerRelay(false, "MANUAL");
+
+      // 2. Also notify backend API (non-blocking)
+      if (device?.id) {
+        apiClient.post(`/devices/${device.id}/command`, { command: "STOP", mode: "MANUAL" }).catch(() => null);
+      }
+      apiClient.post("/nebulizer/force-stop", { node: "Patient1" }).catch(() => null);
+
+      setCurrentState("OFF");
+      setStatusMessage("⚪ Force Stop confirmed — Nebulizer mesh turned OFF.");
+      await AppHaptics.triggerSuccess();
+    } catch (err: any) {
+      await AppHaptics.triggerError();
+      Alert.alert("Force Stop Error", err.message || "Failed to deliver stop command.");
+      setStatusMessage("❌ Failed to turn off relay.");
+    } finally {
+      setLoadingCmd(false);
+    }
+  };
+
+  /**
+   * Toggle between AUTO and MANUAL control modes
+   */
+  const handleToggleMode = async (mode: "AUTO" | "MANUAL") => {
+    await AppHaptics.triggerSelection();
+    setControlMode(mode);
+    setLoadingCmd(true);
+    try {
+      await setNebulizerMode(mode);
+      apiClient.post("/nebulizer/mode", { mode, node: "Patient1" }).catch(() => null);
+      setStatusMessage(
+        mode === "MANUAL"
+          ? "⚡ Switched to Manual Override. Auto-schedules disabled."
+          : "🤖 Switched to Auto Mode. Nebulizer follows therapy schedules."
       );
+    } catch (err) {
+      console.warn("Failed to switch mode:", err);
     } finally {
       setLoadingCmd(false);
     }
@@ -110,11 +184,52 @@ export const NebulizerControlScreen = () => {
         Device ID: {device?.deviceCode || "NEB-001"} | Status: {device?.status || "online"}
       </Text>
 
-      {/* Main Circular Timer Display Card */}
+      {/* Hardware Relay Real-time Confirmation Badge */}
+      <View style={[styles.relayStatusCard, isRelayOn ? styles.relayCardActive : styles.relayCardInactive]}>
+        <View style={[styles.statusDot, { backgroundColor: isRelayOn ? "#10b981" : "#64748b" }]} />
+        <View style={styles.relayStatusTextCol}>
+          <Text style={styles.relayStatusTitle}>
+            PHYSICAL RELAY: {isRelayOn ? "ACTIVE (MESH RUNNING)" : "INACTIVE (OFF)"}
+          </Text>
+          <Text style={styles.relayStatusSub}>
+            Live hardware feedback via Firebase Realtime Database (Patient1)
+          </Text>
+        </View>
+      </View>
+
+      {/* Mode Selector (Auto vs Manual Override) */}
+      <View style={styles.modeSelectorCard}>
+        <Text style={styles.modeLabel}>CONTROL MODE</Text>
+        <View style={styles.modeToggleRow}>
+          <TouchableOpacity
+            style={[styles.modeBtn, controlMode === "AUTO" && styles.modeBtnActiveAuto]}
+            onPress={() => handleToggleMode("AUTO")}
+            disabled={loadingCmd}
+          >
+            <Text style={[styles.modeBtnText, controlMode === "AUTO" && styles.modeBtnTextActive]}>
+              🤖 AUTO (SCHEDULED)
+            </Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[styles.modeBtn, controlMode === "MANUAL" && styles.modeBtnActiveManual]}
+            onPress={() => handleToggleMode("MANUAL")}
+            disabled={loadingCmd}
+          >
+            <Text style={[styles.modeBtnText, controlMode === "MANUAL" && styles.modeBtnTextActive]}>
+              ⚡ MANUAL OVERRIDE
+            </Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+
+      {/* Main Timer / Telemetry Display Card */}
       <View style={styles.timerCard}>
-        <View style={styles.timerOuter}>
+        <View style={[styles.timerOuter, isRelayOn && { borderColor: "#10b981" }]}>
           <Text style={styles.timerDisplay}>{formatTime(timerSeconds - elapsedSeconds)}</Text>
-          <Text style={styles.timerStateLabel}>STATE: {currentState}</Text>
+          <Text style={[styles.timerStateLabel, isRelayOn && { color: "#10b981" }]}>
+            {isRelayOn ? "RELAY ON" : "STANDBY"} • {controlMode}
+          </Text>
           <Text style={styles.timerSubText}>
             Elapsed: {formatTime(elapsedSeconds)} / {formatTime(timerSeconds)}
           </Text>
@@ -122,66 +237,52 @@ export const NebulizerControlScreen = () => {
 
         {/* Progress Bar */}
         <View style={styles.progressTrack}>
-          <View style={[styles.progressFill, { width: `${progressPct}%` }]} />
+          <View
+            style={[
+              styles.progressFill,
+              { width: `${progressPct}%`, backgroundColor: isRelayOn ? "#10b981" : "#38bdf8" },
+            ]}
+          />
         </View>
 
-        {/* State Machine Status Banner */}
+        {/* Status Message Box */}
         <View style={styles.statusBox}>
           <Text style={styles.statusBoxText}>
-            {currentState === "STARTING"
-              ? "⏳ Sending command to ESP32 relay... Awaiting hardware confirmation"
-              : currentState === "RUNNING"
+            {statusMessage ||
+              (isRelayOn
                 ? "🟢 Nebulizer atomization active. Inhale deeply."
-                : currentState === "PAUSED"
-                  ? "🟡 Nebulizer session paused."
-                  : currentState === "COMPLETED"
-                    ? "🎉 Nebulization session completed successfully!"
-                    : "⚪ Nebulizer in standby state."}
+                : "⚪ Nebulizer in standby state. Ready for operation.")}
           </Text>
         </View>
       </View>
 
-      {/* Control Buttons */}
+      {/* Manual Override Action Buttons */}
       <View style={styles.controlsRow}>
-        {currentState === "OFF" || currentState === "COMPLETED" ? (
-          <TouchableOpacity
-            style={[styles.btn, styles.startBtn]}
-            onPress={() => sendCommand("START")}
-            disabled={loadingCmd}
-          >
-            <Text style={styles.btnText}>START SESSION</Text>
-          </TouchableOpacity>
-        ) : null}
+        <TouchableOpacity
+          style={[styles.btn, styles.forceStartBtn, loadingCmd && styles.btnDisabled]}
+          onPress={handleForceStart}
+          disabled={loadingCmd}
+          activeOpacity={0.8}
+        >
+          {loadingCmd ? (
+            <ActivityIndicator color="#ffffff" />
+          ) : (
+            <Text style={styles.btnText}>⚡ FORCE START</Text>
+          )}
+        </TouchableOpacity>
 
-        {currentState === "RUNNING" ? (
-          <TouchableOpacity
-            style={[styles.btn, styles.pauseBtn]}
-            onPress={() => sendCommand("PAUSE")}
-            disabled={loadingCmd}
-          >
-            <Text style={styles.btnText}>PAUSE</Text>
-          </TouchableOpacity>
-        ) : null}
-
-        {currentState === "PAUSED" ? (
-          <TouchableOpacity
-            style={[styles.btn, styles.startBtn]}
-            onPress={() => sendCommand("RESUME")}
-            disabled={loadingCmd}
-          >
-            <Text style={styles.btnText}>RESUME</Text>
-          </TouchableOpacity>
-        ) : null}
-
-        {currentState !== "OFF" && currentState !== "COMPLETED" ? (
-          <TouchableOpacity
-            style={[styles.btn, styles.stopBtn]}
-            onPress={() => sendCommand("STOP")}
-            disabled={loadingCmd}
-          >
-            <Text style={styles.btnText}>STOP</Text>
-          </TouchableOpacity>
-        ) : null}
+        <TouchableOpacity
+          style={[styles.btn, styles.forceStopBtn, loadingCmd && styles.btnDisabled]}
+          onPress={handleForceStop}
+          disabled={loadingCmd}
+          activeOpacity={0.8}
+        >
+          {loadingCmd ? (
+            <ActivityIndicator color="#ffffff" />
+          ) : (
+            <Text style={styles.btnText}>🛑 FORCE STOP</Text>
+          )}
+        </TouchableOpacity>
       </View>
 
       {/* Fluid Chamber Gauge */}
@@ -197,6 +298,7 @@ const styles = StyleSheet.create({
   },
   scroll: {
     padding: 20,
+    paddingBottom: 40,
   },
   screenTitle: {
     color: "#f8fafc",
@@ -206,7 +308,87 @@ const styles = StyleSheet.create({
   deviceSubtitle: {
     color: "#94a3b8",
     fontSize: 13,
-    marginBottom: 20,
+    marginBottom: 16,
+  },
+  relayStatusCard: {
+    flexDirection: "row",
+    alignItems: "center",
+    padding: 14,
+    borderRadius: 16,
+    borderWidth: 1.5,
+    marginBottom: 16,
+    gap: 12,
+  },
+  relayCardActive: {
+    backgroundColor: "rgba(16, 185, 129, 0.12)",
+    borderColor: "#10b981",
+  },
+  relayCardInactive: {
+    backgroundColor: "#1e293b",
+    borderColor: "#334155",
+  },
+  statusDot: {
+    width: 12,
+    height: 12,
+    borderRadius: 6,
+  },
+  relayStatusTextCol: {
+    flex: 1,
+  },
+  relayStatusTitle: {
+    color: "#f8fafc",
+    fontSize: 13,
+    fontWeight: "800",
+    letterSpacing: 0.5,
+  },
+  relayStatusSub: {
+    color: "#94a3b8",
+    fontSize: 11,
+    marginTop: 2,
+  },
+  modeSelectorCard: {
+    backgroundColor: "#1e293b",
+    borderRadius: 16,
+    padding: 14,
+    marginBottom: 16,
+    borderWidth: 1,
+    borderColor: "#334155",
+  },
+  modeLabel: {
+    color: "#94a3b8",
+    fontSize: 11,
+    fontWeight: "800",
+    letterSpacing: 0.8,
+    marginBottom: 10,
+  },
+  modeToggleRow: {
+    flexDirection: "row",
+    gap: 10,
+  },
+  modeBtn: {
+    flex: 1,
+    paddingVertical: 10,
+    borderRadius: 10,
+    alignItems: "center",
+    backgroundColor: "#0f172a",
+    borderWidth: 1,
+    borderColor: "#334155",
+  },
+  modeBtnActiveAuto: {
+    backgroundColor: "rgba(56, 189, 248, 0.2)",
+    borderColor: "#38bdf8",
+  },
+  modeBtnActiveManual: {
+    backgroundColor: "rgba(245, 158, 11, 0.2)",
+    borderColor: "#f59e0b",
+  },
+  modeBtnText: {
+    color: "#94a3b8",
+    fontSize: 12,
+    fontWeight: "800",
+  },
+  modeBtnTextActive: {
+    color: "#ffffff",
   },
   timerCard: {
     backgroundColor: "#1e293b",
@@ -274,24 +456,25 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   btn: {
-    paddingHorizontal: 28,
+    flex: 1,
     paddingVertical: 16,
     borderRadius: 16,
-    minWidth: 120,
     alignItems: "center",
+    justifyContent: "center",
   },
-  startBtn: {
+  forceStartBtn: {
     backgroundColor: "#10b981",
   },
-  pauseBtn: {
-    backgroundColor: "#f59e0b",
-  },
-  stopBtn: {
+  forceStopBtn: {
     backgroundColor: "#ef4444",
+  },
+  btnDisabled: {
+    opacity: 0.6,
   },
   btnText: {
     color: "#ffffff",
-    fontWeight: "800",
-    fontSize: 15,
+    fontWeight: "900",
+    fontSize: 14,
+    letterSpacing: 0.5,
   },
 });

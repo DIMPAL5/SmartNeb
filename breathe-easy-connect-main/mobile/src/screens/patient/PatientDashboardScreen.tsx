@@ -204,9 +204,9 @@ export const PatientDashboardScreen = ({ navigation }: any) => {
             <VitalsCard
               label="Body Temperature"
               type="temp"
-              value={latest.bodyTemperature || 36.8}
+              value={latest.bodyTemperature ?? latest.temperature ?? null}
               unit="°C"
-              subtext="Thermal Equilibrium"
+              subtext={(latest.bodyTemperature ?? latest.temperature) != null ? "Thermal Equilibrium" : "Sensor not detected"}
             />
           </>
         )}
